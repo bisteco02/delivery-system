@@ -1,0 +1,1222 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="/styles/output.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <title>Painel de Pedidos - Admin</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        .pedido-card {
+            border-left: 4px solid #ccc;
+        }
+        .pedido-card.pendente {
+            border-left-color: #f59e0b;
+        }
+        .pedido-card.confirmado {
+            border-left-color: #10b981;
+        }
+        .pedido-card.entregue {
+            border-left-color: #3b82f6;
+        }
+        .pedido-card.cancelado {
+            border-left-color: #ef4444;
+        }
+        /* Toggle Switch */
+        .toggle-checkbox:checked {
+            background-color: #3b82f6;
+            border-color: #3b82f6;
+        }
+        .toggle-checkbox {
+            appearance: none;
+            width: 40px;
+            height: 20px;
+            background-color: #d1d5db;
+            border-radius: 9999px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .toggle-checkbox::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 16px;
+            height: 16px;
+            background-color: white;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+        .toggle-checkbox:checked::after {
+            transform: translateX(20px);
+        }
+        /* Botões de filtro ativos */
+        .filter-btn.active {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        /* Botões de categoria do cardápio */
+        .category-btn {
+            transition: all 0.3s ease;
+        }
+        .category-btn.active {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(239, 68, 68, 0.3);
+        }
+    </style>
+    <script>
+        // Ocultar todas as abas exceto a salva ANTES de qualquer renderização
+        (() => {
+            const abaSalva = localStorage.getItem('abaPainelAtiva');
+            const allTabs = document.querySelectorAll('.tab-section');
+            const allBtns = document.querySelectorAll('.tab-btn');
+            
+            if (abaSalva) {
+                allTabs.forEach(tab => {
+                    if (tab.id !== abaSalva) {
+                        tab.classList.add('hidden');
+                    }
+                });
+                allBtns.forEach(btn => {
+                    if (btn.dataset.tab !== abaSalva) {
+                        btn.classList.remove('active', 'bg-zinc-900', 'text-white');
+                        btn.classList.add('bg-gray-200');
+                    } else {
+                        btn.classList.add('active', 'bg-zinc-900', 'text-white');
+                        btn.classList.remove('bg-gray-200');
+                    }
+                });
+                console.log('⚡ CSS pré-renderização aplicado para aba:', abaSalva);
+            }
+        })();
+    </script>
+</head>
+<body class="bg-gray-100">
+    <header class="w-full bg-zinc-900 py-4 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 flex justify-between items-center">
+            <h1 id="header-title" class="text-2xl font-bold text-white" data-default="📦 Painel de Pedidos">📦 Painel de Pedidos</h1>
+            <div class="flex gap-4">
+                <button id="refresh-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition">
+                    <i class="fa fa-refresh"></i> Atualizar
+                </button>
+                <a id="back-to-site" href="index.html" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition">
+                    Voltar ao Site
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-8">
+        <div class="sticky top-0 bg-gray-100 z-40 mb-6 pb-4 flex gap-3 flex-wrap border-b border-gray-300">
+            <button class="tab-btn active bg-zinc-900 text-white px-4 py-2 rounded" data-tab="tab-dashboard">Início</button>
+            <button class="tab-btn bg-gray-200 px-4 py-2 rounded" data-tab="tab-pedidos">Ver pedidos</button>
+            <button class="tab-btn bg-gray-200 px-4 py-2 rounded" data-tab="tab-itens">Meus itens</button>
+            <button class="tab-btn bg-gray-200 px-4 py-2 rounded" data-tab="tab-categorias">Meu plano</button>
+            <button class="tab-btn bg-gray-200 px-4 py-2 rounded" data-tab="tab-pagamentos">Meus dados</button>
+            <button class="tab-btn bg-gray-200 px-4 py-2 rounded" data-tab="tab-config">Configurações</button>
+            <button class="tab-btn bg-gray-200 px-4 py-2 rounded" data-tab="tab-promotions">Promoções</button>
+            <button class="tab-btn bg-gray-200 px-4 py-2 rounded" data-tab="tab-relatorios">Relatórios</button>
+        </div>
+        <!-- Dashboard / Cardápio -->
+        <section id="tab-dashboard" class="tab-section">
+            <!-- Cardápio Digital -->
+            <div class="bg-white p-6 rounded-lg shadow mb-6">
+                <h2 class="text-2xl font-bold mb-4">📋 Cardápio Digital</h2>
+                <p class="text-gray-600 mb-4">Visualização do cardápio para clientes</p>
+                
+                <!-- Filtros de Categoria -->
+                <div id="category-view-filters" class="flex flex-wrap gap-2 mb-6">
+                    <button class="category-view-btn active px-4 py-2 rounded-lg bg-red-500 text-white font-semibold" data-cat="all">
+                        <i class="fa fa-th"></i> Todos
+                    </button>
+                    <!-- Categorias serão carregadas dinamicamente -->
+                </div>
+
+                <!-- Grid de Visualização do Cardápio -->
+                <div id="cardapio-view-grid" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <!-- Itens serão carregados via JavaScript -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Ver pedidos -->
+        <section id="tab-pedidos" class="tab-section hidden">
+            <div class="bg-white p-4 rounded-lg shadow mb-4">
+                <!-- Filtros de status -->
+                <div class="flex flex-wrap gap-2 mb-4">
+                    <button class="filter-btn px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 active transition-all font-medium" data-status="todos">✅ Todos</button>
+                    <button class="filter-btn px-4 py-2 rounded-lg bg-yellow-100 text-yellow-800 hover:bg-yellow-600 hover:text-white transition-all font-medium" data-status="pendente">⏳ Pendentes</button>
+                    <button class="filter-btn px-4 py-2 rounded-lg bg-green-100 text-green-800 hover:bg-green-600 hover:text-white transition-all font-medium" data-status="confirmado">✔️ Confirmados</button>
+                    <button class="filter-btn px-4 py-2 rounded-lg bg-purple-100 text-purple-800 hover:bg-purple-600 hover:text-white transition-all font-medium" data-status="pronto">🎉 Prontos</button>
+                    <button class="filter-btn px-4 py-2 rounded-lg bg-indigo-100 text-indigo-800 hover:bg-indigo-600 hover:text-white transition-all font-medium" data-status="a_caminho">🛵 A Caminho</button>
+                    <button class="filter-btn px-4 py-2 rounded-lg bg-blue-100 text-blue-800 hover:bg-blue-600 hover:text-white transition-all font-medium" data-status="entregue">🚚 Entregues</button>
+                    <button class="filter-btn px-4 py-2 rounded-lg bg-red-100 text-red-800 hover:bg-red-600 hover:text-white transition-all font-medium" data-status="cancelado">❌ Cancelados</button>
+                </div>
+
+                <!-- Filtros e busca -->
+                <div class="flex flex-wrap gap-3 items-center">
+                    <select id="filter-pagamento" class="border rounded-lg px-3 py-2 bg-white hover:border-blue-500 transition cursor-pointer">
+                        <option value="todos">💳 Todos pagamentos</option>
+                        <option value="dinheiro">Dinheiro</option>
+                        <option value="cartao">Cartão</option>
+                        <option value="pix">Pix</option>
+                    </select>
+
+                    <select id="filter-tipo" class="border rounded-lg px-3 py-2 bg-white hover:border-blue-500 transition cursor-pointer">
+                        <option value="todos">🚚 Todos tipos</option>
+                        <option value="delivery">Delivery</option>
+                        <option value="retirada">Retirada</option>
+                    </select>
+
+                    <input id="search-term" type="text" placeholder="Buscar por nome ou WhatsApp..." class="border rounded-lg px-3 py-2 flex-1 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition" style="min-width: 200px;" />
+
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input id="toggle-auto-refresh" type="checkbox" class="toggle-checkbox" />
+                        <span class="text-sm font-medium">🔄 Auto atualizar</span>
+                    </label>
+
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input id="toggle-som" type="checkbox" class="toggle-checkbox" />
+                        <span class="text-sm font-medium">🔔 Som</span>
+                    </label>
+
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input id="toggle-auto-confirmar" type="checkbox" class="toggle-checkbox" />
+                        <span class="text-sm font-medium">✅ Auto confirmar</span>
+                    </label>
+                </div>
+            </div>
+
+            <div id="loading" class="bg-white p-6 rounded shadow text-center text-gray-600 hidden">Carregando pedidos...</div>
+
+            <div id="empty-state" class="bg-white p-6 rounded shadow text-center text-gray-600 hidden">
+                Nenhum pedido encontrado.
+            </div>
+
+            <div id="pedidos-container" class="grid gap-4 hidden"></div>
+        </section>
+
+        <!-- Meus itens -->
+        <section id="tab-itens" class="tab-section hidden">
+            <div class="bg-white p-6 rounded-lg shadow mb-6">
+                <div class="flex justify-between items-center mb-4">
+                    <div>
+                        <h2 class="text-2xl font-bold mb-2">🛠️ Gerenciar Itens</h2>
+                        <p class="text-gray-600">Edite e remova itens do cardápio</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button id="manage-categories-btn" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition font-semibold flex items-center gap-2">
+                            <i class="fa fa-folder-open"></i> Gerenciar Categorias
+                        </button>
+                        <button id="add-item-btn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition font-semibold flex items-center gap-2">
+                            <i class="fa fa-plus"></i> Adicionar Item
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Filtros de Categoria -->
+                <div id="category-filters-container" class="flex flex-wrap gap-2 mb-6">
+                    <button class="category-edit-btn active px-4 py-2 rounded-lg bg-red-500 text-white font-semibold" data-cat="all">
+                        <i class="fa fa-th"></i> Todos
+                    </button>
+                    <!-- Categorias serão carregadas dinamicamente -->
+                </div>
+
+                <!-- Grid de Edição do Cardápio -->
+                <div id="cardapio-edit-grid" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <!-- Itens serão carregados via JavaScript -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Meu plano -->
+        <section id="tab-categorias" class="tab-section hidden">
+            <div class="max-w-2xl mx-auto">
+                <!-- Plano Contratado -->
+                <div class="bg-white p-6 rounded shadow mb-6">
+                    <h2 class="text-2xl font-bold mb-4">Meu Plano</h2>
+                    <div class="border-2 border-blue-500 rounded-lg p-6 relative bg-blue-50">
+                        <div class="absolute top-0 right-0 bg-blue-500 text-white px-3 py-1 rounded-bl-lg text-xs font-bold">PLANO ATIVO</div>
+                        <h3 class="font-bold text-2xl mb-2">Plano Pro</h3>
+                        <p class="text-3xl font-bold text-green-600 mb-4">R$ 99<span class="text-lg">/mês</span></p>
+                        
+                        <div class="mb-6 space-y-3">
+                            <p class="text-gray-700"><strong>Período:</strong> 21 de janeiro a 21 de fevereiro de 2026</p>
+                            <p class="text-gray-700"><strong>Próxima cobrança:</strong> 21 de fevereiro de 2026</p>
+                            <p class="text-gray-700"><strong>Status:</strong> <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold">Ativo</span></p>
+                        </div>
+
+                        <div class="border-t pt-4">
+                            <h4 class="font-bold text-lg mb-3">Inclusos no plano:</h4>
+                            <ul class="text-gray-700 space-y-2">
+                                <li class="flex items-center gap-2"><span class="text-green-600">✅</span> Produtos ilimitados</li>
+                                <li class="flex items-center gap-2"><span class="text-green-600">✅</span> Pedidos sem limite</li>
+                                <li class="flex items-center gap-2"><span class="text-green-600">✅</span> Relatórios de vendas</li>
+                                <li class="flex items-center gap-2"><span class="text-green-600">✅</span> Gerenciamento de clientes</li>
+                                <li class="flex items-center gap-2"><span class="text-green-600">✅</span> Suporte técnico</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dados de Pagamento -->
+                <div class="bg-white p-6 rounded shadow">
+                    <h3 class="text-2xl font-bold mb-4">💳 Dados de Cobrança</h3>
+                    
+                    <form id="payment-form" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Número do Cartão</label>
+                            <input type="text" id="card-number" placeholder="0000 0000 0000 0000" maxlength="19" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition" />
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Validade (MM/AA)</label>
+                                <input type="text" id="card-expiry" placeholder="12/26" maxlength="5" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition" />
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">CVV</label>
+                                <input type="text" id="card-cvv" placeholder="123" maxlength="4" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition" />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Nome do Titular</label>
+                            <input type="text" id="card-holder" placeholder="Digite o nome exatamente como aparece no cartão" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition" />
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Email para recibos</label>
+                            <input type="email" id="billing-email" placeholder="seu@email.com" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition" />
+                        </div>
+
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-gray-700">
+                            <p class="mb-2"><strong>🔒 Segurança:</strong> Seus dados de cartão são criptografados e protegidos.</p>
+                            <p><strong>📄 Recibos:</strong> Você receberá um recibo em seu email a cada cobrança.</p>
+                        </div>
+
+                        <button type="button" onclick="abrirModalConfirmacao()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition">
+                            💾 Salvar Dados de Pagamento
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+                <!-- Meus dados -->
+                <section id="tab-pagamentos" class="tab-section hidden">
+            <div class="bg-white p-6 rounded shadow">
+                <h2 class="text-2xl font-bold mb-6">Meus Dados</h2>
+                
+                <form id="company-data-form" class="space-y-5">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">📱 WhatsApp da Empresa</label>
+                            <p class="text-xs text-gray-500 mb-2">Usado para receber pedidos dos clientes</p>
+                            <input type="tel" id="company-whatsapp" placeholder="(11) 98765-4321" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition" />
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">💬 WhatsApp para Contato</label>
+                            <p class="text-xs text-gray-500 mb-2">Usado no botão "Falar WhatsApp" do site</p>
+                            <input type="tel" id="contact-whatsapp" placeholder="(11) 98765-4321" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition" />
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">📍 Link da Localização (Google Maps)</label>
+                            <p class="text-xs text-gray-500 mb-2">Cole o link do seu endereço no Google Maps</p>
+                            <input type="url" id="location-link" placeholder="https://maps.google.com/..." class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition" />
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">🏪 Nome da Empresa/Padaria</label>
+                            <input type="text" id="company-name" placeholder="Digite o nome da sua empresa" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition" />
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">🕐 Horário de Funcionamento</label>
+                            <p class="text-xs text-gray-500 mb-3">Defina por dia ou use o preenchimento rápido.</p>
+
+                            <div class="flex flex-wrap gap-2 mb-3">
+                                <button type="button" id="hours-apply-default" class="px-3 py-2 bg-zinc-900 text-white rounded-lg text-sm font-semibold hover:opacity-90">Aplicar padrão (Seg-Dom 18:30-23:00, Qua fechado)</button>
+                                <button type="button" id="hours-clear" class="px-3 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-semibold hover:bg-gray-300">Limpar horários</button>
+                            </div>
+
+                            <div class="grid md:grid-cols-2 gap-3">
+                                <!-- 0 Domingo -->
+                                <div class="p-3 border border-gray-200 rounded-lg bg-white shadow-sm">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-sm font-semibold text-gray-800">Domingo</span>
+                                        <label class="flex items-center gap-1 text-xs text-gray-600"><input type="checkbox" id="hours-day-0-closed" class="w-4 h-4"> Fechado</label>
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-2 text-xs">
+                                        <div>
+                                            <p class="text-gray-500 mb-1">Abre</p>
+                                            <input type="time" id="hours-day-0-open" class="w-full border rounded px-2 py-1" />
+                                        </div>
+                                        <div>
+                                            <p class="text-gray-500 mb-1">Fecha</p>
+                                            <input type="time" id="hours-day-0-close" class="w-full border rounded px-2 py-1" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 1 Segunda -->
+                                <div class="p-3 border border-gray-200 rounded-lg bg-white shadow-sm">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-sm font-semibold text-gray-800">Segunda</span>
+                                        <label class="flex items-center gap-1 text-xs text-gray-600"><input type="checkbox" id="hours-day-1-closed" class="w-4 h-4"> Fechado</label>
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-2 text-xs">
+                                        <div>
+                                            <p class="text-gray-500 mb-1">Abre</p>
+                                            <input type="time" id="hours-day-1-open" class="w-full border rounded px-2 py-1" />
+                                        </div>
+                                        <div>
+                                            <p class="text-gray-500 mb-1">Fecha</p>
+                                            <input type="time" id="hours-day-1-close" class="w-full border rounded px-2 py-1" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 2 Terça -->
+                                <div class="p-3 border border-gray-200 rounded-lg bg-white shadow-sm">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-sm font-semibold text-gray-800">Terça</span>
+                                        <label class="flex items-center gap-1 text-xs text-gray-600"><input type="checkbox" id="hours-day-2-closed" class="w-4 h-4"> Fechado</label>
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-2 text-xs">
+                                        <div>
+                                            <p class="text-gray-500 mb-1">Abre</p>
+                                            <input type="time" id="hours-day-2-open" class="w-full border rounded px-2 py-1" />
+                                        </div>
+                                        <div>
+                                            <p class="text-gray-500 mb-1">Fecha</p>
+                                            <input type="time" id="hours-day-2-close" class="w-full border rounded px-2 py-1" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 3 Quarta -->
+                                <div class="p-3 border border-gray-200 rounded-lg bg-white shadow-sm">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-sm font-semibold text-gray-800">Quarta</span>
+                                        <label class="flex items-center gap-1 text-xs text-gray-600"><input type="checkbox" id="hours-day-3-closed" class="w-4 h-4"> Fechado</label>
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-2 text-xs">
+                                        <div>
+                                            <p class="text-gray-500 mb-1">Abre</p>
+                                            <input type="time" id="hours-day-3-open" class="w-full border rounded px-2 py-1" />
+                                        </div>
+                                        <div>
+                                            <p class="text-gray-500 mb-1">Fecha</p>
+                                            <input type="time" id="hours-day-3-close" class="w-full border rounded px-2 py-1" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 4 Quinta -->
+                                <div class="p-3 border border-gray-200 rounded-lg bg-white shadow-sm">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-sm font-semibold text-gray-800">Quinta</span>
+                                        <label class="flex items-center gap-1 text-xs text-gray-600"><input type="checkbox" id="hours-day-4-closed" class="w-4 h-4"> Fechado</label>
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-2 text-xs">
+                                        <div>
+                                            <p class="text-gray-500 mb-1">Abre</p>
+                                            <input type="time" id="hours-day-4-open" class="w-full border rounded px-2 py-1" />
+                                        </div>
+                                        <div>
+                                            <p class="text-gray-500 mb-1">Fecha</p>
+                                            <input type="time" id="hours-day-4-close" class="w-full border rounded px-2 py-1" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 5 Sexta -->
+                                <div class="p-3 border border-gray-200 rounded-lg bg-white shadow-sm">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-sm font-semibold text-gray-800">Sexta</span>
+                                        <label class="flex items-center gap-1 text-xs text-gray-600"><input type="checkbox" id="hours-day-5-closed" class="w-4 h-4"> Fechado</label>
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-2 text-xs">
+                                        <div>
+                                            <p class="text-gray-500 mb-1">Abre</p>
+                                            <input type="time" id="hours-day-5-open" class="w-full border rounded px-2 py-1" />
+                                        </div>
+                                        <div>
+                                            <p class="text-gray-500 mb-1">Fecha</p>
+                                            <input type="time" id="hours-day-5-close" class="w-full border rounded px-2 py-1" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 6 Sábado -->
+                                <div class="p-3 border border-gray-200 rounded-lg bg-white shadow-sm">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-sm font-semibold text-gray-800">Sábado</span>
+                                        <label class="flex items-center gap-1 text-xs text-gray-600"><input type="checkbox" id="hours-day-6-closed" class="w-4 h-4"> Fechado</label>
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-2 text-xs">
+                                        <div>
+                                            <p class="text-gray-500 mb-1">Abre</p>
+                                            <input type="time" id="hours-day-6-open" class="w-full border rounded px-2 py-1" />
+                                        </div>
+                                        <div>
+                                            <p class="text-gray-500 mb-1">Fecha</p>
+                                            <input type="time" id="hours-day-6-close" class="w-full border rounded px-2 py-1" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">⏰ Sobrescrever Status (Opcional)</label>
+                            <p class="text-xs text-gray-500 mb-3">Use para forçar aberto/fechado diferente do horário registrado</p>
+                            
+                            <div class="flex gap-2 flex-wrap">
+                                <button type="button" id="status-auto" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-semibold hover:bg-gray-300 transition">
+                                    <i class="fa fa-clock"></i> Automático
+                                </button>
+                                <button type="button" id="status-forcaAberto" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-semibold hover:bg-green-300 transition">
+                                    <i class="fa fa-unlock"></i> Forçar Aberto
+                                </button>
+                                <button type="button" id="status-forcaFechado" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-semibold hover:bg-red-300 transition">
+                                    <i class="fa fa-lock"></i> Forçar Fechado
+                                </button>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-2">Status atual: <span id="status-current" class="font-semibold">Automático</span></p>
+                        </div>
+
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-gray-700">
+                            <p><strong>💾 Nota:</strong> Estes dados aparecem no seu site para os clientes entrarem em contato.</p>
+                        </div>
+
+                        <button type="button" onclick="salvarDadosEmpresa()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition">
+                            💾 Salvar Dados
+                        </button>
+                    </form>
+            </div>
+        </section>
+
+        <!-- Configurações -->
+        <section id="tab-config" class="tab-section hidden">
+            <div class="bg-white p-6 rounded shadow">
+                <h2 class="text-2xl font-bold mb-6">⚙️ Configurações</h2>
+                
+                <form id="config-form" class="space-y-5">
+                    <!-- Taxa de Entrega por Bairro -->
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">🚚 Taxa de Entrega por Bairro (R$)</label>
+                        <p class="text-xs text-gray-500 mb-3">Configure o valor de entrega para cada bairro</p>
+                        <div id="neighborhood-fees" class="grid md:grid-cols-2 gap-3 max-h-64 overflow-y-auto border border-gray-200 rounded-lg p-3 bg-gray-50">
+                            <!-- Preenchido dinamicamente via JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Pedido Mínimo para Entrega Grátis -->
+                    <!-- PIX Key -->
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">💳 Chave PIX</label>
+                        <p class="text-xs text-gray-500 mb-2">CPF, E-mail, Telefone ou Chave aleatória (obrigatório)</p>
+                        <input type="text" id="config-pix-key" placeholder="Ex: 63 98765-4321 ou seu.email@banco.com" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition" />
+                    </div>
+
+                    <!-- Código PIX (Copia e Cola) -->
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">📋 Código PIX (Copia e Cola)</label>
+                        <p class="text-xs text-gray-500 mb-2">Código completo que aparece no checkout (gerado pelo seu banco)</p>
+                        <textarea id="config-pix-codigo" placeholder="Paste aqui o código de cópia e cola do seu PIX" rows="4" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition font-mono text-sm"></textarea>
+                    </div>
+
+                    <!-- Nome do PIX -->
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">👤 Nome do Titular PIX</label>
+                        <p class="text-xs text-gray-500 mb-2">Nome que aparecerá no comprovante de PIX</p>
+                        <input type="text" id="config-pix-name" placeholder="Seu nome completo" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition" />
+                    </div>
+
+                    <!-- Access Token Mercado Pago (opcional) -->
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">🔑 Access Token Mercado Pago (PIX dinâmico)</label>
+                        <p class="text-xs text-gray-500 mb-2">Permite gerar QR dinâmico e confirmação automática via webhook. Cada loja usa seu próprio token.</p>
+                        <input type="password" id="config-mp-access-token" placeholder="APP_USR-..." class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition" />
+                        <p class="text-xs text-gray-500 mt-1">Se vazio, mantém o fluxo de PIX estático atual.</p>
+                    </div>
+
+                    <!-- Configurações de WhatsApp API -->
+                    <div class="border-t pt-6 mt-6">
+                        <h3 class="text-lg font-bold mb-4 text-gray-800">📱 Configurações WhatsApp API (Notificações Automáticas)</h3>
+                        <p class="text-sm text-gray-600 mb-4">Conecte seu WhatsApp para enviar notificações automáticas aos clientes. <strong>Apenas 2 campos!</strong></p>
+                        
+                        <div class="space-y-4">
+                            <!-- Número do WhatsApp da Empresa -->
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">📱 Número do WhatsApp da Empresa</label>
+                                <p class="text-xs text-gray-500 mb-2">Número usado para enviar as notificações (com DDD, sem símbolos)</p>
+                                <input type="tel" id="config-whatsapp-numero" placeholder="11987654321" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition" />
+                            </div>
+
+                            <!-- API Key -->
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">🔑 Token/API Key da Evolution API</label>
+                                <p class="text-xs text-gray-500 mb-2">Cole aqui o token fornecido pela sua Evolution API</p>
+                                <input type="password" id="config-whatsapp-api-key" placeholder="Seu token Evolution API" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition" />
+                            </div>
+
+                            <!-- Campos ocultos com valores automáticos -->
+                            <input type="hidden" id="config-whatsapp-api-url" value="https://evolution-api.com" />
+                            <input type="hidden" id="config-whatsapp-instance" value="auto-instance" />
+
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                <p class="text-sm text-gray-700"><strong>🚀 Como configurar:</strong></p>
+                                <ol class="text-xs text-gray-600 mt-2 space-y-1 ml-4 list-decimal">
+                                    <li>Pegue sua <strong>API Key</strong> da Evolution API</li>
+                                    <li>Cole o <strong>número do WhatsApp</strong> da empresa (só números com DDD)</li>
+                                    <li>Clique em <strong>Salvar</strong></li>
+                                    <li>Pronto! ✅ As notificações automáticas já vão funcionar</li>
+                                </ol>
+                            </div>
+
+                            <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                                <p class="text-sm text-gray-700"><strong>✅ Notificações Automáticas:</strong></p>
+                                <ul class="text-xs text-gray-600 mt-2 space-y-1 ml-4 list-disc">
+                                    <li>Pedido <strong>Confirmado</strong> → Cliente recebe confirmação</li>
+                                    <li>Status <strong>Pronto</strong> → "Pedido pronto para retirada!"</li>
+                                    <li>Status <strong>A Caminho</strong> → "Pedido saiu para entrega!"</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-gray-700">
+                        <p><strong>💡 Nota:</strong> Configure as taxas de entrega por bairro acima.</p>
+                    </div>
+
+                    <button type="button" onclick="salvarConfiguracoes()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition">
+                        💾 Salvar Configurações
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Promoções -->
+        <section id="tab-promotions" class="tab-section hidden">
+            <div class="bg-white p-6 rounded-lg shadow mb-6">
+                <div class="flex justify-between items-center mb-4">
+                    <div>
+                        <h2 class="text-2xl font-bold mb-2">🎉 Gerenciar Promoções</h2>
+                        <p class="text-gray-600">Crie e edite promoções e combos</p>
+                    </div>
+                </div>
+
+                <!-- Abas de Promoções -->
+                <div class="flex border-b mb-6 gap-4">
+                    <button class="promo-tab-btn active px-4 py-2 font-medium border-b-2 border-blue-600 text-blue-600" data-promo-tab="promo-items">
+                        <i class="fa fa-tag"></i> Desconto em Itens
+                    </button>
+                    <button class="promo-tab-btn px-4 py-2 font-medium text-gray-600" data-promo-tab="promo-manual">
+                        <i class="fa fa-plus"></i> Promoções Especiais
+                    </button>
+                </div>
+
+                <!-- Aba: Descontos em Itens -->
+                <div id="promo-items-tab" class="promo-tab-content">
+                    <div class="mb-4">
+                        <button id="add-item-discount-btn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition font-semibold flex items-center gap-2">
+                            <i class="fa fa-plus"></i> Adicionar Desconto em Item
+                        </button>
+                    </div>
+                    <div id="item-promotions-list" class="space-y-3">
+                        <!-- Itens com desconto serão carregados via JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Aba: Promoções Especiais -->
+                <div id="promo-manual-tab" class="promo-tab-content hidden">
+                    <div class="mb-4 flex gap-2">
+                        <button id="add-promotion-manual-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition font-semibold flex items-center gap-2">
+                            <i class="fa fa-plus"></i> Promoção Manual
+                        </button>
+                        <button id="add-promotion-combo-btn" class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg transition font-semibold flex items-center gap-2">
+                            <i class="fa fa-shopping-basket"></i> Criar Combo
+                        </button>
+                    </div>
+
+                    <!-- Grid de Edição de Promoções -->
+                    <div id="promotions-edit-grid" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <!-- Promoções serão carregadas via JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Relatórios -->
+        <section id="tab-relatorios" class="tab-section hidden">
+            <!-- Cabeçalho com Filtro - Atualizado -->
+            <div class="mb-8">
+                <h1 class="text-4xl font-bold text-gray-900 mb-2">📊 Análise de Desempenho</h1>
+                <p class="text-gray-600 mb-6">Acompanhe em tempo real o desempenho do seu negócio</p>
+                
+                <!-- Filtro por Data -->
+                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-200 flex flex-col sm:flex-row gap-3 items-end">
+                    <div class="flex-1">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">De:</label>
+                        <input type="date" id="data-inicio-relatorio" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div class="flex-1">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Até:</label>
+                        <input type="date" id="data-fim-relatorio" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <button id="btn-filtrar-datas" class="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-2 rounded-lg transition font-semibold shadow-md">
+                        <i class="fa fa-filter"></i> Filtrar
+                    </button>
+                    <button id="btn-resetar-datas" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded-lg transition font-semibold">
+                        <i class="fa fa-refresh"></i> Limpar
+                    </button>
+                </div>
+            </div>
+
+            <!-- KPIs Principais em Grid 4x1 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                <!-- Total de Pedidos -->
+                <div class="bg-gradient-to-br from-blue-600 to-blue-700 text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <p class="text-white text-sm font-semibold uppercase tracking-wide">Total de Pedidos</p>
+                            <p id="stat-total-pedidos-rel" class="text-5xl font-bold mt-2">0</p>
+                        </div>
+                        <div class="bg-white bg-opacity-20 p-3 rounded-lg">
+                            <i class="fa fa-shopping-cart text-2xl"></i>
+                        </div>
+                    </div>
+                    <div class="text-white text-sm font-medium">
+                        <span id="stat-total-pedidos-trend" class="inline-block">↑ 0% vs período anterior</span>
+                    </div>
+                </div>
+
+                <!-- Faturamento -->
+                <div class="bg-gradient-to-br from-green-600 to-green-700 text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <p class="text-white text-sm font-semibold uppercase tracking-wide">Faturamento Total</p>
+                            <p id="total-faturamento" class="text-4xl font-bold mt-2">R$ 0,00</p>
+                        </div>
+                        <div class="bg-white bg-opacity-20 p-3 rounded-lg">
+                            <i class="fa fa-dollar text-2xl"></i>
+                        </div>
+                    </div>
+                    <div class="text-white text-sm font-medium">
+                        <span id="stat-faturamento-trend" class="inline-block">↑ 0% vs período anterior</span>
+                    </div>
+                </div>
+
+                <!-- Taxa de Conclusão -->
+                <div class="bg-gradient-to-br from-purple-600 to-purple-700 text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <p class="text-white text-sm font-semibold uppercase tracking-wide">Taxa de Conclusão</p>
+                            <p id="taxa-conclusao" class="text-5xl font-bold mt-2">0%</p>
+                        </div>
+                        <div class="bg-white bg-opacity-20 p-3 rounded-lg">
+                            <i class="fa fa-check-circle text-2xl"></i>
+                        </div>
+                    </div>
+                    <div class="text-white text-sm font-medium">
+                        <span id="stat-conclusao-trend" class="inline-block">Pedidos confirmados + entregues</span>
+                    </div>
+                </div>
+
+                <!-- Ticket Médio -->
+                <div class="bg-gradient-to-br from-orange-600 to-orange-700 text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <p class="text-white text-sm font-semibold uppercase tracking-wide">Ticket Médio</p>
+                            <p id="ticket-medio" class="text-4xl font-bold mt-2">R$ 0,00</p>
+                        </div>
+                        <div class="bg-white bg-opacity-20 p-3 rounded-lg">
+                            <i class="fa fa-bar-chart text-2xl"></i>
+                        </div>
+                    </div>
+                    <div class="text-white text-sm font-medium">
+                        <span id="stat-ticket-trend" class="inline-block">Valor médio por pedido</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status dos Pedidos e Detalhes Financeiros -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                <!-- Gráfico de Status (Pizza) -->
+                <div class="lg:col-span-1 bg-white p-6 rounded-xl shadow-lg">
+                    <h3 class="text-xl font-bold text-gray-900 mb-6 flex items-center">
+                        <i class="fa fa-pie-chart text-blue-600 mr-2"></i> Status dos Pedidos
+                    </h3>
+                    <canvas id="chart-status" width="250" height="250"></canvas>
+                    <div class="mt-6 space-y-2">
+                        <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
+                            <div class="flex items-center gap-2">
+                                <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                                <span class="text-sm text-gray-700">Pendentes</span>
+                            </div>
+                            <span id="stat-pendentes-rel" class="font-bold text-yellow-600">0</span>
+                        </div>
+                        <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
+                            <div class="flex items-center gap-2">
+                                <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                                <span class="text-sm text-gray-700">Confirmados</span>
+                            </div>
+                            <span id="stat-confirmados-rel" class="font-bold text-green-600">0</span>
+                        </div>
+                        <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
+                            <div class="flex items-center gap-2">
+                                <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
+                                <span class="text-sm text-gray-700">Entregues</span>
+                            </div>
+                            <span id="stat-entregues-rel" class="font-bold text-blue-600">0</span>
+                        </div>
+                        <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
+                            <div class="flex items-center gap-2">
+                                <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+                                <span class="text-sm text-gray-700">Cancelados</span>
+                            </div>
+                            <span id="stat-cancelados-rel" class="font-bold text-red-600">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detalhes Financeiros -->
+                <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-lg">
+                    <h3 class="text-xl font-bold text-gray-900 mb-6 flex items-center">
+                        <i class="fa fa-line-chart text-green-600 mr-2"></i> Análise Financeira
+                    </h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-lg border border-green-200">
+                            <p class="text-gray-600 text-sm font-semibold mb-1">Maior Pedido</p>
+                            <p id="maior-pedido" class="text-2xl font-bold text-green-600">R$ 0,00</p>
+                            <p class="text-xs text-gray-500 mt-1">Valor máximo registrado</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-indigo-50 to-indigo-100 p-4 rounded-lg border border-indigo-200">
+                            <p class="text-gray-600 text-sm font-semibold mb-1">Valor Mínimo</p>
+                            <p id="menor-pedido" class="text-2xl font-bold text-indigo-600">R$ 0,00</p>
+                            <p class="text-xs text-gray-500 mt-1">Valor mínimo registrado</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-lg border border-purple-200">
+                            <p class="text-gray-600 text-sm font-semibold mb-1">Pedidos Entregues</p>
+                            <p id="stat-entregues-count" class="text-2xl font-bold text-purple-600">0</p>
+                            <p class="text-xs text-gray-500 mt-1">Concluídos com sucesso</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-red-50 to-red-100 p-4 rounded-lg border border-red-200">
+                            <p class="text-gray-600 text-sm font-semibold mb-1">Pedido Mais Antigo</p>
+                            <p id="pedido-antigo" class="text-2xl font-bold text-red-600">N/A</p>
+                            <p class="text-xs text-gray-500 mt-1">Data do primeiro pedido</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Tabela de Resumo -->
+                    <div class="mt-6 border-t pt-6">
+                        <h4 class="font-semibold text-gray-900 mb-4 flex items-center">
+                            <i class="fa fa-table text-blue-600 mr-2"></i> Resumo Detalhado
+                        </h4>
+                        <table class="w-full text-sm">
+                            <tbody>
+                                <tr class="border-b hover:bg-gray-50">
+                                    <td class="py-2 text-gray-700">Faturamento Total</td>
+                                    <td class="py-2 text-right font-bold text-green-600" id="resumo-faturamento">R$ 0,00</td>
+                                </tr>
+                                <tr class="border-b hover:bg-gray-50">
+                                    <td class="py-2 text-gray-700">Ticket Médio</td>
+                                    <td class="py-2 text-right font-bold text-orange-600" id="resumo-ticket">R$ 0,00</td>
+                                </tr>
+                                <tr class="border-b hover:bg-gray-50">
+                                    <td class="py-2 text-gray-700">Total de Pedidos</td>
+                                    <td class="py-2 text-right font-bold text-blue-600" id="resumo-total">0</td>
+                                </tr>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="py-2 text-gray-700">Taxa de Conclusão</td>
+                                    <td class="py-2 text-right font-bold text-purple-600" id="resumo-taxa">0%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mensagem de Ajuda -->
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center text-gray-700">
+                <i class="fa fa-info-circle text-blue-600 mr-2"></i>
+                <span class="text-sm">💡 <strong>Dica:</strong> Use o filtro de datas acima para analisar períodos específicos e acompanhar tendências do seu negócio.</span>
+            </div>
+        </section>
+
+        <!-- Alterar senha -->
+        <section id="tab-senha" class="tab-section hidden">
+            <div class="bg-white p-4 rounded shadow">
+                <p class="font-semibold mb-2">Alterar senha</p>
+                <p class="text-gray-600 text-sm">Em breve: redefinição segura.</p>
+            </div>
+        </section>
+
+        <!-- Conectar WhatsApp -->
+        <section id="tab-whatsapp" class="tab-section hidden">
+            <div class="bg-white p-4 rounded shadow">
+                <p class="font-semibold mb-2">Conectar WhatsApp</p>
+                <p class="text-gray-600 text-sm">Em breve: integração para disparar confirmações e status.</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal de Confirmação/Alerta -->
+    <div id="confirmation-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-sm w-full">
+            <div class="p-6 border-b border-gray-200">
+                <h2 id="confirmation-title" class="text-xl font-bold">Confirmação</h2>
+            </div>
+            <div class="p-6">
+                <p id="confirmation-message" class="text-gray-700"></p>
+            </div>
+            <div class="p-6 border-t border-gray-200 bg-gray-50 flex gap-3 justify-end">
+                <button id="confirmation-cancel-btn" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-100 transition" style="display: none;">
+                    Cancelar
+                </button>
+                <button id="confirmation-ok-btn" class="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition">
+                    Ok
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Edição de Itens -->
+    <div id="edit-item-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full max-h-96 overflow-y-auto">
+            <div class="p-6 border-b border-gray-200 sticky top-0 bg-white">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-2xl font-bold">Editar Item</h2>
+                    <button id="close-edit-modal" class="text-gray-500 hover:text-gray-700 text-2xl leading-none">×</button>
+                </div>
+            </div>
+
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Nome do item</label>
+                    <input id="edit-item-name" type="text" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Categoria</label>
+                    <div class="flex gap-2">
+                        <select id="edit-item-category" class="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <!-- Categorias serão carregadas dinamicamente -->
+                        </select>
+                        <button id="manage-categories-from-modal" class="px-3 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition" title="Gerenciar categorias">
+                            <i class="fa fa-folder-open"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Descrição</label>
+                    <textarea id="edit-item-description" rows="3" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Preço (R$)</label>
+                    <input id="edit-item-price" type="number" step="0.01" min="0" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Imagem</label>
+                    <div class="space-y-2">
+                        <input id="edit-item-image-file" type="file" accept="image/*" class="w-full border border-gray-300 rounded-lg px-3 py-2 cursor-pointer" />
+                        <p class="text-xs text-gray-500">ou insira a URL:</p>
+                        <input id="edit-item-image" type="text" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    </div>
+                    <div id="edit-item-image-preview" class="mt-2 rounded-lg overflow-hidden bg-gray-100" style="display: none;">
+                        <img id="preview-img" src="" alt="Preview" class="w-full h-32 object-cover" />
+                    </div>
+                </div>
+
+                <div class="pt-2">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input id="edit-item-active" type="checkbox" class="w-4 h-4 rounded" checked />
+                        <span class="text-sm font-medium text-gray-700">Item ativo (visível no menu)</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="p-6 border-t border-gray-200 bg-gray-50 flex gap-3 sticky bottom-0">
+                <button id="cancel-edit-btn" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-100 transition">
+                    Cancelar
+                </button>
+                <button id="save-edit-btn" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition">
+                    Salvar Mudanças
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Gerenciar Categorias -->
+    <div id="category-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] flex flex-col">
+            <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+                <h2 class="text-2xl font-bold">📁 Gerenciar Categorias</h2>
+                <button id="close-category-modal" class="text-gray-500 hover:text-gray-700 text-2xl leading-none">×</button>
+            </div>
+
+            <div class="p-6 space-y-3 flex-1 overflow-y-auto">
+                <div class="text-sm text-gray-600">Categorias padrão estão bloqueadas; edite ou remova apenas as que você criar.</div>
+                <div id="categories-list" class="space-y-2">
+                    <!-- linhas renderizadas via JS -->
+                </div>
+                <button id="add-category-row" class="w-full border-2 border-dashed border-purple-400 text-purple-700 font-semibold py-2 rounded-lg hover:bg-purple-50 transition">
+                    <i class="fa fa-plus"></i> Adicionar nova categoria
+                </button>
+            </div>
+
+            <div class="p-6 border-t border-gray-200 bg-gray-50 flex gap-3">
+                <button id="cancel-category-btn" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-100 transition">
+                    Cancelar
+                </button>
+                <button id="save-category-btn" class="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition">
+                    Salvar Alterações
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Desconto em Item -->
+    <div id="item-discount-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
+            <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+                <h2 class="text-2xl font-bold">💰 Desconto em Item</h2>
+                <button id="close-discount-modal" class="text-gray-500 hover:text-gray-700 text-2xl leading-none">×</button>
+            </div>
+
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Selecione o Item</label>
+                    <select id="discount-item-select" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <option value="">-- Escolha um item --</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Desconto (%)</label>
+                    <input id="discount-percent" type="number" min="0" max="100" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Ex: 20 para 20%">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Descrição (opcional)</label>
+                    <input id="discount-description" type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Ex: Black Friday">
+                </div>
+
+                <div class="flex gap-2">
+                    <button id="cancel-discount-btn" class="flex-1 px-4 py-2 bg-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-400 transition">
+                        Cancelar
+                    </button>
+                    <button id="save-discount-btn" class="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition">
+                        Salvar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Promoções -->
+    <div id="promotion-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] flex flex-col">
+            <div class="p-6 border-b border-gray-200 sticky top-0 bg-white z-10">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold">Promoção</h2>
+                    <button id="close-promo-modal" class="text-gray-500 hover:text-gray-700 text-2xl leading-none">×</button>
+                </div>
+                <!-- Abas -->
+                <div class="flex gap-2 border-b border-gray-200">
+                    <button id="promo-manual-tab" class="px-4 py-2 font-medium text-gray-700 border-b-2 border-blue-600 active" onclick="abrirModalPromocao(editingPromotionIndex, 'manual'); event.stopPropagation();">
+                        <i class="fa fa-edit"></i> Manual
+                    </button>
+                    <button id="promo-combo-tab" class="px-4 py-2 font-medium text-gray-700 border-b-2 border-transparent hover:text-gray-900" onclick="abrirModalPromocao(editingPromotionIndex, 'combo'); event.stopPropagation();">
+                        <i class="fa fa-shopping-basket"></i> Combo
+                    </button>
+                </div>
+            </div>
+
+            <div class="p-6 space-y-3 flex-1 overflow-y-auto">
+                <!-- Conteúdo Manual -->
+                <div id="promo-manual-content">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nome da promoção</label>
+                        <input id="promo-name" type="text" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Descrição</label>
+                        <textarea id="promo-description" rows="3" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"></textarea>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Preço original (R$)</label>
+                            <input id="promo-price-original" type="number" step="0.01" min="0" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Preço promocional (R$)</label>
+                            <input id="promo-price-promo" type="number" step="0.01" min="0" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Imagem (URL)</label>
+                        <input id="promo-image" type="text" placeholder="https://..." class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Ou envie uma imagem</label>
+                        <input id="promo-image-file" type="file" accept="image/*" class="w-full border border-gray-300 rounded-lg px-3 py-2 cursor-pointer" />
+                        <p class="text-xs text-gray-500 mt-1">Suporta jpg, png, webp, até 5MB</p>
+                    </div>
+                    <div id="promo-image-preview" class="mt-2 rounded-lg overflow-hidden bg-gray-100" style="display: none;">
+                        <img id="promo-preview-img" src="" alt="Preview" class="w-full h-32 object-cover" />
+                    </div>
+                    <div class="pt-2">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input id="promo-active" type="checkbox" class="w-4 h-4 rounded" checked />
+                            <span class="text-sm font-medium text-gray-700">Promoção ativa (visível no site)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Conteúdo Combo -->
+                <div id="promo-combo-content" style="display: none;">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nome do combo</label>
+                        <input id="combo-name" type="text" placeholder="ex: Combo Deluxe" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Descrição (opcional)</label>
+                        <textarea id="combo-description" rows="2" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" placeholder="ex: Inclua uma breve descrição do combo"></textarea>
+                    </div>
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-2 mb-2">
+                        <div class="text-xs font-medium text-blue-900 mb-1">📦 Itens selecionados:</div>
+                        <div id="combo-items-display" class="text-xs text-blue-800">Nenhum item selecionado</div>
+                        <div id="combo-price-original-display" class="text-base font-bold text-blue-900 mt-1">R$ 0,00</div>
+                        <div id="combo-savings-display" class="text-xs text-green-700 font-medium mt-1"></div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 mb-2">Selecione os itens:</label>
+                        <!-- Filtros de Categoria -->
+                        <div id="combo-category-filters" class="flex gap-2 mb-3 flex-wrap">
+                            <!-- Preenchido dinamicamente -->
+                        </div>
+                        <div id="combo-items-list" class="max-h-[350px] overflow-y-auto border border-gray-200 rounded-lg p-3 bg-gray-50">
+                            <!-- Preenchido dinamicamente -->
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 gap-2 pt-2 border-t border-gray-200">
+                        <div>
+                            <label class="block text-xs font-medium text-gray-700 mb-1">Preço promocional (R$) <span class="text-red-500">*</span></label>
+                            <input id="combo-price-promo" type="number" step="0.01" min="0" onchange="atualizarPrecoCombo();" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" placeholder="Defina o preço final do combo" />
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">Imagem do combo (opcional)</label>
+                        <input id="combo-image" type="text" placeholder="https://..." class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2 text-sm" />
+                        <input id="combo-image-file" type="file" accept="image/*" class="w-full border border-gray-300 rounded-lg px-3 py-2 cursor-pointer text-sm" />
+                        <p class="text-xs text-gray-500 mt-1">Suporta jpg, png, webp, até 5MB</p>
+                    </div>
+                    <div id="combo-image-preview" class="mt-2 rounded-lg overflow-hidden bg-gray-100" style="display: none;">
+                        <img id="combo-preview-img" src="" alt="Preview" class="w-full h-32 object-cover" />
+                    </div>
+                    <div class="pt-2">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input id="combo-active" type="checkbox" class="w-4 h-4 rounded" checked />
+                            <span class="text-sm font-medium text-gray-700">Combo ativo (visível no site)</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6 border-t border-gray-200 bg-gray-50 flex gap-3 sticky bottom-0 z-10">
+                <button id="cancel-promo-btn" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-100 transition">
+                    Cancelar
+                </button>
+                <button id="save-promo-btn" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition">
+                    Salvar Promoção
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmação de Filtro -->
+    <div id="modal-filtro-confirmacao" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50" style="display: none;">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 overflow-hidden transform transition-all">
+            <!-- Header do Modal -->
+            <div id="modal-filtro-header" class="bg-gradient-to-r from-blue-600 to-blue-700 p-6 text-white">
+                <div class="flex items-center gap-3">
+                    <div class="bg-white bg-opacity-20 p-3 rounded-full">
+                        <i id="modal-filtro-icon" class="fa fa-check-circle text-3xl"></i>
+                    </div>
+                    <div>
+                        <h3 id="modal-filtro-titulo" class="text-2xl font-bold">Filtro Removido</h3>
+                        <p class="text-blue-100 text-sm">Dados atualizados com sucesso</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Corpo do Modal -->
+            <div class="p-6">
+                <div id="modal-filtro-conteudo" class="space-y-4">
+                    <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-gray-600 font-medium">📊 Total de Pedidos</span>
+                            <span id="modal-filtro-total-pedidos" class="text-2xl font-bold text-blue-600">0</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-600 font-medium">💰 Faturamento Total</span>
+                            <span id="modal-filtro-faturamento" class="text-2xl font-bold text-green-600">R$ 0,00</span>
+                        </div>
+                    </div>
+                    <p class="text-gray-500 text-sm text-center">Exibindo dados de todos os períodos</p>
+                </div>
+            </div>
+            
+            <!-- Footer do Modal -->
+            <div class="bg-gray-50 px-6 py-4 flex justify-end">
+                <button onclick="fecharModalFiltro()" class="px-6 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition">
+                    Entendi
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Genérico de Notificação -->
+    <div id="modal-notificacao" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50" style="display: none;">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 overflow-hidden transform transition-all">
+            <!-- Header do Modal -->
+            <div id="modal-notif-header" class="p-6 text-white">
+                <div class="flex items-center gap-3">
+                    <div class="bg-white bg-opacity-20 p-3 rounded-full">
+                        <i id="modal-notif-icon" class="text-3xl"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 id="modal-notif-titulo" class="text-2xl font-bold"></h3>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Corpo do Modal -->
+            <div class="p-6">
+                <p id="modal-notif-mensagem" class="text-gray-700 text-lg leading-relaxed whitespace-pre-line"></p>
+            </div>
+            
+            <!-- Footer do Modal -->
+            <div class="bg-gray-50 px-6 py-4 flex justify-end gap-3">
+                <button id="modal-notif-btn" class="px-6 py-2 rounded-lg font-semibold transition"></button>
+            </div>
+        </div>
+    </div>
+
+    <script src="painel-admin.js"></script>
+</body>
+</html>

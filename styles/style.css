@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    background-color: #f8f8f8;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Animações personalizadas */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Estilos para botões */
+.btn-primary {
+    @apply bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition duration-300 cursor-pointer;
+}
+
+.btn-secondary {
+    @apply bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg transition duration-300 cursor-pointer;
+}
+
+/* Estilos para produtos */
+.product-card {
+    @apply bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition duration-300;
+}
+
+/* Modal melhorado */
+.modal-overlay {
+    @apply fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center;
+    z-index: 9999;
+    pointer-events: auto;
+}
+
+.modal-content {
+    @apply bg-white rounded-lg p-3 w-80 mx-4 relative max-h-96 overflow-y-auto;
+    pointer-events: auto;
+    z-index: 10000;
+}

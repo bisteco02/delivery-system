@@ -1,0 +1,1913 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha512-Fo3rlrZj/k7ujTnHg4CGR2D7kSs0v4LLanw2qksYuRlEzO+tcaEPQogQ0KaoGN26/zrn20ImR1DfuLWnOo7aBA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="/styles/output.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
+    <title>Padoca do Dedé</title>
+    <script>
+      const horarios = {
+        0: { nome: 'Domingo', abertura: '18:30', fechamento: '23:00' },
+        1: { nome: 'Segunda', abertura: '18:30', fechamento: '23:00' },
+        2: { nome: 'Terça', abertura: '18:30', fechamento: '23:00' },
+        3: { nome: 'Quarta', abertura: null, fechamento: null, fechado: true },
+        4: { nome: 'Quinta', abertura: '18:30', fechamento: '23:00' },
+        5: { nome: 'Sexta', abertura: '18:30', fechamento: '23:00' },
+        6: { nome: 'Sábado', abertura: '18:30', fechamento: '23:00' }
+      };
+
+      function verificarStatusAberto() {
+        const agora = new Date();
+        const hora = agora.getHours();
+        const minutos = agora.getMinutes();
+        const diaAtual = agora.getDay();
+        const horaAtual = hora + minutos / 60;
+
+        const horarioDia = horarios[diaAtual];
+        const dateSpan = document.getElementById('date-span');
+        const statusHorario = document.getElementById('status-horario');
+
+        if (!dateSpan || !statusHorario) return;
+
+        if (horarioDia.fechado) {
+          dateSpan.classList.remove('bg-green-600');
+          dateSpan.classList.add('bg-red-600');
+          statusHorario.textContent = `${horarioDia.nome} - FECHADO`;
+        } else {
+          const [abeHora, abeMin] = horarioDia.abertura.split(':').map(Number);
+          const [fechHora, fechMin] = horarioDia.fechamento.split(':').map(Number);
+          const horaAbertura = abeHora + abeMin / 60;
+          const horaFechamento = fechHora + fechMin / 60;
+          const aberto = horaAtual >= horaAbertura && horaAtual <= horaFechamento;
+
+          if (aberto) {
+            dateSpan.classList.remove('bg-red-600');
+            dateSpan.classList.add('bg-green-600');
+            statusHorario.textContent = `${horarioDia.nome} - ${horarioDia.abertura} às ${horarioDia.fechamento} (ABERTO)`;
+          } else {
+            dateSpan.classList.remove('bg-green-600');
+            dateSpan.classList.add('bg-red-600');
+            statusHorario.textContent = `${horarioDia.nome} - ${horarioDia.abertura} às ${horarioDia.fechamento} (FECHADO)`;
+          }
+        }
+      }
+      
+      document.addEventListener('DOMContentLoaded', verificarStatusAberto);
+    </script>
+</head>
+<body>
+    <!--Header-->
+    <header class="w-full h-[420px] bg-gradient-to-r from-zinc-900 to-zinc-800 bg-cover bg-center">
+        <div class="w-full h-full flex flex-col justify-center items-center">
+            <img
+            src="./assets/padoca 2.0.jpg"
+            alt="Padoca do Dedé"
+            class="w-32 h-32 rounded-full shadow-lg hover:scale-110 duration-200"
+            />
+            <h1 id="site-title" class="text-5xl mt-4 mb-2 font-bold text-white" style="font-family: 'Great Vibes', cursive;">
+                Padoca do Dedé
+            </h1>
+            <div class="flex flex-col sm:flex-row gap-2 sm:gap-3 mt-1">
+              <a id="btn-whatsapp" href="https://wa.me/5563999999999" target="_blank" rel="noopener" class="px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold shadow-md flex items-center gap-2 justify-center">
+                <i class="fab fa-whatsapp text-lg"></i>
+                Falar no WhatsApp
+              </a>
+              <a id="btn-maps" href="https://maps.app.goo.gl/f2bXGrj3Z3zUQNp69" target="_blank" rel="noopener" class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-md flex items-center gap-2 justify-center">
+                <i class="fa fa-map-marker-alt text-lg"></i>
+                Ver no Google Maps
+              </a>
+            </div>
+            <div class="px-4 py-1 rounded-lg mt-5" id="date-span">
+                <span class="text-white font-medium" id="status-horario"></span>
+            </div>
+        </div>
+    </header>
+    <!-- Fim do Header -->
+     <h2 class="text-2xl md:text-3xl font-bold text-center mt-9 mb-6" id="menu">
+        Conheça nosso menu
+     </h2>
+
+      <!-- Promoções e Combos -->
+      <div class="mx-auto max-w-7xl px-2 mt-10">
+        <h2 class="text-2xl md:text-3xl font-bold text-center mb-4">Promoções e Combos</h2>
+        <p class="text-center text-gray-600 mb-6">Aproveite ofertas especiais e combos prontos para você</p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="promotions-grid"></div>
+      </div>
+
+      <!-- Menu -->
+      <div>
+        <!-- FILTRO DE CATEGORIAS -->
+        <div class="mx-auto max-w-7xl px-2 my-8">
+          <div class="flex flex-wrap gap-2 justify-center">
+            <button class="category-filter-btn active px-4 py-2 rounded-lg font-semibold transition duration-200 bg-red-500 text-white flex items-center gap-2" data-category="all">
+              <i class="fa fa-th"></i> Todos
+            </button>
+            <button class="category-filter-btn px-4 py-2 rounded-lg font-semibold transition duration-200 bg-gray-300 hover:bg-red-500 hover:text-white flex items-center gap-2" data-category="burguers">
+              <i class="fa fa-burger"></i> Burguers
+            </button>
+            <button class="category-filter-btn px-4 py-2 rounded-lg font-semibold transition duration-200 bg-gray-300 hover:bg-red-500 hover:text-white flex items-center gap-2" data-category="pizzas">
+              <i class="fa fa-pizza-slice"></i> Pizzas
+            </button>
+            <button class="category-filter-btn px-4 py-2 rounded-lg font-semibold transition duration-200 bg-gray-300 hover:bg-red-500 hover:text-white flex items-center gap-2" data-category="monte-pizza">
+              <i class="fa fa-wand-magic-sparkles"></i> Monte
+            </button>
+            <button class="category-filter-btn px-4 py-2 rounded-lg font-semibold transition duration-200 bg-gray-300 hover:bg-red-500 hover:text-white flex items-center gap-2" data-category="porcoes">
+              <i class="fa fa-drumstick-bite"></i> Porções
+            </button>
+            <button class="category-filter-btn px-4 py-2 rounded-lg font-semibold transition duration-200 bg-gray-300 hover:bg-red-500 hover:text-white flex items-center gap-2" data-category="sobremesas">
+              <i class="fa fa-cake-candles"></i> Doces
+            </button>
+            <button class="category-filter-btn px-4 py-2 rounded-lg font-semibold transition duration-200 bg-gray-300 hover:bg-red-500 hover:text-white flex items-center gap-2" data-category="bebidas">
+              <i class="fa fa-wine-glass"></i> Bebidas
+            </button>
+          </div>
+        </div>
+
+        <!-- BURGUERS -->
+        <div class="category-section" data-category="burguers">
+          <div class="mx-auto max-w-7xl px-2 my-2">
+            <h2 class="font-bold text-3xl mt-4" id="burguers">Burguers</h2>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-7 md:gap-10 mx-auto max-w-7xl px-2 mb-16" id="burguers-grid"></div>
+        </div>
+
+        <!-- PIZZAS -->
+        <div class="category-section" data-category="pizzas">
+          <div class="mx-auto max-w-7xl px-2 my-2">
+            <h2 class="font-bold text-3xl mt-4" id="pizzas">Pizzas</h2>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-7 md:gap-10 mx-auto max-w-7xl px-2 mb-16" id="pizzas-grid"></div>
+        </div>
+
+        <!-- MONTE SUA PIZZA -->
+        <div class="category-section" data-category="monte-pizza">
+          <div class="mx-auto max-w-7xl px-2 my-2">
+            <h2 class="font-bold text-3xl mt-4" id="monte-pizza">Monte sua pizza</h2>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-7 md:gap-10 mx-auto max-w-7xl px-2 mb-16" id="monte-pizza-grid"></div>
+        </div>
+
+        <!-- PORÇÕES -->
+        <div class="category-section" data-category="porcoes">
+          <div class="mx-auto max-w-7xl px-2 my-2">
+            <h2 class="font-bold text-3xl mt-4" id="porcoes">Porções</h2>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-7 md:gap-10 mx-auto max-w-7xl px-2 mb-16" id="porcoes-grid"></div>
+        </div>
+
+        <!-- SOBREMESAS -->
+        <div class="category-section" data-category="sobremesas">
+          <div class="mx-auto max-w-7xl px-2 my-2">
+            <h2 class="font-bold text-3xl mt-4" id="sobremesas">Sobremesas</h2>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-7 md:gap-10 mx-auto max-w-7xl px-2 mb-16" id="sobremesas-grid"></div>
+        </div>
+
+        <!-- BEBIDAS -->
+        <div class="category-section" data-category="bebidas">
+          <div class="mx-auto max-w-7xl px-2 my-2">
+            <h2 class="font-bold text-3xl mt-4" id="bebidas">Bebidas</h2>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-7 md:gap-10 mx-auto max-w-7xl px-2 mb-16" id="bebidas-grid"></div>
+      </div>
+      <!--FIM MENU-->
+
+      <!--MODAL CART-->
+      <div class="modal-overlay hidden" id="cart-modal" style="display: none; z-index:9999; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5);">
+        
+        <div class="modal-content" style="max-width:500px; width:90vw; background:white; border-radius:16px; box-shadow:0 8px 32px rgba(0,0,0,0.2); position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); padding:32px 24px;">
+            <div class="flex items-center justify-between mb-4 border-b pb-2">
+                <h2 class="text-center font-bold text-2xl flex items-center gap-2">
+                    <i class="fa fa-shopping-cart text-red-500"></i>
+                    Meu Pedido
+                </h2>
+                <span class="text-sm text-gray-500" id="cart-item-count">0 item(s)</span>
+            </div>
+
+            <div id="cart-items" class="max-h-64 overflow-y-auto mb-4"></div>
+
+            <div class="border-t pt-4">
+                <p class="font-bold text-xl text-center">Total: R$<span id="cart-total">0,00</span></p>
+            </div>
+
+            <p class="font-bold mt-4 text-gray-700">Observações (opcional):</p>
+            <textarea 
+            class="border border-gray-300 rounded-md p-2 w-full mb-4 resize-none"
+            placeholder="Ex: Sem cebola, extra queijo, etc."
+            rows="2"
+            id="cart-observacoes"
+            ></textarea>
+            
+            <div class="flex items-center justify-between mt-5 w-full gap-2">
+                <button id="close-modal-btn" type="button" class="btn-secondary">Fechar</button>
+                <button id="checkout-btn" type="button" class="btn-primary">Ir para Checkout</button>
+            </div>
+
+
+        </div>
+
+
+      </div>
+      <!-- FIM MODAL CART-->
+
+
+      <!--MODAL CUSTOMIZATION-->
+      <div class="modal-overlay hidden" id="customization-modal" style="display: none;">
+        
+        <div class="modal-content" style="max-width:480px; width:95vw; min-width:280px; background:white; border-radius:16px; box-shadow:0 8px 32px rgba(0,0,0,0.2); position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); padding:28px 18px;">
+            <div class="text-center mb-4">
+                <img id="custom-item-image" src="" alt="Item" class="w-24 h-24 rounded-md mx-auto mb-2">
+                <h2 class="text-center font-bold text-2xl" id="custom-item-title">Personalizar Item</h2>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Adicionar Bebida (opcional)</label>
+                <div class="grid grid-cols-1 gap-2">
+                  <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
+                    <input type="radio" name="bebida" value="" class="mr-3 text-blue-600 focus:ring-blue-500" checked>
+                    <span>Nenhuma</span>
+                  </label>
+                  <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
+                    <input type="radio" name="bebida" value="Coca Cola Zero Lata - R$6,00" class="mr-3 text-blue-600 focus:ring-blue-500">
+                    <img src="./assets/Coca Zero Lata.png" alt="Coca Cola Zero Lata" class="w-8 h-8 mr-3 rounded">
+                    <span>Coca Cola Zero Lata - R$6,00</span>
+                  </label>
+                  <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
+                    <input type="radio" name="bebida" value="Coca Cola 2L - R$14,00" class="mr-3 text-blue-600 focus:ring-blue-500">
+                    <img src="./assets/Coca 2L.jpg" alt="Coca Cola 2L" class="w-8 h-8 mr-3 rounded">
+                    <span>Coca Cola 2L - R$14,00</span>
+                  </label>
+                  <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
+                    <input type="radio" name="bebida" value="Coca Cola Lata - R$5,00" class="mr-3 text-blue-600 focus:ring-blue-500">
+                    <img src="./assets/Coca Lata.jpg" alt="Coca Cola Lata" class="w-8 h-8 mr-3 rounded">
+                    <span>Coca Cola Lata - R$5,00</span>
+                  </label>
+                  <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
+                    <input type="radio" name="bebida" value="Coca Cola Zero 2L - R$15,00" class="mr-3 text-blue-600 focus:ring-blue-500">
+                    <img src="./assets/Coca Zero 2L.png" alt="Coca Cola Zero 2L" class="w-8 h-8 mr-3 rounded">
+                    <span>Coca Cola Zero 2L - R$15,00</span>
+                  </label>
+                  <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
+                    <input type="radio" name="bebida" value="Guaraná Antártica Lata - R$5,00" class="mr-3 text-blue-600 focus:ring-blue-500">
+                    <img src="./assets/Guarana Lata.jpg" alt="Guaraná Antártica Lata" class="w-8 h-8 mr-3 rounded">
+                    <span>Guaraná Antártica Lata - R$5,00</span>
+                  </label>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Adicionais (opcional)</label>
+                <div class="space-y-2 bg-gray-50 p-3 rounded-md">
+                  <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded">
+                    <input type="checkbox" name="adicionais" value="Burger de gado - R$8,00" class="mr-3 text-blue-600 focus:ring-blue-500">
+                    <span>Burger de gado+ R$ 8,00</span>
+                  </label>
+                  <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded">
+                    <input type="checkbox" name="adicionais" value="Burger de porco - R$8,00" class="mr-3 text-blue-600 focus:ring-blue-500">
+                    <span>Burger de porco+ R$ 8,00</span>
+                  </label>
+                  <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded">
+                    <input type="checkbox" name="adicionais" value="Frango com ervas - R$6,00" class="mr-3 text-blue-600 focus:ring-blue-500">
+                    <span>Frango com ervas+ R$ 6,00</span>
+                  </label>
+                  <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded">
+                    <input type="checkbox" name="adicionais" value="Cebola Crispy - R$4,00" class="mr-3 text-blue-600 focus:ring-blue-500">
+                    <span>Cebola Crispy+ R$ 4,00</span>
+                  </label>
+                  <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded">
+                    <input type="checkbox" name="adicionais" value="Cebola Caramelizada - R$3,50" class="mr-3 text-blue-600 focus:ring-blue-500">
+                    <span>Cebola Caramelizada+ R$ 3,50</span>
+                  </label>
+                  <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded">
+                    <input type="checkbox" name="adicionais" value="Mussarela - R$4,00" class="mr-3 text-blue-600 focus:ring-blue-500">
+                    <span>Musssarela+ R$ 4,00</span>
+                  </label>
+                  <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded">
+                    <input type="checkbox" name="adicionais" value="Cheddar - R$4,00" class="mr-3 text-blue-600 focus:ring-blue-500">
+                    <span>Cheddar+ R$ 4,00</span>
+                  </label>
+                  <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded">
+                    <input type="checkbox" name="adicionais" value="Bacon - R$5,00" class="mr-3 text-blue-600 focus:ring-blue-500">
+                    <span>Bacon+ R$ 5,00</span>
+                  </label>
+                  <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded">
+                    <input type="checkbox" name="adicionais" value="Tomate - R$1,25" class="mr-3 text-blue-600 focus:ring-blue-500">
+                    <span>Tomate+ R$ 1,25</span>
+                  </label>
+                  <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded">
+                    <input type="checkbox" name="adicionais" value="Cebola roxa - R$1,25" class="mr-3 text-blue-600 focus:ring-blue-500">
+                    <span>Cebola roxa+ R$ 1,25</span>
+                  </label>
+                  <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded">
+                    <input type="checkbox" name="adicionais" value="Alface - R$1,25" class="mr-3 text-blue-600 focus:ring-blue-500">
+                    <span>Alface+ R$ 1,25</span>
+                  </label>
+                  <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded">
+                    <input type="checkbox" name="adicionais" value="6 bolinhos de Carne de Sol com requeijao - R$22,00" class="mr-3 text-blue-600 focus:ring-blue-500">
+                    <span>6 bolinhos de Carne de Sol com requeijao+ R$ 22,00</span>
+                  </label>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label for="custom-observacoes" class="block text-sm font-medium text-gray-700">Observações (opcional)</label>
+                <textarea id="custom-observacoes" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500 resize-none" placeholder="Ex: Sem maionese, bem passado, etc."></textarea>
+            </div>
+
+            <div class="flex items-center justify-between mt-5 w-full gap-4">
+                <button id="cancel-custom-btn" type="button" class="btn-secondary flex-1">Cancelar</button>
+                <button id="confirm-custom-btn" type="button" class="btn-primary flex-1">Adicionar ao Carrinho</button>
+            </div>
+
+        </div>
+
+
+      </div>
+      <!-- FIM MODAL CUSTOMIZATION-->
+
+
+
+
+      <!--MODAL PEDIDOS-->
+      <div class="modal-overlay hidden" id="pedidos-modal" style="display: none; z-index:9999; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); overflow-y: auto;">
+        
+        <div class="modal-content" id="pedidos-modal-content" style="max-width:600px; width:90vw; background:white; border-radius:16px; box-shadow:0 8px 32px rgba(0,0,0,0.2); margin:20px auto; padding:32px 24px;">
+            <div class="flex items-center justify-between mb-6">
+                <button id="close-pedidos-btn" class="text-gray-500 hover:text-gray-700">
+                    <i class="fa fa-arrow-left text-xl"></i>
+                </button>
+                <h2 class="text-xl font-bold" id="pedidos-titulo">Identifique-se</h2>
+                <div class="w-6"></div>
+            </div>
+
+            <!-- FORMULÁRIO DE IDENTIFICAÇÃO -->
+            <form id="pedidos-form">
+                <div class="mb-6">
+                    <label for="pedido-whatsapp" class="block text-sm font-medium text-gray-700 mb-2">Seu número de WhatsApp é:</label>
+                    <input 
+                        type="tel" 
+                        id="pedido-whatsapp" 
+                        name="whatsapp" 
+                        required 
+                        class="w-full border-2 border-red-500 rounded-lg p-3 focus:outline-none focus:border-red-600" 
+                        placeholder="(__) ____-____"
+                    >
+                </div>
+
+                <div class="mb-6">
+                    <label for="pedido-nome" class="block text-sm font-medium text-gray-700 mb-2">Seu nome e sobrenome:</label>
+                    <input 
+                        type="text" 
+                        id="pedido-nome" 
+                        name="nome" 
+                        required 
+                        class="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:border-red-500" 
+                        placeholder="Nome e sobrenome"
+                    >
+                </div>
+
+                <button 
+                    type="submit" 
+                    class="w-full bg-gray-300 text-gray-600 font-semibold py-3 rounded-lg hover:bg-gray-400 transition duration-200"
+                >
+                    Avançar
+                </button>
+
+                <p class="text-xs text-gray-500 text-center mt-4">
+                    Para acompanhar seus pedidos, identifique-se com seu WhatsApp.
+                </p>
+            </form>
+
+            <!-- LISTA DE PEDIDOS (inicialmente oculta) -->
+            <div id="pedidos-lista" style="display: none;">
+                <div id="pedidos-cliente-info" class="mb-4 p-3 bg-gray-100 rounded-lg">
+                    <p class="font-semibold text-gray-700"></p>
+                </div>
+                <div id="pedidos-container"></div>
+                <div id="pedidos-vazio" style="display: none;" class="text-center py-8">
+                    <i class="fa fa-inbox text-5xl text-gray-400"></i>
+                    <p class="mt-3 text-gray-600">Você ainda não fez nenhum pedido</p>
+                </div>
+            </div>
+        </div>
+      </div>
+      <!-- FIM MODAL PEDIDOS-->
+
+      <!-- MODAL PROMOS -->
+      <div class="modal-overlay hidden" id="promos-modal" style="display: none; z-index:9999; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); overflow-y: auto;">
+        <div class="modal-content" style="max-width:600px; width:90vw; background:white; border-radius:16px; box-shadow:0 8px 32px rgba(0,0,0,0.2); margin:20px auto; padding:32px 24px;">
+          <div class="flex items-center justify-between mb-6">
+            <button id="close-promos-btn" class="text-gray-500 hover:text-gray-700">
+              <i class="fa fa-arrow-left text-xl"></i>
+            </button>
+            <h2 class="text-xl font-bold">Promoções</h2>
+            <div class="w-6"></div>
+          </div>
+          <div class="text-center py-10">
+            <i class="fa fa-inbox text-5xl text-gray-400"></i>
+            <p class="mt-3 text-gray-600">Nenhuma promoção disponível</p>
+          </div>
+        </div>
+      </div>
+      <!-- FIM MODAL PROMOS -->
+
+      <footer class="w-full bg-white fixed bottom-0 z-40 border-t border-gray-200 shadow-lg">
+        <div class="flex items-center justify-around max-w-7xl mx-auto">
+          <a href="#" class="footer-nav-item flex flex-col items-center justify-center py-3 px-4 text-gray-600 hover:text-red-500 transition duration-200 flex-1">
+            <i class="fa fa-home text-2xl mb-1"></i>
+            <span class="text-xs font-medium">Inicio</span>
+          </a>
+          <a href="#" id="pedidos-link" class="footer-nav-item flex flex-col items-center justify-center py-3 px-4 text-gray-600 hover:text-red-500 transition duration-200 flex-1">
+            <i class="fa fa-clipboard-list text-2xl mb-1"></i>
+            <span class="text-xs font-medium">Pedidos</span>
+          </a>
+          <a href="#" id="promos-link" class="footer-nav-item flex flex-col items-center justify-center py-3 px-4 text-gray-600 hover:text-red-500 transition duration-200 flex-1">
+            <i class="fa fa-gift text-2xl mb-1"></i>
+            <span class="text-xs font-medium">Promos</span>
+          </a>
+          <button id="cart-footer-nav" class="footer-nav-item flex flex-col items-center justify-center py-3 px-4 text-gray-600 hover:text-red-500 transition duration-200 flex-1 relative bg-none border-none cursor-pointer">
+            <div class="relative">
+              <i class="fa fa-shopping-cart text-2xl mb-1"></i>
+              <span class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full px-1.5 py-0.5 text-xs font-bold min-w-[1.3rem] text-center" id="cart-count-footer">0</span>
+            </div>
+            <span class="text-xs font-medium">Carrinho</span>
+          </button>
+        </div>
+      </footer>
+      <!--Fim Footer Navigation Bar-->
+      
+      <!-- Espaçador para o footer -->
+      <div class="h-20"></div>
+
+      <script>
+                                // Variáveis globais do carrinho (apenas declaração)
+                                // Remover duplicidade, manter apenas a inicialização global correta
+                                let cartItems;
+                                let cartTotal;
+                                let cartCount;
+                                let itemImages = {};
+                                let modal;
+                                let checkoutBtn;
+                                let closeModalBtn;
+                                // Corrigir botão fechar do modal do carrinho
+                                document.addEventListener('DOMContentLoaded', () => {
+                                  const closeModalBtn = document.getElementById('close-modal-btn');
+                                  const modalCart = document.getElementById('cart-modal');
+                                  closeModalBtn.addEventListener('click', () => {
+                                    modalCart.classList.add('hidden');
+                                    modalCart.style.display = 'none';
+                                  });
+                                });
+
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        const persistCart = () => localStorage.setItem('cart', JSON.stringify(cart));
+        // Ensure modals are hidden on load
+        document.addEventListener('DOMContentLoaded', async () => {
+          // Verificar horário de funcionamento
+          const horarios = {
+            0: { nome: 'Domingo', abertura: '18:30', fechamento: '23:00' },
+            1: { nome: 'Segunda', abertura: '18:30', fechamento: '23:00' },
+            2: { nome: 'Terça', abertura: '18:30', fechamento: '23:00' },
+            3: { nome: 'Quarta', abertura: null, fechamento: null, fechado: true }, // FECHADO
+            4: { nome: 'Quinta', abertura: '18:30', fechamento: '23:00' },
+            5: { nome: 'Sexta', abertura: '18:30', fechamento: '23:00' },
+            6: { nome: 'Sábado', abertura: '18:30', fechamento: '23:00' }
+          };
+
+          setInterval(verificarStatusAberto, 60000); // Atualizar a cada minuto
+
+          document.querySelectorAll('.modal-overlay').forEach(modal => {
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+          });
+
+          // Evento do botão do carrinho
+          const cartBtn = document.getElementById('cart-btn');
+          const modal = document.getElementById('cart-modal');
+          if (cartBtn) {
+            cartBtn.addEventListener('click', () => {
+              updateCartModal();
+              modal.classList.remove('hidden');
+              modal.style.display = 'block';
+            });
+          }
+
+          // MODAL PROMOS
+          const promosLink = document.getElementById('promos-link');
+          const promosModal = document.getElementById('promos-modal');
+          const closePromosBtn = document.getElementById('close-promos-btn');
+
+          if (promosLink && promosModal) {
+            promosLink.addEventListener('click', (e) => {
+              e.preventDefault();
+              promosModal.classList.remove('hidden');
+              promosModal.style.display = 'block';
+            });
+          }
+
+          if (closePromosBtn && promosModal) {
+            closePromosBtn.addEventListener('click', () => {
+              promosModal.classList.add('hidden');
+              promosModal.style.display = 'none';
+            });
+          }
+
+          if (promosModal) {
+            promosModal.addEventListener('click', (e) => {
+              if (e.target === promosModal) {
+                promosModal.classList.add('hidden');
+                promosModal.style.display = 'none';
+              }
+            });
+          }
+
+          // MODAL PEDIDOS
+          const closePedidosBtn = document.getElementById('close-pedidos-btn');
+
+          if (closePedidosBtn) {
+            closePedidosBtn.addEventListener('click', function() {
+              console.log('Fechando modal pedidos');
+              const pedidosModal = document.getElementById('pedidos-modal');
+              pedidosModal.style.display = 'none';
+              pedidosModal.classList.add('hidden');
+            });
+          }
+
+          const pedidosModalElement = document.getElementById('pedidos-modal');
+          if (pedidosModalElement) {
+            pedidosModalElement.addEventListener('click', function(e) {
+              if (e.target === pedidosModalElement) {
+                console.log('Fechando ao clicar fora');
+                pedidosModalElement.style.display = 'none';
+                pedidosModalElement.classList.add('hidden');
+              }
+            });
+          }
+
+          // Máscara WhatsApp
+          const whatsappInput = document.getElementById('pedido-whatsapp');
+          if (whatsappInput) {
+            whatsappInput.addEventListener('input', function(e) {
+              let value = e.target.value.replace(/\D/g, '');
+              if (value.length > 11) value = value.slice(0, 11);
+              
+              if (value.length <= 2) {
+                e.target.value = value;
+              } else if (value.length <= 7) {
+                e.target.value = '(' + value.slice(0, 2) + ') ' + value.slice(2);
+              } else {
+                e.target.value = '(' + value.slice(0, 2) + ') ' + value.slice(2, 7) + '-' + value.slice(7);
+              }
+            });
+          }
+
+          // Carregar cardápio do servidor
+          carregarCardapioDoServidor();
+          await carregarPromocoesItems();
+
+          // Submit do formulário
+        });
+        // Removido: variáveis globais já são inicializadas dentro do DOMContentLoaded
+
+        const TENANT = (() => {
+          const pathParts = window.location.pathname.split('/').filter(Boolean);
+          if (pathParts.length > 0 && !pathParts[0].includes('.')) return pathParts[0];
+          const searchParams = new URLSearchParams(window.location.search);
+          return searchParams.get('tenant') || 'padoca-do-dede';
+        })();
+
+        const API_BASE = `${window.location.origin}/api`;
+        const tenantHeaders = { 'x-tenant': TENANT };
+        const fetchTenant = (path, options = {}) => fetch(`${API_BASE}${path}`, {
+          ...options,
+          headers: { ...(options.headers || {}), ...tenantHeaders }
+        });
+
+        // Atualiza dados de contato com base no que o admin salvou
+        async function carregarDadosEmpresaPublic() {
+          try {
+            const resp = await fetchTenant('/company-data');
+            const json = await resp.json();
+            const dados = json.companyData || json; // aceita os dois formatos
+            if (!dados) return;
+            aplicarDadosEmpresa(dados);
+          } catch (error) {
+            console.warn('⚠️ Não foi possível carregar dados da empresa do servidor');
+          }
+        }
+
+        function aplicarDadosEmpresa(companyData) {
+          if (!companyData) return;
+
+          const {
+            companyName,
+            contactWhatsapp,
+            locationLink,
+            businessHoursSchedule,
+            businessHours
+          } = companyData;
+
+          const titulo = document.getElementById('site-title');
+          if (companyName && titulo) titulo.textContent = companyName;
+
+          const btnZap = document.getElementById('btn-whatsapp');
+          if (contactWhatsapp && btnZap) {
+            const numero = (contactWhatsapp || '').replace(/\D/g, '');
+            const linkZap = numero ? `https://wa.me/55${numero}` : null;
+            if (linkZap) btnZap.href = linkZap;
+          }
+
+          const btnMaps = document.getElementById('btn-maps');
+          if (locationLink && btnMaps) btnMaps.href = locationLink;
+
+          const statusEl = document.getElementById('status-horario');
+          const dateSpan = document.getElementById('date-span');
+          if (statusEl) {
+            if (Array.isArray(businessHoursSchedule) && businessHoursSchedule.length === 7) {
+              const { texto, aberto } = montarLabelHorario(businessHoursSchedule);
+              statusEl.textContent = texto;
+              
+              // Aplicar cores baseado em aberto/fechado
+              if (dateSpan) {
+                dateSpan.classList.remove('bg-green-600', 'bg-red-600');
+                dateSpan.classList.add(aberto ? 'bg-green-600' : 'bg-red-600');
+              }
+            } else if (businessHours) {
+              statusEl.textContent = businessHours;
+            }
+          }
+        }
+
+        function montarLabelHorario(schedule) {
+          const dias = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+          const hoje = new Date().getDay();
+          const agora = new Date();
+          const horaAtual = agora.getHours() + agora.getMinutes() / 60;
+          
+          const infoHoje = schedule.find(d => d.dayIndex === hoje);
+          
+          if (infoHoje && infoHoje.closed) {
+            return {
+              texto: `${dias[hoje]} - FECHADO`,
+              aberto: false
+            };
+          }
+          
+          if (infoHoje && infoHoje.open && infoHoje.close) {
+            const [abeHora, abeMin] = infoHoje.open.split(':').map(Number);
+            const [fechHora, fechMin] = infoHoje.close.split(':').map(Number);
+            const horaAbertura = abeHora + abeMin / 60;
+            const horaFechamento = fechHora + fechMin / 60;
+            const abenoHoje = horaAtual >= horaAbertura && horaAtual < horaFechamento;
+            
+            if (abenoHoje) {
+              return {
+                texto: `${dias[hoje]} - ${infoHoje.open} às ${infoHoje.close} (ABERTO)`,
+                aberto: true
+              };
+            } else {
+              return {
+                texto: `${dias[hoje]} - ${infoHoje.open} às ${infoHoje.close} (FECHADO)`,
+                aberto: false
+              };
+            }
+          }
+          
+          let proximoAberto = null;
+          for (let dia of schedule) {
+            if (!dia.closed && dia.open && dia.close) {
+              proximoAberto = dia;
+              break;
+            }
+          }
+          
+          if (proximoAberto) {
+            return {
+              texto: `Abre ${dias[proximoAberto.dayIndex]} às ${proximoAberto.open}`,
+              aberto: false
+            };
+          }
+          
+          return {
+            texto: 'Horário não informado',
+            aberto: false
+          };
+        }
+
+        // Função para carregar cardápio do servidor
+        async function carregarCardapioDoServidor() {
+          try {
+            const response = await fetchTenant('/cardapio');
+            const data = await response.json();
+            
+            if (data.success && data.cardapio && Array.isArray(data.cardapio)) {
+              console.log('✅ Cardápio carregado do servidor');
+              // Reorganizar o cardápio por categoria
+              const cardapioPorCategoria = {};
+              data.cardapio.forEach(item => {
+                const cat = item.category || 'outros';
+                if (!cardapioPorCategoria[cat]) {
+                  cardapioPorCategoria[cat] = [];
+                }
+                const itemAtivo = item.ativo !== false && item.disponivel !== false;
+                cardapioPorCategoria[cat].push({
+                  nome: item.name || item.nome,
+                  preco: Number(item.price || item.preco || 0),
+                  imagem: resolveImage(item.image || item.imagem),
+                  descricao: item.description || item.descricao || '',
+                  ativo: itemAtivo,
+                  category: cat
+                });
+              });
+              
+              // Atualizar arrays globais (mantém valores anteriores se a categoria não vier do backend)
+              burguers = cardapioPorCategoria['burguers'] || burguers;
+              pizzas = cardapioPorCategoria['pizzas'] || pizzas;
+              porcoes = cardapioPorCategoria['porcoes'] || porcoes;
+              sobremesas = cardapioPorCategoria['sobremesas'] || sobremesas;
+              bebidas = cardapioPorCategoria['bebidas'] || bebidas;
+              
+              // Carregar promoções de itens antes de renderizar
+              await carregarPromocoesItems();
+              
+              // Re-renderizar com base no que veio do backend (ou fallback local)
+              renderCategoria(burguers, 'burguers-grid');
+              renderCategoria(pizzas, 'pizzas-grid');
+              renderCategoria(montePizza, 'monte-pizza-grid');
+              renderCategoria(porcoes, 'porcoes-grid');
+              renderCategoria(sobremesas, 'sobremesas-grid');
+              carregarBebidas();
+              return true;
+            }
+          } catch (error) {
+            console.warn('⚠️ Não foi possível carregar cardápio do servidor, usando cardápio padrão');
+            return false;
+          }
+        }
+
+        async function carregarPromocoesDoServidor() {
+          try {
+            const resp = await fetchTenant('/promotions');
+            const data = await resp.json();
+            if (Array.isArray(data)) {
+              promotions = data;
+              renderPromotions();
+              return true;
+            }
+            if (data.success && Array.isArray(data.promotions)) {
+              promotions = data.promotions;
+              renderPromotions();
+              return true;
+            }
+            return false;
+          } catch (error) {
+            console.warn('⚠️ Não foi possível carregar promoções do servidor');
+            return false;
+          }
+        }
+
+        // Sincronizar cardápio a cada 30 segundos
+        setInterval(carregarCardapioDoServidor, 30000);
+        setInterval(carregarPromocoesItems, 30000);
+
+        // Carregar dados da empresa (nome, whatsapp, mapa, horário)
+        carregarDadosEmpresaPublic();
+
+        // Delegação de evento para botões gerados dinamicamente
+        document.addEventListener('click', (e) => {
+          const btn = e.target.closest('.add-to-cart-btn');
+          if (!btn) return;
+          const name = btn.getAttribute('data-name');
+          const price = parseFloat(btn.getAttribute('data-price').replace(',', '.'));
+          const rawImage = btn.getAttribute('data-image') || '';
+          const image = resolveImage(rawImage);
+
+          // Verifica categoria
+          const isBurger = burguers.some(b => b.nome === name);
+          const isPizza = pizzas.some(p => p.nome === name);
+          const isMontePizza = montePizza.some(p => p.nome === name);
+          const isPromotion = promotions.some(p => (p.name || p.nome) === name);
+          const isBebida = bebidas.some(b => b.nome === name);
+          const isSobremesa = sobremesas.some(s => s.nome === name);
+          const isPorcao = porcoes.some(p => p.nome === name);
+          
+          if (isBurger) {
+            openCustomizationModal(name, price, image);
+          } else if (isPizza) {
+            openPizza8Modal(name, price, image);
+          } else if (isMontePizza) {
+            openMontePizzaModal(name, price, image);
+          } else if (isPromotion) {
+            addToCart(name, price, '', [], '', image);
+          } else if (isBebida || isSobremesa || isPorcao) {
+            openSimpleModal(name, price, image);
+          } else {
+            // Adiciona direto ao carrinho sem personalização
+            addToCart(name, price, '', [], '', image);
+          }
+        });
+
+// Modal simples para pizza 4 pedaços, bebidas e sobremesas
+function openSimpleModal(name, price, image) {
+  let modal = document.getElementById('simple-modal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'simple-modal';
+    modal.className = 'modal-overlay';
+    document.body.appendChild(modal);
+  }
+  modal.style.display = 'block';
+  // Verifica se é porção, sobremesa ou bebida
+  const isPorcao = porcoes.some(p => p.nome === name);
+  const isSobremesa = sobremesas.some(s => s.nome === name);
+  const isBebida = bebidas.some(b => b.nome === name);
+  modal.innerHTML = `
+                    <div class="modal-content" style="max-width:480px; width:95vw; min-width:280px; background:white; border-radius:16px; box-shadow:0 8px 32px rgba(0,0,0,0.2); position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); padding:28px 18px;">
+                        <div class="text-center mb-4">
+                            <img src="${image}" alt="${name}" class="w-24 h-24 rounded-md mx-auto mb-2">
+                            <h2 class="text-center font-bold text-2xl">Personalizar</h2>
+                            <p class="text-center font-bold mb-2">${name}</p>
+                        </div>
+                        ${!(isPorcao || isSobremesa || isBebida) ? `
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Adicionar Bebida (opcional)</label>
+                            <div class="grid grid-cols-1 gap-2">
+                                <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
+                                    <input type="radio" name="simple-bebida" value="" class="mr-3 text-blue-600 focus:ring-blue-500" checked>
+                                    <span>Nenhuma</span>
+                                </label>
+                                <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
+                                    <input type="radio" name="simple-bebida" value="Coca Cola Zero Lata - R$6,00" class="mr-3 text-blue-600 focus:ring-blue-500">
+                                    <img src="./assets/Coca Zero Lata.png" alt="Coca Cola Zero Lata" class="w-8 h-8 mr-3 rounded">
+                                    <span>Coca Cola Zero Lata - R$6,00</span>
+                                </label>
+                                <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
+                                    <input type="radio" name="simple-bebida" value="Coca Cola 2L - R$14,00" class="mr-3 text-blue-600 focus:ring-blue-500">
+                                    <img src="./assets/Coca 2L.jpg" alt="Coca Cola 2L" class="w-8 h-8 mr-3 rounded">
+                                    <span>Coca Cola 2L - R$14,00</span>
+                                </label>
+                                <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
+                                    <input type="radio" name="simple-bebida" value="Coca Cola Lata - R$5,00" class="mr-3 text-blue-600 focus:ring-blue-500">
+                                    <img src="./assets/Coca Lata.jpg" alt="Coca Cola Lata" class="w-8 h-8 mr-3 rounded">
+                                    <span>Coca Cola Lata - R$5,00</span>
+                                </label>
+                                <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
+                                    <input type="radio" name="simple-bebida" value="Coca Cola Zero 2L - R$15,00" class="mr-3 text-blue-600 focus:ring-blue-500">
+                                    <img src="./assets/Coca Zero 2L.png" alt="Coca Cola Zero 2L" class="w-8 h-8 mr-3 rounded">
+                                    <span>Coca Cola Zero 2L - R$15,00</span>
+                                </label>
+                                <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
+                                    <input type="radio" name="simple-bebida" value="Guaraná Antártica Lata - R$5,00" class="mr-3 text-blue-600 focus:ring-blue-500">
+                                    <img src="./assets/Guarana Lata.jpg" alt="Guaraná Antártica Lata" class="w-8 h-8 mr-3 rounded">
+                                    <span>Guaraná Antártica Lata - R$5,00</span>
+                                </label>
+                            </div>
+                        </div>
+                        ` : ''}
+                        ${!isBebida ? `
+                        <div class="mb-4">
+                          <label for="simple-observacoes" class="block text-sm font-medium text-gray-700">Observações (opcional)</label>
+                          <textarea id="simple-observacoes" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500 resize-none" placeholder="Ex: Sem cebola, bem passada, etc."></textarea>
+                        </div>
+                        ` : ''}
+                        <div class="flex items-center justify-between mt-5 w-full gap-4">
+                            <button id="cancel-simple-btn" type="button" class="btn-secondary flex-1">Cancelar</button>
+                            <button id="confirm-simple-btn" type="button" class="btn-primary flex-1">Adicionar ao Carrinho</button>
+                        </div>
+                    </div>
+                  `;
+                  document.body.appendChild(modal);
+                  modal.style.display = 'block';
+                  // Fechar modal
+                  document.getElementById('cancel-simple-btn').onclick = () => {
+                    modal.style.display = 'none';
+                  };
+                  // Confirmar e adicionar ao carrinho
+                  document.getElementById('confirm-simple-btn').onclick = () => {
+                    let bebida = '';
+                    let observacoes = '';
+                    if (isBebida) {
+                      // Para bebidas, não há bebida extra nem observações
+                      addToCart(name, price, '', [], '', image);
+                    } else {
+                      if (!isPorcao && !isSobremesa) {
+                        bebida = modal.querySelector('input[name="simple-bebida"]:checked').value;
+                      }
+                      if (!isBebida) {
+                        observacoes = document.getElementById('simple-observacoes').value;
+                      }
+                      addToCart(name, price, bebida, [], observacoes, image);
+                    }
+                    modal.style.display = 'none';
+                    modal.remove();
+                  };
+                  // Fechar ao clicar fora
+                  modal.onclick = (e) => {
+                    if (e.target === modal) modal.style.display = 'none';
+                  };
+        }
+
+        // Modal de personalização para pizza 8 pedaços (estilo hambúrguer)
+        function openPizza8Modal(name, price, image) {
+            let modal = document.getElementById('pizza8-modal');
+            if (!modal) {
+              modal = document.createElement('div');
+              modal.id = 'pizza8-modal';
+              modal.className = 'modal-overlay';
+              document.body.appendChild(modal);
+            }
+            modal.style.display = 'block';
+            modal.innerHTML = `
+              <div class="modal-content" style="max-width:480px; width:95vw; min-width:280px; background:white; border-radius:16px; box-shadow:0 8px 32px rgba(0,0,0,0.2); position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); padding:28px 18px;">
+                <div class="text-center mb-4">
+                  <img src="${image}" alt="${name}" class="w-24 h-24 rounded-md mx-auto mb-2">
+                  <h2 class="text-center font-bold text-2xl">Personalizar</h2>
+                  <p class="text-center font-bold mb-2">${name}</p>
+                </div>
+                <div class="mb-4">
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Adicionar Bebida (opcional)</label>
+                  <div class="grid grid-cols-1 gap-2">
+                    <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
+                      <input type="radio" name="pizza8-bebida" value="" class="mr-3 text-blue-600 focus:ring-blue-500" checked>
+                      <span>Nenhuma</span>
+                    </label>
+                    <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
+                      <input type="radio" name="pizza8-bebida" value="Coca Cola Zero Lata - R$6,00" class="mr-3 text-blue-600 focus:ring-blue-500">
+                      <img src="./assets/Coca Zero Lata.png" alt="Coca Cola Zero Lata" class="w-8 h-8 mr-3 rounded">
+                      <span>Coca Cola Zero Lata - R$6,00</span>
+                    </label>
+                    <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
+                      <input type="radio" name="pizza8-bebida" value="Coca Cola 2L - R$14,00" class="mr-3 text-blue-600 focus:ring-blue-500">
+                      <img src="./assets/Coca 2L.jpg" alt="Coca Cola 2L" class="w-8 h-8 mr-3 rounded">
+                      <span>Coca Cola 2L - R$14,00</span>
+                    </label>
+                    <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
+                      <input type="radio" name="pizza8-bebida" value="Coca Cola Lata - R$5,00" class="mr-3 text-blue-600 focus:ring-blue-500">
+                      <img src="./assets/Coca Lata.jpg" alt="Coca Cola Lata" class="w-8 h-8 mr-3 rounded">
+                      <span>Coca Cola Lata - R$5,00</span>
+                    </label>
+                    <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
+                      <input type="radio" name="pizza8-bebida" value="Coca Cola Zero 2L - R$15,00" class="mr-3 text-blue-600 focus:ring-blue-500">
+                      <img src="./assets/Coca Zero 2L.png" alt="Coca Cola Zero 2L" class="w-8 h-8 mr-3 rounded">
+                      <span>Coca Cola Zero 2L - R$15,00</span>
+                    </label>
+                    <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
+                      <input type="radio" name="pizza8-bebida" value="Guaraná Antártica Lata - R$5,00" class="mr-3 text-blue-600 focus:ring-blue-500">
+                      <img src="./assets/Guarana Lata.jpg" alt="Guaraná Antártica Lata" class="w-8 h-8 mr-3 rounded">
+                      <span>Guaraná Antártica Lata - R$5,00</span>
+                    </label>
+                  </div>
+                </div>
+                  <div class="mb-4">
+                      <label class="block text-sm font-medium text-gray-700 mb-2">Adicionais (opcional)</label>
+                      <div class="space-y-2 bg-gray-50 p-3 rounded-md">
+                          <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded">
+                              <input type="checkbox" name="pizza8-adicionais" value="Borda de Requeijão - R$12,00" class="mr-3 text-blue-600 focus:ring-blue-500">
+                              <span>Borda de Requeijão - R$12,00</span>
+                          </label>
+                          <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded">
+                              <input type="checkbox" name="pizza8-adicionais" value="6 bolinhos de Carne de Sol com requeijao - R$22,00" class="mr-3 text-blue-600 focus:ring-blue-500">
+                              <span>6 bolinhos de Carne de Sol com requeijão - R$22,00</span>
+                          </label>
+                          <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded">
+                              <input type="checkbox" name="pizza8-adicionais" value="Cebola - R$4,00" class="mr-3 text-blue-600 focus:ring-blue-500">
+                              <span>Cebola - R$4,00</span>
+                          </label>
+                          <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded">
+                              <input type="checkbox" name="pizza8-adicionais" value="Bacon - R$10,00" class="mr-3 text-blue-600 focus:ring-blue-500">
+                              <span>Bacon - R$10,00</span>
+                          </label>
+                      </div>
+                  </div>
+                  <div class="mb-4">
+                      <label for="pizza8-observacoes" class="block text-sm font-medium text-gray-700">Observações (opcional)</label>
+                      <textarea id="pizza8-observacoes" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500 resize-none" placeholder="Ex: Sem cebola, bem passada, etc."></textarea>
+                  </div>
+                  <div class="flex items-center justify-between mt-5 w-full gap-4">
+                      <button id="cancel-pizza8-btn" type="button" class="btn-secondary flex-1">Cancelar</button>
+                      <button id="confirm-pizza8-btn" type="button" class="btn-primary flex-1">Adicionar ao Carrinho</button>
+                  </div>
+              </div>
+            `;
+          // Fechar modal
+          document.getElementById('cancel-pizza8-btn').onclick = () => {
+            modal.style.display = 'none';
+          };
+          // Confirmar e adicionar ao carrinho
+          document.getElementById('confirm-pizza8-btn').onclick = () => {
+            const bebida = modal.querySelector('input[name="pizza8-bebida"]:checked').value;
+            const adicionais = Array.from(modal.querySelectorAll('input[name="pizza8-adicionais"]:checked')).map(cb => cb.value);
+            const observacoes = document.getElementById('pizza8-observacoes').value;
+            addToCart(name, price, bebida, adicionais, observacoes, image);
+            modal.style.display = 'none';
+            modal.remove();
+          };
+          // Fechar ao clicar fora
+          modal.onclick = (e) => {
+            if (e.target === modal) modal.style.display = 'none';
+          };
+        }
+
+        // Modal de personalização para Monte sua pizza
+        function openMontePizzaModal(name, price, image) {
+            let modal = document.getElementById('monte-pizza-modal');
+            if (!modal) {
+              modal = document.createElement('div');
+              modal.id = 'monte-pizza-modal';
+              modal.className = 'modal-overlay';
+              document.body.appendChild(modal);
+            }
+            modal.style.display = 'block';
+            modal.innerHTML = `
+              <div class="modal-content" style="max-width:480px; width:95vw; min-width:280px; background:white; border-radius:16px; box-shadow:0 8px 32px rgba(0,0,0,0.2); position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); padding:28px 18px; max-height:90vh; overflow-y:auto;">
+                <div class="text-center mb-4">
+                  <img src="${image}" alt="${name}" class="w-24 h-24 rounded-md mx-auto mb-2">
+                  <h2 class="text-center font-bold text-2xl">Monte sua pizza</h2>
+                  <p class="text-center text-sm text-gray-600 mb-2">Escolha seus sabores e adicionais</p>
+                </div>
+                <div class="mb-4">
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Adicionar Bebida (opcional)</label>
+                  <div class="grid grid-cols-1 gap-2">
+                    <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
+                      <input type="radio" name="monte-bebida" value="" class="mr-3 text-blue-600 focus:ring-blue-500" checked>
+                      <span>Nenhuma</span>
+                    </label>
+                    <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
+                      <input type="radio" name="monte-bebida" value="Coca Cola Zero Lata - R$6,00" class="mr-3 text-blue-600 focus:ring-blue-500">
+                      <img src="./assets/Coca Zero Lata.png" alt="Coca Cola Zero Lata" class="w-8 h-8 mr-3 rounded">
+                      <span>Coca Cola Zero Lata - R$6,00</span>
+                    </label>
+                    <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
+                      <input type="radio" name="monte-bebida" value="Coca Cola 2L - R$14,00" class="mr-3 text-blue-600 focus:ring-blue-500">
+                      <img src="./assets/Coca 2L.jpg" alt="Coca Cola 2L" class="w-8 h-8 mr-3 rounded">
+                      <span>Coca Cola 2L - R$14,00</span>
+                    </label>
+                    <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
+                      <input type="radio" name="monte-bebida" value="Coca Cola Lata - R$5,00" class="mr-3 text-blue-600 focus:ring-blue-500">
+                      <img src="./assets/Coca Lata.jpg" alt="Coca Cola Lata" class="w-8 h-8 mr-3 rounded">
+                      <span>Coca Cola Lata - R$5,00</span>
+                    </label>
+                    <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
+                      <input type="radio" name="monte-bebida" value="Coca Cola Zero 2L - R$15,00" class="mr-3 text-blue-600 focus:ring-blue-500">
+                      <img src="./assets/Coca Zero 2L.png" alt="Coca Cola Zero 2L" class="w-8 h-8 mr-3 rounded">
+                      <span>Coca Cola Zero 2L - R$15,00</span>
+                    </label>
+                    <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
+                      <input type="radio" name="monte-bebida" value="Guaraná Antártica Lata - R$5,00" class="mr-3 text-blue-600 focus:ring-blue-500">
+                      <img src="./assets/Guarana Lata.jpg" alt="Guaraná Antártica Lata" class="w-8 h-8 mr-3 rounded">
+                      <span>Guaraná Antártica Lata - R$5,00</span>
+                    </label>
+                  </div>
+                </div>
+                  <div class="mb-4">
+                      <label class="block text-sm font-medium text-gray-700 mb-2">Escolha 2 sabores ou bolinhos</label>
+                      <div class="space-y-2 bg-gray-50 p-3 rounded-md">
+                          <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded">
+                              <input type="checkbox" class="monte-sabores mr-3 text-blue-600 focus:ring-blue-500" value="METADE DA PIZZA MIRANDA PRIESTLY(Margherita)+ R$ 22,50">
+                              <span>METADE DA PIZZA MIRANDA PRIESTLY(Margherita)+ R$ 22,50</span>
+                          </label>
+                          <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded">
+                              <input type="checkbox" class="monte-sabores mr-3 text-blue-600 focus:ring-blue-500" value="METADE DA PIZZA NAZARÉ TEDESCO (Calabresa)+ R$ 22,50">
+                              <span>METADE DA PIZZA NAZARÉ TEDESCO (Calabresa)+ R$ 22,50</span>
+                          </label>
+                          <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded">
+                              <input type="checkbox" class="monte-sabores mr-3 text-blue-600 focus:ring-blue-500" value="METADE DA PIZZA DANAERYS TARGERIAN (Frango com requeijao)+ R$ 25,00">
+                              <span>METADE DA PIZZA DANAERYS TARGERIAN (Frango com requeijao)+ R$ 25,00</span>
+                          </label>
+                          <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded">
+                              <input type="checkbox" class="monte-sabores mr-3 text-blue-600 focus:ring-blue-500" value="METADE DA PIZZA CRUELLA (3 Queijos)+ R$ 25,00">
+                              <span>METADE DA PIZZA CRUELLA (3 Queijos)+ R$ 25,00</span>
+                          </label>
+                          <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded">
+                              <input type="checkbox" class="monte-sabores mr-3 text-blue-600 focus:ring-blue-500" value="METADE DA PIZZA AGATHA TRUNCHBULL (Autoral)+ R$ 30,00">
+                              <span>METADE DA PIZZA AGATHA TRUNCHBULL (Autoral)+ R$ 30,00</span>
+                          </label>
+                          <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded">
+                              <input type="checkbox" class="monte-sabores mr-3 text-blue-600 focus:ring-blue-500" value="METADE DA PIZZA PAOLLA BRACHO (portuguesa)+ R$ 27,50">
+                              <span>METADE DA PIZZA PAOLLA BRACHO (portuguesa)+ R$ 27,50</span>
+                          </label>
+                          <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded">
+                              <input type="checkbox" class="monte-sabores mr-3 text-blue-600 focus:ring-blue-500" value="6 bolinhos de Carne de Sol com requeijao+ R$ 22,00">
+                              <span>6 bolinhos de Carne de Sol com requeijão+ R$ 22,00</span>
+                          </label>
+                          <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded">
+                              <input type="checkbox" class="monte-sabores mr-3 text-blue-600 focus:ring-blue-500" value="6 bolinho de frango com requeijao+ R$ 20,00">
+                              <span>6 bolinho de frango com requeijão+ R$ 20,00</span>
+                          </label>
+                      </div>
+                  </div>
+                  <div class="mb-4">
+                      <label class="block text-sm font-medium text-gray-700 mb-2">Outros Adicionais (opcional)</label>
+                      <div class="space-y-2 bg-gray-50 p-3 rounded-md">
+                          <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded">
+                              <input type="checkbox" name="monte-extras" value="Borda de Requeijão+ R$ 12,00" class="mr-3 text-blue-600 focus:ring-blue-500">
+                              <span>Borda de Requeijão+ R$ 12,00</span>
+                          </label>
+                          <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded">
+                              <input type="checkbox" name="monte-extras" value="Cebola+ R$ 4,00" class="mr-3 text-blue-600 focus:ring-blue-500">
+                              <span>Cebola+ R$ 4,00</span>
+                          </label>
+                          <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded">
+                              <input type="checkbox" name="monte-extras" value="Bacon+ R$ 10,00" class="mr-3 text-blue-600 focus:ring-blue-500">
+                              <span>Bacon+ R$ 10,00</span>
+                          </label>
+                      </div>
+                  </div>
+                  <div class="mb-4">
+                      <label for="monte-observacoes" class="block text-sm font-medium text-gray-700">Observações (opcional)</label>
+                      <textarea id="monte-observacoes" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500 resize-none" placeholder="Ex: Sem cebola, bem passada, etc."></textarea>
+                  </div>
+                  <div class="flex items-center justify-between mt-5 w-full gap-4">
+                      <button id="cancel-monte-btn" type="button" class="btn-secondary flex-1">Cancelar</button>
+                      <button id="confirm-monte-btn" type="button" class="btn-primary flex-1">Adicionar ao Carrinho</button>
+                  </div>
+              </div>
+            `;
+          // Limitar seleção de sabores a 2
+          const saboresCheckboxes = modal.querySelectorAll('.monte-sabores');
+          saboresCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+              const checkedCount = modal.querySelectorAll('.monte-sabores:checked').length;
+              if (checkedCount >= 2) {
+                saboresCheckboxes.forEach(cb => {
+                  if (!cb.checked) cb.disabled = true;
+                });
+              } else {
+                saboresCheckboxes.forEach(cb => cb.disabled = false);
+              }
+            });
+          });
+
+          // Fechar modal
+          document.getElementById('cancel-monte-btn').onclick = () => {
+            modal.style.display = 'none';
+          };
+          // Confirmar e adicionar ao carrinho
+          document.getElementById('confirm-monte-btn').onclick = () => {
+            const bebida = modal.querySelector('input[name="monte-bebida"]:checked').value;
+            const sabores = Array.from(modal.querySelectorAll('.monte-sabores:checked')).map(cb => cb.value);
+            const extras = Array.from(modal.querySelectorAll('input[name="monte-extras"]:checked')).map(cb => cb.value);
+            const observacoes = document.getElementById('monte-observacoes').value;
+            
+            // Verificar se pelo menos 1 sabor foi escolhido
+            if (sabores.length === 0) {
+              alert('Por favor, escolha pelo menos 1 sabor ou bolinho.');
+              return;
+            }
+            
+            // Combinar todos os adicionais
+            const adicionais = [...sabores, ...extras];
+            
+            // Calcular preço com base nos sabores e extras escolhidos
+            let totalPrice = 0;
+            adicionais.forEach(adicional => {
+              const priceMatch = adicional.match(/R\$\s*([\d,]+)/);
+              if (priceMatch) {
+                totalPrice += parseFloat(priceMatch[1].replace(',', '.'));
+              }
+            });
+            
+            addToCart('Monte sua pizza', totalPrice, bebida, adicionais, observacoes, image);
+            modal.style.display = 'none';
+            modal.remove();
+          };
+          // Fechar ao clicar fora
+          modal.onclick = (e) => {
+            if (e.target === modal) modal.style.display = 'none';
+          };
+        }
+
+        function openCustomizationModal(name, price, image) {
+          document.getElementById('custom-item-title').textContent = `Personalizar ${name}`;
+          const imageSrc = image || './assets/default.jpg';
+          document.getElementById('custom-item-image').src = imageSrc;
+          document.getElementById('customization-modal').classList.remove('hidden');
+          document.getElementById('customization-modal').style.display = '';
+          // Reset fields corretamente
+          document.querySelectorAll('#customization-modal input[name="bebida"]').forEach(rb => rb.checked = rb.value === '');
+          document.querySelectorAll('#customization-modal input[type="checkbox"]').forEach(cb => cb.checked = false);
+          document.getElementById('custom-observacoes').value = '';
+          // Store current item
+          window.currentItem = { name, price, image };
+        }
+        function resolveImage(p) {
+          if (!p) return './assets/default.jpg';
+          if (p.startsWith('../')) return p.replace('../', './');
+          if (p.startsWith('assets/')) return `./${p}`;
+          return p;
+        }
+        // Arrays de cada sessão
+        let promotions = [];
+        let burguers = [
+          { nome: 'CORINGA', preco: 33.00, descricao: 'Pão de abóbora, 2x burger 150g, 2x queijo mussarela, 2x bacon, 2x cebola caramelizada, molho especial, maionese.', imagem: './assets/Coringa.jpg', ativo: true },
+          { nome: 'DARTH VADER', preco: 33.00, descricao: 'Pão de abóbora, 2x burger 150g, 2x cheddar, 2x bacon, 2x cebola caramelizada, molho barbecue, maionese.', imagem: './assets/darthvader.jpg', ativo: true },
+          { nome: 'GARGAMEL', preco: 24.00, descricao: 'Pão americano, maionese, burger 150g, mussarela, bacon, cebola caramelizada, maionese, molho especial.', imagem: './assets/Gargamel.jpg', ativo: true },
+          { nome: 'LEX LUTHOR', preco: 24.00, descricao: 'Pão americano, barbecue, burger 150g, cheddar, bacon, cebola caramelizada, maionese.', imagem: './assets/Lex Luthor.jpg', ativo: true },
+          { nome: 'MUN-RÁ', preco: 26.00, descricao: 'Pão americano, molho especial, maionese, burger 150g, queijo mussarela, bacon, cebola caramelizada, tomate, alface, cebola roxa.', imagem: './assets/mun-ra.png', ativo: true },
+          { nome: 'RAINHA DE COPAS', preco: 22.00, descricao: 'Pão americano, molho especial, maionese, burger 150g, queijo mussarela, tomate, alface americana, cebola roxa e maionese.', imagem: './assets/rainha-de-copas.png', ativo: true },
+          { nome: 'DE LA CRUZ', preco: 35.00, descricao: 'Pão australiano, 2x carne 150g, 2x queijo mussarela, 2x bacon, 2x cebola caramelizada, molho especial, maionese, tomate, alface e cebola roxa.', imagem: './assets/delacruz.png', ativo: true },
+          { nome: 'THANOS', preco: 35.00, descricao: 'Pão australiano, 2x burger de porco, 2x bacon, 2x mussarela na chapa, 2x cheddar, cebola crispy e molho barbecue.', imagem: './assets/thanos.png', ativo: true },
+          { nome: 'JUGGERNAULT', preco: 31.00, descricao: 'Pão americano, 2x burger 150g, 2x cheddar, cebola crispy, tomate, alface, ketchup e maionese.', imagem: './assets/juggernault.png', ativo: true },
+          { nome: 'MADARA', preco: 26.00, descricao: 'Pão australiano, carne de porco 150g, bacon, queijo mussarela na chapa, cheddar, cebola crispy e molho barbecue.', imagem: './assets/madara.png', ativo: true },
+          { nome: 'ROBOTNIK', preco: 33.00, descricao: 'Pão americano, burger 150g, requeijão, frango com ervas, cebola roxa, tomate e ketchup.', imagem: './assets/robotnik.png', ativo: true },
+          { nome: 'Roger Klotz', preco: 22.00, descricao: 'Pão americano, ketchup, maionese, cheddar, alface, tomate e carne bovina 150g.', imagem: './assets/roger clotz.png', ativo: true },
+          { nome: 'EXTERMINADOR - T800', preco: 36.00, descricao: 'Pão australiano, 3x burger 150g, 3x cheddar e cebola roxa.', imagem: './assets/exterminador.png', ativo: true },
+          { nome: 'Caruso', preco: 25.00, descricao: 'Pão de sementes, burger, chimichurri, 2x mussarela na chapa, tomate, cebola roxa, maionese e ketchup.', imagem: './assets/caruso.png', ativo: true },
+        ];
+        let pizzas = [
+          { nome: 'MIRANDA PRIESTLY - (Margherita) - 8 pedaços', preco: 45.00, descricao: 'Massa de longa fermentação, molho de tomate, mussarela, parmesão e tomate.', imagem: './assets/Margherita.png', ativo: true },
+          { nome: 'NAZARÉ TEDESCO - (Calabresa) - 8 pedaços', preco: 48.00, descricao: 'Massa de longa fermentação, molho de tomate, calabresa, mussarela e parmesão.', imagem: './assets/Calabresa.png', ativo: true },
+          { nome: 'DANAERYS TARGERIAN - (Frango com requeijão) - 8 pedaços', preco: 50.00, descricao: 'Massa de longa fermentação, molho de tomate, mussarela, frango e requeijão.', imagem: './assets/Frango e Catupiry.jpg', ativo: true },
+          { nome: 'CRUELLA - (3 queijos) - 8 pedaços', preco: 50.00, descricao: 'Massa de longa fermentação, molho de tomate, mussarela, requeijão e parmesão.', imagem: './assets/3 queijos.png', ativo: true },
+          { nome: 'AGATHA TRUNCHBULL - (Autoral) - 8 pedaços', preco: 60.00, descricao: 'Massa de longa fermentação, molho de tomate, mussarela, parmesão, calabresa, carne de sol e requeijão cremoso.', imagem: './assets/agatha.png', ativo: true },
+          { nome: 'PAOLLA BRACHO - (Portuguesa) - 8 pedaços', preco: 55.00, descricao: 'Massa de longa fermentação, molho de tomate, mussarela, parmesão, bacon, requeijão, cebola roxa, tomate e orégano.', imagem: './assets/portuguesa.png', ativo: true },
+          { nome: 'MIRANDA PRIESTLY - (Margherita) - 4 pedaços', preco: 25.00, descricao: 'Massa de longa fermentação, molho de tomate, mussarela, parmesão e tomate.', imagem: './assets/Margherita.png', ativo: true },
+          { nome: 'NAZARÉ TEDESCO - (Calabresa) - 4 pedaços', preco: 28.00, descricao: 'Massa de longa fermentação, molho de tomate, calabresa, mussarela e parmesão.', imagem: './assets/Calabresa.png', ativo: true },
+          { nome: 'DANAERYS TARGERIAN - (Frango com requeijão) - 4 pedaços', preco: 28.00, descricao: 'Massa de longa fermentação, molho de tomate, mussarela, frango e requeijão.', imagem: './assets/Frango e Catupiry.jpg', ativo: true },
+          { nome: 'CRUELLA - (3 queijos) - 4 pedaços', preco: 30.00, descricao: 'Massa de longa fermentação, molho de tomate, mussarela, requeijão e parmesão.', imagem: './assets/3 queijos.png', ativo: true },
+          { nome: 'AGATHA TRUNCHBULL - (Autoral) - 4 pedaços', preco: 32.00, descricao: 'Massa de longa fermentação, molho de tomate, mussarela, parmesão, calabresa, carne de sol e requeijão cremoso.', imagem: './assets/agatha.png', ativo: true },
+          { nome: 'PAOLLA BRACHO - (Portuguesa) - 4 pedaços', preco: 30.00, descricao: 'Massa de longa fermentação, molho de tomate, mussarela, parmesão, bacon, requeijão, cebola roxa, tomate e orégano.', imagem: './assets/portuguesa.png', ativo: true },
+        ];
+        let montePizza = [
+          { nome: 'ESCOLHA O SABOR', preco: 0.00, descricao: 'Você pode escolher 2 sabores', imagem: './assets/monte sua pizza.png', ativo: true },
+        ];
+        let porcoes = [
+          { nome: 'Batata Tradicional', preco: 20.00, descricao: '450g (Temperada com sal)', imagem: './assets/batata tradicional.png', ativo: true },
+          { nome: 'Batata Red Smoked', preco: 20.00, descricao: '450g (com tempero especial)', imagem: './assets/batata red smoked.png', ativo: true },
+          { nome: 'Onion Rings', preco: 22.00, descricao: '300g', imagem: './assets/onion rings.png', ativo: true },
+          { nome: 'Batata Rústica', preco: 22.00, descricao: '350g', imagem: './assets/batata rustica.png', ativo: true },
+          { nome: 'Bolinho de Carne de Sol com Requeijão', preco: 22.00, descricao: '6 bolinho de 45g', imagem: './assets/bolinho de carne de sol.png', ativo: true },
+          { nome: 'Batata Garlic & Onion', preco: 20.00, descricao: '450g (com tempero especial).', imagem: './assets/batata garlic e onion.png', ativo: true },
+        ];
+        let sobremesas = [
+          { nome: 'Bolo de pote - Ninho trufado', preco: 18.00, descricao: 'Bolo delicioso de leite ninho com chocolate meio amargo.', imagem: './assets/bolo de pote ninho trufaod.png', ativo: true },
+          { nome: 'Bolo de pote - Abacaxi aos 4 leites', preco: 16.00, descricao: 'Pão de ló, abacaxi, leite condensado, creme de leite, leite em pó e leite de coco.', imagem: './assets/bolo de pote abacaxi.png', ativo: true },
+        ];
+        let bebidas = [
+          { nome: 'Coca Cola Zero Lata', preco: 6.00, descricao: 'Bebida gelada', imagem: './assets/Coca Zero Lata.png', ativo: true },
+          { nome: 'Coca Cola 2L', preco: 14.00, descricao: 'Bebida gelada', imagem: './assets/Coca 2L.jpg', ativo: true },
+          { nome: 'Coca Cola Lata', preco: 5.00, descricao: 'Bebida gelada', imagem: './assets/Coca Lata.jpg', ativo: true },
+          { nome: 'Coca Cola Zero 2L', preco: 15.00, descricao: 'Bebida gelada', imagem: './assets/Coca Zero 2L.png', ativo: true },
+          { nome: 'Guaraná Antártica Lata', preco: 5.00, descricao: 'Bebida gelada', imagem: './assets/Guarana Lata.jpg', ativo: true },
+        ];
+
+        function renderPromotions() {
+          const grid = document.getElementById('promotions-grid');
+          if (!grid) return;
+          const ativos = (promotions || []).filter(p => p.ativo !== false);
+          if (ativos.length === 0) {
+            grid.innerHTML = '<p class="text-gray-500 text-sm">Nenhuma promoção disponível.</p>';
+            return;
+          }
+          grid.innerHTML = ativos.map(promo => {
+            const nome = promo.name || promo.nome || 'Promoção';
+            const desc = promo.description || promo.descricao || '';
+            const precoOriginal = promo.priceOriginal ?? promo.precoOriginal ?? promo.price ?? promo.preco ?? 0;
+            const precoPromo = promo.pricePromo ?? promo.precoPromo ?? promo.price ?? promo.preco ?? 0;
+            const imagem = resolveImage(promo.image || promo.imagem);
+            const isCombo = promo.type === 'combo' && promo.items && Array.isArray(promo.items);
+            const itemsInfo = isCombo ? promo.items.map(i => i.name).join(', ') : '';
+            
+            return `
+              <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition flex flex-col">
+                <div class="relative">
+                  <img src="${imagem}" alt="${nome}" class="w-full h-32 object-cover" onerror="this.src='./assets/default.jpg'">
+                  ${isCombo ? '<span class="absolute top-2 right-2 bg-orange-500 text-white text-xs px-2 py-1 rounded font-bold">COMBO</span>' : '<span class="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded font-bold">PROMO</span>'}
+                </div>
+                <div class="p-3 flex-1 flex flex-col justify-between">
+                  <div>
+                    <h3 class="font-bold text-sm mb-1">${nome}</h3>
+                    ${desc ? `<p class="text-xs text-gray-500 line-clamp-2">${desc}</p>` : ''}
+                    ${isCombo ? `<p class="text-xs text-gray-600 mt-1 font-medium">📦 Inclui: ${itemsInfo}</p>` : ''}
+                  </div>
+                  <div class="flex items-center justify-between mt-2">
+                    <div class="flex flex-col text-sm">
+                      <span class="line-through text-gray-400">R$${Number(precoOriginal).toFixed(2).replace('.', ',')}</span>
+                      <span class="text-green-600 font-bold text-lg">R$${Number(precoPromo).toFixed(2).replace('.', ',')}</span>
+                    </div>
+                    <button class="bg-red-500 hover:bg-red-600 px-5 py-2 rounded add-to-cart-btn text-white h-fit transition" data-name="${nome}" data-price="${Number(precoPromo).toFixed(2).replace('.', ',')}" data-image="${imagem}">
+                      <i class="fa fa-cart-plus text-lg"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+
+        // Variável global para armazenar promoções por item
+        let itemPromoMap = {};
+
+        async function carregarPromocoesItems() {
+          try {
+            const resp = await fetchTenant('/item-promotions');
+            const data = await resp.json();
+            const promos = Array.isArray(data) ? data : (data.promotions || []);
+            itemPromoMap = {};
+            promos.forEach(promo => {
+              if (promo && promo.ativo !== false) {
+                const key = promo.itemName || promo.nome || promo.name;
+                if (key) itemPromoMap[key] = promo;
+              }
+            });
+            console.log('✅ Promoções de itens carregadas');
+          } catch (error) {
+            console.warn('⚠️ Não foi possível carregar promoções de itens');
+          }
+        }
+
+        function renderCategoria(arr, gridId) {
+          const ativos = (arr || []).filter(i => i.ativo !== false);
+          const grid = document.getElementById(gridId);
+          if (!grid) return;
+          grid.innerHTML = '';
+          ativos.forEach(item => {
+            const promo = itemPromoMap && itemPromoMap[item.nome];
+            const precoOriginal = Number(item.preco) || 0;
+            const precoComDesconto = promo ? precoOriginal * (1 - promo.discount / 100) : precoOriginal;
+            const temDesconto = promo && promo.discount > 0;
+            const precoFinal = temDesconto ? precoComDesconto : precoOriginal;
+
+            grid.innerHTML += `
+              <div class="flex gap-2 w-full">
+                <img src="${resolveImage(item.imagem)}" alt="${item.nome}" class="w-28 h-28 rounded-md hover:scale-110 hover:-rotate-2 duration-300" />
+                <div class="w-full">
+                  <p class="font-bold">${item.nome}</p>
+                  ${promo && promo.description ? `<p class='text-xs text-green-700 font-semibold'>${promo.description}</p>` : ''}
+                  ${item.descricao ? `<p class='text-sm'>${item.descricao}</p>` : ''}
+                  <div class="flex items-center gap-2 justify-between mt-3">
+                    ${temDesconto ? `
+                      <div class="flex flex-col">
+                        <p class="font-bold text-lg text-green-600">R$${precoFinal.toFixed(2).replace('.', ',')}</p>
+                        <p class="line-through text-gray-500 text-sm">R$${precoOriginal.toFixed(2).replace('.', ',')}</p>
+                      </div>
+                    ` : `
+                      <p class="font-bold text-lg">R$${precoFinal.toFixed(2).replace('.', ',')}</p>
+                    `}
+                    <button class="bg-gray-900 px-5 py-2 rounded add-to-cart-btn h-fit hover:bg-gray-800 transition" data-name="${item.nome}" data-price="${precoFinal.toFixed(2).replace('.', ',')}" data-image="${resolveImage(item.imagem)}">
+                      <i class="fa fa-cart-plus text-lg text-white"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            `;
+          });
+        }
+
+        // Inicializar filtro de categorias
+        const categoryButtons = document.querySelectorAll('.category-filter-btn');
+        const categorySections = document.querySelectorAll('.category-section');
+
+        categoryButtons.forEach(button => {
+          button.addEventListener('click', () => {
+            const selectedCategory = button.getAttribute('data-category');
+            
+            // Atualizar botões ativos
+            categoryButtons.forEach(btn => btn.classList.remove('active', 'bg-red-500', 'text-white'));
+            categoryButtons.forEach(btn => btn.classList.add('bg-gray-300'));
+            button.classList.add('active', 'bg-red-500', 'text-white');
+            button.classList.remove('bg-gray-300');
+            
+            // Mostrar/ocultar categorias
+            if (selectedCategory === 'all') {
+              categorySections.forEach(section => section.style.display = 'block');
+            } else {
+              categorySections.forEach(section => {
+                if (section.getAttribute('data-category') === selectedCategory) {
+                  section.style.display = 'block';
+                } else {
+                  section.style.display = 'none';
+                }
+              });
+            }
+          });
+        });
+        
+        // Função para carregar e renderizar categorias dinamicamente
+        async function carregarCategoriasDinamicas() {
+          try {
+            const response = await fetchTenant('/categories-merged');
+            const data = await response.json();
+            const categorias = data.categories || data;
+            const slugify = (str = '') => str.toString().toLowerCase().normalize('NFD').replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-');
+            const baseCats = [
+              { key: 'burguers', nome: 'Burguers', emoji: '🍔' },
+              { key: 'pizzas', nome: 'Pizzas', emoji: '🍕' },
+              { key: 'monte-pizza', nome: 'Monte', emoji: '🪄' },
+              { key: 'porcoes', nome: 'Porções', emoji: '🍟' },
+              { key: 'sobremesas', nome: 'Sobremesas', emoji: '🍰' },
+              { key: 'bebidas', nome: 'Bebidas', emoji: '🥤' }
+            ];
+
+            // Normaliza categorias vindas do backend e deduplica por slug
+            const catMap = new Map();
+            baseCats.forEach(cat => catMap.set(cat.key, cat));
+
+            if (categorias) {
+              const entries = Array.isArray(categorias)
+                ? categorias.map(cat => [slugify(cat.key || cat.slug || cat.nome || cat), cat])
+                : Object.entries(categorias).map(([key, cat]) => [slugify(key || cat?.key || cat?.slug || cat?.nome || key), cat]);
+
+              entries.forEach(([slug, cat]) => {
+                if (!slug) return;
+                const nome = (cat && (cat.nome || cat.name || cat.label)) || slug.replace(/-/g, ' ');
+                const emoji = cat?.emoji || cat?.icon || '📦';
+                catMap.set(slug, { key: slug, nome, emoji });
+              });
+            }
+
+            const container = document.querySelector('.flex.flex-wrap.gap-2.justify-center');
+            if (!container) return;
+
+            // Monta HTML limpo, sem duplicatas
+            let html = `<button class="category-filter-btn active px-4 py-2 rounded-lg font-semibold transition duration-200 bg-red-500 text-white flex items-center gap-2" data-category="all">
+              <i class="fa fa-th"></i> Todos
+            </button>`;
+
+            catMap.forEach(cat => {
+              html += `<button class="category-filter-btn px-4 py-2 rounded-lg font-semibold transition duration-200 bg-gray-300 hover:bg-red-500 hover:text-white flex items-center gap-2" data-category="${cat.key}">
+                <span>${cat.emoji}</span> ${cat.nome}
+              </button>`;
+            });
+
+            container.innerHTML = html;
+
+            // Re-adicionar event listeners
+            document.querySelectorAll('.category-filter-btn').forEach(button => {
+              button.addEventListener('click', function() {
+                const category = this.getAttribute('data-category');
+                document.querySelectorAll('.category-filter-btn').forEach(btn => {
+                  btn.classList.remove('active', 'bg-red-500', 'text-white');
+                  btn.classList.add('bg-gray-300');
+                });
+                this.classList.add('active', 'bg-red-500', 'text-white');
+                this.classList.remove('bg-gray-300');
+                
+                document.querySelectorAll('.category-section').forEach(section => {
+                  if (category === 'all' || section.getAttribute('data-category') === category) {
+                    section.style.display = 'block';
+                  } else {
+                    section.style.display = 'none';
+                  }
+                });
+              });
+            });
+          } catch (error) {
+            console.warn('Não foi possível carregar categorias customizadas:', error);
+          }
+        }
+        
+        document.addEventListener('DOMContentLoaded', async () => {
+          await carregarCategoriasDinamicas();
+          await carregarPromocoesDoServidor();
+          
+          // Tentar carregar do servidor primeiro
+          const carregouDoServidor = await carregarCardapioDoServidor();
+          
+          // Se não carregou do servidor, renderizar os dados locais
+          if (!carregouDoServidor) {
+            renderCategoria(burguers, 'burguers-grid');
+            renderCategoria(pizzas, 'pizzas-grid');
+            renderCategoria(montePizza, 'monte-pizza-grid');
+            renderCategoria(porcoes, 'porcoes-grid');
+            renderCategoria(sobremesas, 'sobremesas-grid');
+            carregarBebidas();
+          }
+          // Inicializar variáveis globais do carrinho corretamente
+          cart = JSON.parse(localStorage.getItem('cart')) || [];
+          cartItems = document.getElementById('cart-items');
+          cartTotal = document.getElementById('cart-total');
+          cartCount = document.getElementById('Cart-count-new') || { textContent: '' };
+          modal = document.getElementById('cart-modal');
+          checkoutBtn = document.getElementById('checkout-btn');
+          closeModalBtn = document.getElementById('close-modal-btn');
+
+          updateCartCount();
+
+          // Checkout
+          if (checkoutBtn) {
+            checkoutBtn.addEventListener('click', (e) => {
+              e.preventDefault();
+              console.log('Checkout button clicked, cart:', cart);
+              if (cart.length === 0) {
+                alert('Seu carrinho está vazio. Adicione itens antes de finalizar o pedido.');
+                return;
+              }
+              const observacoes = document.getElementById('cart-observacoes').value;
+              // Save cart and observations to localStorage
+              localStorage.setItem('cart', JSON.stringify(cart));
+              localStorage.setItem('observacoes', observacoes);
+              console.log('Redirecting to checkout...');
+              // Redirect to checkout page
+              window.location.href = 'checkout.html';
+            });
+          }
+
+          // Customization modal - cancel
+          document.getElementById('cancel-custom-btn').addEventListener('click', () => {
+            const modal = document.getElementById('customization-modal');
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+          });
+
+          // Customization modal - confirm
+          document.getElementById('confirm-custom-btn').addEventListener('click', () => {
+            const bebida = document.querySelector('#customization-modal input[name="bebida"]:checked').value;
+            const adicionais = Array.from(document.querySelectorAll('#customization-modal input[type="checkbox"]:checked')).map(cb => cb.value);
+            const observacoes = document.getElementById('custom-observacoes').value;
+            addToCart(window.currentItem.name, window.currentItem.price, bebida, adicionais, observacoes, window.currentItem.image);
+            const modal = document.getElementById('customization-modal');
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+          });
+
+          // Close customization modal when clicking outside
+          document.getElementById('customization-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'customization-modal') {
+              const modal = document.getElementById('customization-modal');
+              modal.classList.add('hidden');
+              modal.style.display = 'none';
+            }
+          });
+        });
+
+        async function carregarBebidas() {
+          const ativos = (bebidas || []).filter(b => b.ativo !== false);
+          const grid = document.getElementById('bebidas-grid');
+          grid.innerHTML = '';
+          ativos.forEach(b => {
+            grid.innerHTML += `
+              <div class="flex gap-2 w-full">
+                <img src="${resolveImage(b.imagem)}" alt="${b.nome}" class="w-24 h-24 rounded-md hover:scale-110 hover:-rotate-2 duration-300" />
+                <div class="w-full">
+                  <p class="font-bold">${b.nome}</p>
+                  <div class="flex items-center gap-2 justify-between mt-3">
+                    <p class="font-bold text-lg">R$${Number(b.preco).toFixed(2).replace('.', ',')}</p>
+                    <button class="bg-gray-900 px-5 py-2 rounded add-to-cart-btn h-fit hover:bg-gray-800 transition" data-name="${b.nome}" data-price="${Number(b.preco).toFixed(2).replace('.', ',')}" data-image="${resolveImage(b.imagem)}">
+                      <i class="fa fa-cart-plus text-lg text-white"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            `;
+          });
+        }
+
+        // Carregar dados do backend
+
+
+        // Evita disparos duplos (ex.: clique rápido ou listener duplicado)
+        let addLock = false;
+
+        function addToCart(name, price, bebida, adicionais, observacoes, image) {
+          if (addLock) return; // já adicionando
+          addLock = true;
+          setTimeout(() => { addLock = false; }, 250);
+          console.log('Adicionando item:', name);
+          const fullName = bebida ? `${name} + ${bebida}` : name;
+          const extraPrice = (bebida ? parseFloat(bebida.split(' - R$')[1].replace(',', '.')) : 0) +
+                             adicionais.reduce((sum, add) => sum + parseFloat(add.split(' - R$')[1].replace(',', '.')), 0);
+          const totalPrice = price + extraPrice;
+          
+          const itemDetails = {
+            name: fullName,
+            basePrice: price,
+            totalPrice: totalPrice,
+            bebida: bebida,
+            adicionais: adicionais,
+            observacoes: observacoes,
+            image: image || './assets/default.jpg',
+            quantity: 1
+          };
+
+          const existingItem = cart.find(item => item.name === fullName && item.observacoes === observacoes);
+          if (existingItem) {
+            existingItem.quantity += 1;
+          } else {
+            cart.push(itemDetails);
+          }
+          console.log('Carrinho atual:', cart);
+          localStorage.setItem('cart', JSON.stringify(cart));
+          updateCartCount();
+          updateCartModal();
+        }
+
+        function updateCartCount() {
+          const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+          const cartCountElements = document.querySelectorAll('[id*="cart-count"]');
+          cartCountElements.forEach(elem => {
+            elem.textContent = totalItems;
+          });
+          const cartItemCount = document.getElementById('cart-item-count');
+          if (cartItemCount) {
+            cartItemCount.textContent = `${cart.length} item(s)`;
+          }
+        }
+
+        // Open modal - NOVO BOTÃO
+        const cartFooterNav = document.getElementById('cart-footer-nav');
+        if (cartFooterNav) {
+          cartFooterNav.addEventListener('click', () => {
+            updateCartModal();
+            modal.classList.remove('hidden');
+            modal.style.display = 'block';
+          });
+        }
+
+        // Close modal
+        if (closeModalBtn) {
+          closeModalBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            modal.classList.add('hidden');
+          });
+        }
+
+        // Customization modal - cancel
+        document.getElementById('cancel-custom-btn').addEventListener('click', () => {
+          const modal = document.getElementById('customization-modal');
+          modal.classList.add('hidden');
+          modal.style.display = 'none';
+        });
+
+        // Customization modal - confirm
+        document.getElementById('confirm-custom-btn').addEventListener('click', () => {
+          const bebida = document.querySelector('#customization-modal input[name="bebida"]:checked').value;
+          const adicionais = Array.from(document.querySelectorAll('#customization-modal input[type="checkbox"]:checked')).map(cb => cb.value);
+          const observacoes = document.getElementById('custom-observacoes').value;
+          addToCart(window.currentItem.name, window.currentItem.price, bebida, adicionais, observacoes, window.currentItem.image);
+          const modal = document.getElementById('customization-modal');
+          modal.classList.add('hidden');
+          modal.style.display = 'none';
+        });
+
+        // Close customization modal when clicking outside
+        document.getElementById('customization-modal').addEventListener('click', (e) => {
+          if (e.target.id === 'customization-modal') {
+            const modal = document.getElementById('customization-modal');
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+          }
+        });
+
+        function updateCartModal() {
+          cartItems.innerHTML = '';
+          let total = 0;
+          cart.forEach(item => {
+            const itemTotal = item.totalPrice * item.quantity;
+            total += itemTotal;
+            
+            // Buscar imagem - primeiro tenta do item, depois dos arrays de produtos
+            let imageSrc = item.image;
+            if (!imageSrc) {
+                const baseName = item.name.split(' + ')[0];
+                const todasBebidas = bebidas || [];
+                const allProducts = [...burguers, ...pizzas8, ...montePizza, ...pizzas4, ...porcoes, ...sobremesas, ...todasBebidas];
+            }
+            
+            const itemElement = document.createElement('div');
+            itemElement.classList.add('bg-gray-50', 'rounded-lg', 'p-4', 'mb-4', 'flex', 'items-center', 'gap-4');
+            itemElement.innerHTML = `
+              <img src="${imageSrc}" alt="${item.name}" class="w-16 h-16 rounded-md object-cover">
+              <div class="flex-1">
+                <p class="font-bold text-lg">${item.name.split(' + ')[0]}</p>
+                ${item.bebida ? `<p class="text-sm">Bebida: ${item.bebida}</p>` : ''}
+                ${item.adicionais.length > 0 ? `<p class="text-sm">Adicionais: ${item.adicionais.join(', ')}</p>` : ''}
+                ${item.observacoes ? `<p class="text-sm">Obs: ${item.observacoes}</p>` : ''}
+                <p class="text-sm text-gray-600">Preço base: R$${item.basePrice.toFixed(2).replace('.', ',')}</p>
+                <p class="text-sm font-medium">Subtotal: R$${item.totalPrice.toFixed(2).replace('.', ',')}</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <button class="decrease-btn bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-full transition duration-200" data-name="${item.name}" data-obs="${item.observacoes}">-</button>
+                <span class="font-bold text-lg">${item.quantity}</span>
+                <button class="increase-btn bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-full transition duration-200" data-name="${item.name}" data-obs="${item.observacoes}">+</button>
+                <button class="remove-btn bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded ml-2 transition duration-200" data-name="${item.name}" data-obs="${item.observacoes}">Remover</button>
+              </div>
+            `;
+            cartItems.appendChild(itemElement);
+          });
+          cartTotal.textContent = total.toFixed(2).replace('.', ',');
+
+          // Add event listeners for increase, decrease, remove
+          document.querySelectorAll('.increase-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+              const name = btn.getAttribute('data-name');
+              const obs = btn.getAttribute('data-obs') || '';
+              const item = cart.find(i => i.name === name && i.observacoes === obs);
+              if (item) item.quantity += 1;
+              persistCart();
+              updateCartModal();
+              updateCartCount();
+            });
+          });
+          document.querySelectorAll('.decrease-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+              const name = btn.getAttribute('data-name');
+              const obs = btn.getAttribute('data-obs') || '';
+              const item = cart.find(i => i.name === name && i.observacoes === obs);
+              if (item && item.quantity > 1) item.quantity -= 1;
+              persistCart();
+              updateCartModal();
+              updateCartCount();
+            });
+          });
+          document.querySelectorAll('.remove-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+              const name = btn.getAttribute('data-name');
+              const obs = btn.getAttribute('data-obs') || '';
+              cart = cart.filter(i => !(i.name === name && i.observacoes === obs));
+              persistCart();
+              updateCartModal();
+              updateCartCount();
+            });
+          });
+        }
+
+        // MODAL DE PEDIDOS - dentro do DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🔍 DOMContentLoaded - Modal Pedidos carregado');
+            
+            const whatsappInput = document.getElementById('pedido-whatsapp');
+            const pedidosForm = document.getElementById('pedidos-form');
+            const pedidosLink = document.getElementById('pedidos-link');
+            const pedidosModal = document.getElementById('pedidos-modal');
+
+            console.log('Elementos encontrados:', {
+                whatsappInput: !!whatsappInput,
+                pedidosForm: !!pedidosForm,
+                pedidosLink: !!pedidosLink,
+                pedidosModal: !!pedidosModal
+            });
+
+            // Máscara WhatsApp
+            if (whatsappInput) {
+                whatsappInput.addEventListener('input', function(e) {
+                    let value = e.target.value.replace(/\D/g, '');
+                    if (value.length > 11) value = value.slice(0, 11);
+                
+                if (value.length <= 2) {
+                    e.target.value = value;
+                } else if (value.length <= 7) {
+                    e.target.value = '(' + value.slice(0, 2) + ') ' + value.slice(2);
+                } else {
+                    e.target.value = '(' + value.slice(0, 2) + ') ' + value.slice(2, 7) + '-' + value.slice(7);
+                }
+            });
+        }
+
+        // Submit do formulário
+        if (pedidosForm) {
+            pedidosForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const whatsapp = document.getElementById('pedido-whatsapp').value;
+                const nome = document.getElementById('pedido-nome').value;
+
+                if (!whatsapp || !nome) {
+                    alert('Preencha todos os campos');
+                    return;
+                }
+
+                // Salvar dados no localStorage
+                localStorage.setItem('cliente_whatsapp', whatsapp);
+                localStorage.setItem('cliente_nome', nome);
+
+                // Buscar pedidos do cliente
+                await buscarPedidosCliente(whatsapp, nome);
+            });
+        }
+
+        async function buscarPedidosCliente(whatsapp, nome) {
+            try {
+                const response = await fetchTenant(`/pedidos/${encodeURIComponent(whatsapp)}`);
+                const result = await response.json();
+
+                if (result.success) {
+                    // Ocultar formulário e mostrar lista
+                    document.getElementById('pedidos-form').style.display = 'none';
+                    document.getElementById('pedidos-lista').style.display = 'block';
+                    document.getElementById('pedidos-titulo').textContent = 'Meus Pedidos';
+                    
+                    // Mostrar info do cliente
+                    document.querySelector('#pedidos-cliente-info p').textContent = `👤 ${nome} | 📱 ${whatsapp}`;
+
+                    if (result.pedidos && result.pedidos.length > 0) {
+                        renderizarPedidosCliente(result.pedidos);
+                        document.getElementById('pedidos-vazio').style.display = 'none';
+                    } else {
+                        document.getElementById('pedidos-container').innerHTML = '';
+                        document.getElementById('pedidos-vazio').style.display = 'block';
+                    }
+                } else {
+                    alert('Erro ao buscar pedidos');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro ao conectar com o servidor. Verifique se o backend está rodando.');
+            }
+        }
+
+        function renderizarPedidosCliente(pedidos) {
+            const container = document.getElementById('pedidos-container');
+            const pedidosOrdenados = pedidos.sort((a, b) => new Date(b.data) - new Date(a.data));
+
+            container.innerHTML = pedidosOrdenados.map(pedido => {
+                const data = new Date(pedido.data);
+                const dataFormatada = data.toLocaleDateString('pt-BR') + ' às ' + data.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                
+                const statusConfig = {
+                    pendente: { cor: 'bg-yellow-100 text-yellow-800 border-yellow-300', icone: 'fa-clock', texto: '⏳ Pendente' },
+                    confirmado: { cor: 'bg-green-100 text-green-800 border-green-300', icone: 'fa-check-circle', texto: '✅ Confirmado' },
+                    entregue: { cor: 'bg-blue-100 text-blue-800 border-blue-300', icone: 'fa-check-double', texto: '🎉 Entregue' },
+                    cancelado: { cor: 'bg-red-100 text-red-800 border-red-300', icone: 'fa-times-circle', texto: '❌ Cancelado' }
+                };
+
+                const status = statusConfig[pedido.status] || statusConfig.pendente;
+
+                return `
+                    <div class="mb-4 p-4 bg-white border-2 rounded-lg shadow-sm ${status.cor}" style="border-left-width: 4px;">
+                        <div class="flex justify-between items-start mb-3">
+                            <div>
+                                <p class="font-bold text-lg">Pedido #${pedido.id.slice(-6)}</p>
+                                <p class="text-xs text-gray-600">${dataFormatada}</p>
+                            </div>
+                            <span class="px-3 py-1 rounded-full text-sm font-semibold ${status.cor}">
+                                <i class="fa ${status.icone}"></i> ${status.texto}
+                            </span>
+                        </div>
+
+                        <div class="mb-3">
+                            <p class="text-sm font-semibold text-gray-700 mb-1">📦 Itens:</p>
+                            ${pedido.itens.map(item => `
+                                <div class="flex justify-between text-sm py-1">
+                                    <span>• ${item.nome} x${item.quantidade}</span>
+                                    <span class="font-semibold">R$${item.precoTotal.toFixed(2).replace('.', ',')}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+
+                        <div class="mb-2 text-sm">
+                            <p><strong>🚚 Entrega:</strong> ${pedido.tipoEntrega === 'delivery' ? 'Delivery' : 'Retirada no balcão'}</p>
+                            ${pedido.tipoEntrega === 'delivery' ? `
+                                <p><strong>📍 Endereço:</strong> ${pedido.endereco}</p>
+                            ` : ''}
+                        </div>
+
+                        ${pedido.observacoes ? `
+                            <div class="mb-2 text-sm">
+                                <p><strong>💬 Observações:</strong> ${pedido.observacoes}</p>
+                            </div>
+                        ` : ''}
+
+                        <div class="pt-3 border-t mt-3 flex justify-between items-center">
+                            <p class="text-lg font-bold">Total: R$${pedido.total.toFixed(2).replace('.', ',')}</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Verificar se já tem cliente logado ao abrir modal
+        if (pedidosLink) {
+            console.log('✅ Listener adicionado ao link de pedidos');
+            pedidosLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                console.log('🔔 Click em Pedidos detectado!');
+                
+                const whatsappSalvo = localStorage.getItem('cliente_whatsapp');
+                const nomeSalvo = localStorage.getItem('cliente_nome');
+
+                console.log('Dados salvos:', { whatsappSalvo, nomeSalvo });
+
+                // Resetar modal ao abrir
+                document.getElementById('pedidos-form').style.display = 'block';
+                document.getElementById('pedidos-lista').style.display = 'none';
+                document.getElementById('pedidos-titulo').textContent = 'Identifique-se';
+                
+                pedidosModal.style.display = 'block';
+                pedidosModal.classList.remove('hidden');
+
+                console.log('✅ Modal deve estar visível agora');
+
+                // Se já tiver dados salvos, apenas preencher (busca será feita ao clicar em Avançar)
+                if (whatsappSalvo && nomeSalvo) {
+                  document.getElementById('pedido-whatsapp').value = whatsappSalvo;
+                  document.getElementById('pedido-nome').value = nomeSalvo;
+                }
+            });
+        } else {
+            console.error('❌ pedidosLink não encontrado!');
+        }
+
+        }); // Fim do DOMContentLoaded para modal de pedidos
+
+      </script>
+
+</body>
+</html>

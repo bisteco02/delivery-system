@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Admin - PadocaOnline</title>
+    <link href="./styles/output.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+    <div class="min-h-screen">
+        <!-- Header -->
+        <header class="bg-gradient-to-r from-purple-600 to-purple-800 text-white p-6 shadow-lg">
+            <div class="container mx-auto flex justify-between items-center">
+                <h1 class="text-3xl font-bold">🔧 Super Admin</h1>
+                <div class="flex items-center gap-4">
+                    <span id="adminName" class="font-semibold"></span>
+                    <button onclick="logout()" class="bg-white text-purple-600 px-4 py-2 rounded hover:bg-gray-100">
+                        Sair
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Stats -->
+        <div class="container mx-auto px-4 py-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <div class="text-gray-500 text-sm">Total de Clientes</div>
+                    <div id="statTotal" class="text-3xl font-bold text-purple-600">0</div>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <div class="text-gray-500 text-sm">Clientes Ativos</div>
+                    <div id="statAtivos" class="text-3xl font-bold text-green-600">0</div>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <div class="text-gray-500 text-sm">Receita Mensal</div>
+                    <div id="statReceita" class="text-3xl font-bold text-blue-600">R$ 0</div>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <div class="text-gray-500 text-sm">Novos este Mês</div>
+                    <div id="statNovos" class="text-3xl font-bold text-orange-600">0</div>
+                </div>
+            </div>
+
+            <!-- Filtros -->
+            <div class="bg-white p-4 rounded-lg shadow mb-6">
+                <div class="flex gap-4 items-center">
+                    <input type="text" id="searchInput" placeholder="Buscar por nome ou slug..." 
+                        class="flex-1 px-4 py-2 border rounded">
+                    <select id="filtroStatus" class="px-4 py-2 border rounded">
+                        <option value="todos">Todos</option>
+                        <option value="ativo">Ativos</option>
+                        <option value="inativo">Inativos</option>
+                    </select>
+                    <button onclick="carregarTenants()" class="bg-purple-600 text-white px-6 py-2 rounded hover:bg-purple-700">
+                        🔄 Atualizar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Lista de Tenants -->
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                <table class="w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estabelecimento</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Slug/URL</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Contato</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Plano</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Cadastro</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tenantsTable" class="divide-y divide-gray-200">
+                        <!-- Será preenchido via JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Paginação -->
+            <div class="mt-6 flex justify-between items-center">
+                <div id="paginationInfo" class="text-gray-600"></div>
+                <div id="pagination" class="flex gap-2"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Edição -->
+    <div id="modalEdit" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-8 max-w-2xl w-full mx-4 max-h-screen overflow-y-auto">
+            <h2 class="text-2xl font-bold mb-4">Editar Estabelecimento</h2>
+            <form id="formEdit" class="space-y-4">
+                <input type="hidden" id="editId">
+                
+                <div>
+                    <label class="block text-sm font-bold mb-2">Nome</label>
+                    <input type="text" id="editNome" required class="w-full px-4 py-2 border rounded">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-bold mb-2">Slug</label>
+                    <input type="text" id="editSlug" required class="w-full px-4 py-2 border rounded">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-bold mb-2">Email</label>
+                    <input type="email" id="editEmail" class="w-full px-4 py-2 border rounded">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-bold mb-2">Telefone</label>
+                    <input type="tel" id="editTelefone" class="w-full px-4 py-2 border rounded">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-bold mb-2">Plano</label>
+                    <select id="editPlano" class="w-full px-4 py-2 border rounded">
+                        <option value="basico">Básico (R$ 49/mês)</option>
+                        <option value="profissional">Profissional (R$ 99/mês)</option>
+                        <option value="empresarial">Empresarial (R$ 199/mês)</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-bold mb-2">Status</label>
+                    <select id="editAtivo" class="w-full px-4 py-2 border rounded">
+                        <option value="1">Ativo</option>
+                        <option value="0">Inativo</option>
+                    </select>
+                </div>
+                
+                <div class="flex gap-4">
+                    <button type="submit" class="flex-1 bg-purple-600 text-white py-3 rounded hover:bg-purple-700">
+                        Salvar
+                    </button>
+                    <button type="button" onclick="fecharModal()" class="flex-1 bg-gray-300 text-gray-700 py-3 rounded hover:bg-gray-400">
+                        Cancelar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let tenants = [];
+        let paginaAtual = 1;
+        const itensPorPagina = 10;
+
+        // Carregar tenants
+        async function carregarTenants() {
+            try {
+                const response = await fetch('http://localhost:3001/api/super-admin/tenants', {
+                    headers: {
+                        'Authorization': 'Bearer ' + localStorage.getItem('superAdminToken')
+                    }
+                });
+                
+                if (!response.ok) throw new Error('Não autorizado');
+                
+                tenants = await response.json();
+                atualizarStats();
+                renderizarTabela();
+            } catch (error) {
+                console.error('Erro ao carregar tenants:', error);
+                alert('Erro ao carregar dados. Faça login novamente.');
+                window.location.href = '/super-admin-login.html';
+            }
+        }
+
+        // Atualizar estatísticas
+        function atualizarStats() {
+            const ativos = tenants.filter(t => t.ativo === 1).length;
+            const planosValores = { basico: 49, profissional: 99, empresarial: 199 };
+            const receita = tenants.filter(t => t.ativo === 1)
+                .reduce((sum, t) => sum + (planosValores[t.plano] || 0), 0);
+            
+            const mesAtual = new Date().getMonth();
+            const novos = tenants.filter(t => {
+                const dataCadastro = new Date(t.data_cadastro);
+                return dataCadastro.getMonth() === mesAtual;
+            }).length;
+            
+            document.getElementById('statTotal').textContent = tenants.length;
+            document.getElementById('statAtivos').textContent = ativos;
+            document.getElementById('statReceita').textContent = `R$ ${receita.toLocaleString('pt-BR')}`;
+            document.getElementById('statNovos').textContent = novos;
+        }
+
+        // Renderizar tabela
+        function renderizarTabela() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const filtroStatus = document.getElementById('filtroStatus').value;
+            
+            let filtrados = tenants.filter(t => {
+                const matchSearch = t.nome.toLowerCase().includes(searchTerm) || 
+                                   t.slug.toLowerCase().includes(searchTerm);
+                const matchStatus = filtroStatus === 'todos' || 
+                                   (filtroStatus === 'ativo' && t.ativo === 1) ||
+                                   (filtroStatus === 'inativo' && t.ativo === 0);
+                return matchSearch && matchStatus;
+            });
+            
+            const inicio = (paginaAtual - 1) * itensPorPagina;
+            const fim = inicio + itensPorPagina;
+            const paginados = filtrados.slice(inicio, fim);
+            
+            const tbody = document.getElementById('tenantsTable');
+            tbody.innerHTML = paginados.map(t => `
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 text-sm">#${t.id}</td>
+                    <td class="px-6 py-4">
+                        <div class="font-medium">${t.nome}</div>
+                        <div class="text-sm text-gray-500">${t.email || '-'}</div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <a href="/${t.slug}" target="_blank" class="text-purple-600 hover:underline">
+                            /${t.slug}
+                        </a>
+                    </td>
+                    <td class="px-6 py-4 text-sm">${t.telefone || '-'}</td>
+                    <td class="px-6 py-4">
+                        <span class="px-2 py-1 text-xs rounded ${getPlanoClass(t.plano)}">
+                            ${t.plano}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="px-2 py-1 text-xs rounded ${t.ativo ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                            ${t.ativo ? 'Ativo' : 'Inativo'}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-sm">${formatarData(t.data_cadastro)}</td>
+                    <td class="px-6 py-4 text-sm">
+                        <button onclick="editarTenant(${t.id})" class="text-blue-600 hover:underline mr-2">
+                            ✏️ Editar
+                        </button>
+                        <button onclick="toggleStatus(${t.id}, ${t.ativo})" 
+                            class="text-${t.ativo ? 'red' : 'green'}-600 hover:underline">
+                            ${t.ativo ? '🚫 Desativar' : '✅ Ativar'}
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+            
+            // Atualizar paginação
+            const totalPaginas = Math.ceil(filtrados.length / itensPorPagina);
+            document.getElementById('paginationInfo').textContent = 
+                `Mostrando ${inicio + 1}-${Math.min(fim, filtrados.length)} de ${filtrados.length}`;
+            
+            const pagination = document.getElementById('pagination');
+            pagination.innerHTML = Array.from({length: totalPaginas}, (_, i) => i + 1)
+                .map(p => `
+                    <button onclick="irParaPagina(${p})" 
+                        class="px-4 py-2 rounded ${p === paginaAtual ? 'bg-purple-600 text-white' : 'bg-gray-200'}">
+                        ${p}
+                    </button>
+                `).join('');
+        }
+
+        function getPlanoClass(plano) {
+            const classes = {
+                basico: 'bg-gray-100 text-gray-800',
+                profissional: 'bg-purple-100 text-purple-800',
+                empresarial: 'bg-yellow-100 text-yellow-800'
+            };
+            return classes[plano] || classes.basico;
+        }
+
+        function formatarData(data) {
+            return new Date(data).toLocaleDateString('pt-BR');
+        }
+
+        function irParaPagina(pagina) {
+            paginaAtual = pagina;
+            renderizarTabela();
+        }
+
+        // Editar tenant
+        function editarTenant(id) {
+            const tenant = tenants.find(t => t.id === id);
+            if (!tenant) return;
+            
+            document.getElementById('editId').value = tenant.id;
+            document.getElementById('editNome').value = tenant.nome;
+            document.getElementById('editSlug').value = tenant.slug;
+            document.getElementById('editEmail').value = tenant.email || '';
+            document.getElementById('editTelefone').value = tenant.telefone || '';
+            document.getElementById('editPlano').value = tenant.plano;
+            document.getElementById('editAtivo').value = tenant.ativo;
+            
+            document.getElementById('modalEdit').classList.remove('hidden');
+        }
+
+        function fecharModal() {
+            document.getElementById('modalEdit').classList.add('hidden');
+        }
+
+        // Salvar edição
+        document.getElementById('formEdit').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const id = document.getElementById('editId').value;
+            const dados = {
+                nome: document.getElementById('editNome').value,
+                slug: document.getElementById('editSlug').value,
+                email: document.getElementById('editEmail').value,
+                telefone: document.getElementById('editTelefone').value,
+                plano: document.getElementById('editPlano').value,
+                ativo: parseInt(document.getElementById('editAtivo').value)
+            };
+            
+            try {
+                const response = await fetch(`http://localhost:3001/api/super-admin/tenants/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + localStorage.getItem('superAdminToken')
+                    },
+                    body: JSON.stringify(dados)
+                });
+                
+                if (response.ok) {
+                    alert('✅ Atualizado com sucesso!');
+                    fecharModal();
+                    carregarTenants();
+                } else {
+                    throw new Error('Erro ao atualizar');
+                }
+            } catch (error) {
+                alert('❌ Erro ao atualizar: ' + error.message);
+            }
+        });
+
+        // Toggle status
+        async function toggleStatus(id, statusAtual) {
+            if (!confirm(`Deseja ${statusAtual ? 'desativar' : 'ativar'} este estabelecimento?`)) return;
+            
+            try {
+                const response = await fetch(`http://localhost:3001/api/super-admin/tenants/${id}/toggle`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': 'Bearer ' + localStorage.getItem('superAdminToken')
+                    }
+                });
+                
+                if (response.ok) {
+                    alert('✅ Status atualizado!');
+                    carregarTenants();
+                } else {
+                    throw new Error('Erro ao atualizar status');
+                }
+            } catch (error) {
+                alert('❌ Erro: ' + error.message);
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('superAdminToken');
+            window.location.href = '/super-admin-login.html';
+        }
+
+        // Filtros em tempo real
+        document.getElementById('searchInput').addEventListener('input', renderizarTabela);
+        document.getElementById('filtroStatus').addEventListener('change', renderizarTabela);
+
+        // Verificar autenticação e carregar dados
+        if (!localStorage.getItem('superAdminToken')) {
+            window.location.href = '/super-admin-login.html';
+        } else {
+            document.getElementById('adminName').textContent = 'Super Admin';
+            carregarTenants();
+        }
+    </script>
+</body>
+</html>

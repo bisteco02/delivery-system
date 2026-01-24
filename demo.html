@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo - PadocaOnline</title>
+    <link href="./styles/output.css" rel="stylesheet">
+    <style>
+        .demo-screen {
+            border: 3px solid #667eea;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .step {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.6s forwards;
+        }
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-purple-600 to-purple-900 min-h-screen py-12">
+    <div class="container mx-auto px-4 max-w-6xl">
+        <!-- Header -->
+        <div class="text-center mb-12 text-white">
+            <h1 class="text-5xl font-bold mb-4">🎥 Demo PadocaOnline</h1>
+            <p class="text-2xl">Veja como é fácil ter seu cardápio digital!</p>
+        </div>
+
+        <!-- Demo Flow -->
+        <div class="space-y-8">
+            <!-- Step 1 -->
+            <div class="step bg-white p-8 rounded-lg shadow-2xl" style="animation-delay: 0s;">
+                <div class="flex items-center gap-4 mb-4">
+                    <div class="bg-purple-600 text-white w-12 h-12 rounded-full flex items-center justify-center text-2xl font-bold">
+                        1
+                    </div>
+                    <h2 class="text-3xl font-bold text-gray-800">Cadastro Rápido</h2>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <p class="text-lg mb-4 text-gray-600">
+                            Em menos de 2 minutos você cria sua conta e já tem seu site no ar!
+                        </p>
+                        <ul class="space-y-2 text-gray-700">
+                            <li>✅ Nome da padaria</li>
+                            <li>✅ URL personalizada</li>
+                            <li>✅ Dados de contato</li>
+                            <li>✅ Senha segura</li>
+                        </ul>
+                        <div class="mt-4 p-4 bg-green-50 rounded border border-green-200">
+                            <strong class="text-green-800">Resultado:</strong>
+                            <p class="text-green-700">Seu site: <span class="font-mono">padocaonline.com.br/sua-padaria</span></p>
+                        </div>
+                    </div>
+                    <div class="bg-gray-100 p-4 rounded-lg demo-screen">
+                        <div class="text-sm text-gray-500 mb-2">📋 Formulário de Cadastro</div>
+                        <div class="space-y-2">
+                            <div class="h-8 bg-white rounded border"></div>
+                            <div class="h-8 bg-white rounded border"></div>
+                            <div class="h-8 bg-white rounded border"></div>
+                            <div class="h-12 bg-purple-600 rounded text-white flex items-center justify-center font-bold">
+                                🚀 Criar Conta
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="step bg-white p-8 rounded-lg shadow-2xl" style="animation-delay: 0.2s;">
+                <div class="flex items-center gap-4 mb-4">
+                    <div class="bg-purple-600 text-white w-12 h-12 rounded-full flex items-center justify-center text-2xl font-bold">
+                        2
+                    </div>
+                    <h2 class="text-3xl font-bold text-gray-800">Adicione seus Produtos</h2>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-gray-100 p-4 rounded-lg demo-screen">
+                        <div class="text-sm text-gray-500 mb-2">🎨 Painel Administrativo</div>
+                        <div class="grid grid-cols-3 gap-2">
+                            <div class="bg-white p-2 rounded text-center">
+                                <div class="text-2xl mb-1">🥖</div>
+                                <div class="text-xs">Pão Francês</div>
+                                <div class="text-xs font-bold text-green-600">R$ 0,50</div>
+                            </div>
+                            <div class="bg-white p-2 rounded text-center">
+                                <div class="text-2xl mb-1">🍰</div>
+                                <div class="text-xs">Bolo Caseiro</div>
+                                <div class="text-xs font-bold text-green-600">R$ 25,00</div>
+                            </div>
+                            <div class="bg-white p-2 rounded text-center">
+                                <div class="text-2xl mb-1">☕</div>
+                                <div class="text-xs">Café</div>
+                                <div class="text-xs font-bold text-green-600">R$ 3,00</div>
+                            </div>
+                        </div>
+                        <button class="w-full mt-2 bg-purple-600 text-white py-2 rounded text-sm">
+                            ➕ Adicionar Produto
+                        </button>
+                    </div>
+                    <div>
+                        <p class="text-lg mb-4 text-gray-600">
+                            Interface super fácil para gerenciar seu cardápio:
+                        </p>
+                        <ul class="space-y-2 text-gray-700">
+                            <li>📸 Upload de fotos</li>
+                            <li>💰 Definir preços</li>
+                            <li>📝 Descrições detalhadas</li>
+                            <li>🏷️ Organizar por categorias</li>
+                            <li>⭐ Destacar produtos</li>
+                            <li>🔄 Ativar/desativar itens</li>
+                        </ul>
+                        <div class="mt-4 p-4 bg-blue-50 rounded border border-blue-200">
+                            <strong class="text-blue-800">Dica:</strong>
+                            <p class="text-blue-700">Fotos bonitas aumentam as vendas em até 40%!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="step bg-white p-8 rounded-lg shadow-2xl" style="animation-delay: 0.4s;">
+                <div class="flex items-center gap-4 mb-4">
+                    <div class="bg-purple-600 text-white w-12 h-12 rounded-full flex items-center justify-center text-2xl font-bold">
+                        3
+                    </div>
+                    <h2 class="text-3xl font-bold text-gray-800">Clientes Fazem Pedidos</h2>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <p class="text-lg mb-4 text-gray-600">
+                            Seus clientes navegam pelo cardápio e fazem pedidos facilmente:
+                        </p>
+                        <ul class="space-y-2 text-gray-700">
+                            <li>📱 Funciona em qualquer celular</li>
+                            <li>🛒 Carrinho de compras</li>
+                            <li>💬 Envia direto pro WhatsApp</li>
+                            <li>📍 Preenchimento automático</li>
+                            <li>💳 Escolha forma de pagamento</li>
+                        </ul>
+                        <div class="mt-4 p-4 bg-yellow-50 rounded border border-yellow-200">
+                            <strong class="text-yellow-800">Resultado:</strong>
+                            <p class="text-yellow-700">Você recebe o pedido completo no WhatsApp!</p>
+                        </div>
+                    </div>
+                    <div class="bg-gray-100 p-4 rounded-lg demo-screen">
+                        <div class="text-sm text-gray-500 mb-2">📱 Visão do Cliente</div>
+                        <div class="bg-white rounded-lg p-3 mb-2">
+                            <div class="flex items-center gap-2">
+                                <div class="text-2xl">🥖</div>
+                                <div class="flex-1">
+                                    <div class="font-bold text-sm">Pão Francês</div>
+                                    <div class="text-xs text-gray-500">Quentinho e crocante</div>
+                                </div>
+                                <div class="font-bold text-green-600">R$ 0,50</div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-lg p-3 mb-2">
+                            <div class="flex items-center gap-2">
+                                <div class="text-2xl">☕</div>
+                                <div class="flex-1">
+                                    <div class="font-bold text-sm">Café Expresso</div>
+                                    <div class="text-xs text-gray-500">Grãos selecionados</div>
+                                </div>
+                                <div class="font-bold text-green-600">R$ 3,00</div>
+                            </div>
+                        </div>
+                        <button class="w-full bg-green-500 text-white py-3 rounded-lg font-bold">
+                            💬 Fazer Pedido no WhatsApp
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="step bg-white p-8 rounded-lg shadow-2xl" style="animation-delay: 0.6s;">
+                <div class="flex items-center gap-4 mb-4">
+                    <div class="bg-purple-600 text-white w-12 h-12 rounded-full flex items-center justify-center text-2xl font-bold">
+                        4
+                    </div>
+                    <h2 class="text-3xl font-bold text-gray-800">Gerencie Tudo em um Lugar</h2>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-6 rounded-lg text-center">
+                        <div class="text-4xl mb-2">📊</div>
+                        <div class="text-3xl font-bold mb-1">47</div>
+                        <div class="text-sm">Pedidos este mês</div>
+                    </div>
+                    <div class="bg-gradient-to-br from-green-500 to-green-600 text-white p-6 rounded-lg text-center">
+                        <div class="text-4xl mb-2">💰</div>
+                        <div class="text-3xl font-bold mb-1">R$ 2.340</div>
+                        <div class="text-sm">Faturamento</div>
+                    </div>
+                    <div class="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-6 rounded-lg text-center">
+                        <div class="text-4xl mb-2">⭐</div>
+                        <div class="text-3xl font-bold mb-1">4.8</div>
+                        <div class="text-sm">Avaliação média</div>
+                    </div>
+                </div>
+                <div class="mt-6 p-4 bg-purple-50 rounded border border-purple-200">
+                    <strong class="text-purple-800">Recursos Inclusos:</strong>
+                    <div class="grid grid-cols-2 gap-2 mt-2 text-purple-700">
+                        <div>✅ Relatórios de vendas</div>
+                        <div>✅ Histórico de pedidos</div>
+                        <div>✅ Produtos mais vendidos</div>
+                        <div>✅ Horários de pico</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pricing -->
+            <div class="step bg-white p-8 rounded-lg shadow-2xl" style="animation-delay: 0.8s;">
+                <div class="text-center mb-8">
+                    <h2 class="text-4xl font-bold text-gray-800 mb-2">💰 Investimento</h2>
+                    <p class="text-xl text-gray-600">Menos que o salário de 1 funcionário!</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="border-2 border-gray-200 p-6 rounded-lg text-center">
+                        <h3 class="text-xl font-bold mb-2">Básico</h3>
+                        <div class="text-4xl font-bold text-purple-600 mb-4">R$ 49<span class="text-lg">/mês</span></div>
+                        <ul class="text-left space-y-2 text-sm">
+                            <li>✅ Cardápio digital</li>
+                            <li>✅ Até 50 produtos</li>
+                            <li>✅ WhatsApp integrado</li>
+                        </ul>
+                    </div>
+                    <div class="border-4 border-purple-600 p-6 rounded-lg text-center bg-purple-50 transform scale-105">
+                        <div class="bg-purple-600 text-white text-xs py-1 px-3 rounded-full inline-block mb-2">
+                            RECOMENDADO
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">Profissional</h3>
+                        <div class="text-4xl font-bold text-purple-600 mb-4">R$ 99<span class="text-lg">/mês</span></div>
+                        <ul class="text-left space-y-2 text-sm">
+                            <li>✅ Tudo do Básico +</li>
+                            <li>✅ Produtos ilimitados</li>
+                            <li>✅ Promoções automáticas</li>
+                            <li>✅ Relatórios avançados</li>
+                        </ul>
+                    </div>
+                    <div class="border-2 border-gray-200 p-6 rounded-lg text-center">
+                        <h3 class="text-xl font-bold mb-2">Empresarial</h3>
+                        <div class="text-4xl font-bold text-purple-600 mb-4">R$ 199<span class="text-lg">/mês</span></div>
+                        <ul class="text-left space-y-2 text-sm">
+                            <li>✅ Múltiplas lojas</li>
+                            <li>✅ Tudo do Pro +</li>
+                            <li>✅ White label</li>
+                            <li>✅ Suporte 24/7</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="mt-6 text-center">
+                    <div class="inline-block bg-green-100 text-green-800 px-6 py-3 rounded-lg font-bold text-lg">
+                        🎉 30 DIAS GRÁTIS PARA TESTAR!
+                    </div>
+                </div>
+            </div>
+
+            <!-- CTA -->
+            <div class="step bg-gradient-to-r from-purple-600 to-purple-800 p-12 rounded-lg shadow-2xl text-center text-white" style="animation-delay: 1s;">
+                <h2 class="text-4xl font-bold mb-4">Pronto para Começar?</h2>
+                <p class="text-xl mb-8">Junte-se a centenas de padarias que já estão vendendo mais!</p>
+                <div class="space-y-4">
+                    <a href="/landing.html" class="inline-block bg-white text-purple-600 px-12 py-4 rounded-full text-xl font-bold hover:bg-gray-100 transition">
+                        🚀 Criar Minha Conta Grátis
+                    </a>
+                    <div class="text-sm">
+                        ✅ Sem cartão de crédito • ✅ Cancele quando quiser • ✅ Suporte incluído
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Depoimentos -->
+        <div class="mt-16 text-white">
+            <h2 class="text-3xl font-bold text-center mb-8">💬 O que nossos clientes dizem</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white text-gray-800 p-6 rounded-lg shadow-lg">
+                    <div class="text-yellow-400 text-2xl mb-2">⭐⭐⭐⭐⭐</div>
+                    <p class="italic mb-4">"Aumentei 30% nas vendas no primeiro mês! Os clientes adoram pedir pelo site."</p>
+                    <div class="font-bold">Maria Silva</div>
+                    <div class="text-sm text-gray-500">Padaria Pão Quente</div>
+                </div>
+                <div class="bg-white text-gray-800 p-6 rounded-lg shadow-lg">
+                    <div class="text-yellow-400 text-2xl mb-2">⭐⭐⭐⭐⭐</div>
+                    <p class="italic mb-4">"Super fácil de usar! Atualizei todo o cardápio em 20 minutos."</p>
+                    <div class="font-bold">João Santos</div>
+                    <div class="text-sm text-gray-500">Padaria São José</div>
+                </div>
+                <div class="bg-white text-gray-800 p-6 rounded-lg shadow-lg">
+                    <div class="text-yellow-400 text-2xl mb-2">⭐⭐⭐⭐⭐</div>
+                    <p class="italic mb-4">"Economizo horas por semana. Agora os pedidos já vêm completos no WhatsApp!"</p>
+                    <div class="font-bold">Ana Costa</div>
+                    <div class="text-sm text-gray-500">Padoca Central</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Animar steps quando aparecem na tela
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animationPlayState = 'running';
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.step').forEach(step => {
+            step.style.animationPlayState = 'paused';
+            observer.observe(step);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="/styles/output.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
+    <title>Finalizar Pedido - Padoca do Dedé</title>
+</head>
+<body class="bg-gray-100">
+    <header class="w-full bg-zinc-900 py-4">
+        <div class="max-w-7xl mx-auto px-2 flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-white" style="font-family: 'Great Vibes', cursive;">Padoca do Dedé</h1>
+            <a id="back-to-menu" href="index.html" class="text-white hover:text-yellow-400">Voltar ao Menu</a>
+        </div>
+    </header>
+
+    <main class="max-w-2xl mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold text-center mb-8">Finalizar Pedido</h1>
+
+        <div class="grid md:grid-cols-2 gap-8">
+            <!-- Resumo do Pedido -->
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-xl font-bold mb-4">Resumo do Pedido</h2>
+                <div id="checkout-items"></div>
+                <div class="border-t pt-4 mt-4">
+                    <p class="text-lg font-bold">Total: R$<span id="checkout-total">0,00</span></p>
+                </div>
+            </div>
+
+            <!-- Formulário de Entrega -->
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-xl font-bold mb-4">Dados do Pedido</h2>
+                <form id="checkout-form">
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Tipo de Entrega</label>
+                        <div class="flex items-center mb-2">
+                            <input type="radio" id="retirada" name="tipo_entrega" value="retirada" required class="mr-2">
+                            <label for="retirada">Retirar no balcão</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="radio" id="delivery" name="tipo_entrega" value="delivery" required class="mr-2">
+                            <label for="delivery">Delivery</label>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label for="nome" class="block text-sm font-medium text-gray-700">Nome Completo</label>
+                        <input type="text" id="nome" name="nome" required class="mt-1 block w-full border border-gray-300 rounded-md p-2">
+                    </div>
+                    <div class="mb-4">
+                        <label for="whatsapp" class="block text-sm font-medium text-gray-700">Número do WhatsApp</label>
+                        <input type="tel" id="whatsapp" name="whatsapp" required class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="(63) 99999-9999">
+                    </div>
+                    <div class="mb-4">
+                        <label for="bairro" class="block text-sm font-medium text-gray-700">Bairro</label>
+                        <select id="bairro" name="bairro" required class="mt-1 block w-full border border-gray-300 rounded-md p-2">
+                            <option value="" disabled selected>Selecione o bairro</option>
+                            <!-- Adicionar bairros aqui -->
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700">Taxa de Entrega</label>
+                        <p class="mt-1 text-lg font-bold text-green-600" id="taxa-entrega">R$0,00</p>
+                    </div>
+                    <div class="mb-4">
+                        <label for="rua" class="block text-sm font-medium text-gray-700">Rua</label>
+                        <input type="text" id="rua" name="rua" required class="mt-1 block w-full border border-gray-300 rounded-md p-2">
+                    </div>
+                    <div class="mb-4">
+                        <label for="numero" class="block text-sm font-medium text-gray-700">Número</label>
+                        <input type="text" id="numero" name="numero" required class="mt-1 block w-full border border-gray-300 rounded-md p-2">
+                    </div>
+                    <div class="mb-4">
+                        <label for="complemento" class="block text-sm font-medium text-gray-700">Complemento (opcional)</label>
+                        <input type="text" id="complemento" name="complemento" class="mt-1 block w-full border border-gray-300 rounded-md p-2">
+                    </div>
+                    <div class="mb-4">
+                        <label for="observacoes" class="block text-sm font-medium text-gray-700">Observações (opcional)</label>
+                        <textarea id="observacoes" name="observacoes" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Ex: Sem cebola, extra queijo, etc."></textarea>
+                    </div>
+
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Forma de pagamento</label>
+                        <div class="space-y-2">
+                            <label class="flex items-center gap-2">
+                                <input type="radio" name="forma_pagamento" value="pix" required class="text-red-500">
+                                <span>Pix</span>
+                            </label>
+                            <label class="flex items-center gap-2">
+                                <input type="radio" name="forma_pagamento" value="debito" class="text-red-500">
+                                <span>Cartão de débito</span>
+                            </label>
+                            <label class="flex items-center gap-2">
+                                <input type="radio" name="forma_pagamento" value="credito" class="text-red-500">
+                                <span>Cartão de crédito</span>
+                            </label>
+                        </div>
+
+                        <div id="pix-info" class="mt-4 hidden border border-gray-200 rounded-lg p-3 bg-gray-50">
+                            <p class="font-semibold mb-2">Pague via Pix (copia e cola):</p>
+                            <div class="flex gap-2 mb-3">
+                                <textarea id="pix-codigo" class="flex-1 border border-gray-300 rounded-md p-2 text-sm" rows="3" readonly></textarea>
+                                <button type="button" id="pix-copy-btn" class="btn-primary whitespace-nowrap">Copiar</button>
+                            </div>
+                            <div class="flex flex-col sm:flex-row items-center gap-4">
+                                <img id="pix-qr" src="" alt="QR Code Pix" class="w-32 h-32 border rounded-md object-contain bg-white">
+                                <div class="text-center sm:text-left">
+                                    <p class="text-sm text-gray-600">Tempo para pagar:</p>
+                                    <p id="pix-timer" class="text-lg font-bold text-red-600">--:--</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" id="finalizar-btn" class="w-full btn-primary">Finalizar Pedido</button>
+                    <button type="button" id="cancel-order-btn" class="w-full btn-secondary mt-3">Cancelar Pedido</button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Carregar carrinho do localStorage ou de uma variável global (simplificado)
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        const observacoesSalvas = localStorage.getItem('observacoes') || '';
+        const TENANT = (() => {
+            const pathParts = window.location.pathname.split('/').filter(Boolean);
+            if (pathParts.length > 0 && !pathParts[0].includes('.')) return pathParts[0];
+            const searchParams = new URLSearchParams(window.location.search);
+            return searchParams.get('tenant') || 'padoca-do-dede';
+        })();
+        const API_BASE = `${window.location.origin}/api`;
+        const tenantHeaders = { 'x-tenant': TENANT };
+        const fetchTenant = (path, options = {}) => fetch(`${API_BASE}${path}`, {
+            ...options,
+            headers: { ...(options.headers || {}), ...tenantHeaders }
+        });
+                // Ajustar link de voltar para respeitar o slug na URL
+                const backToMenu = document.getElementById('back-to-menu');
+                if (backToMenu) {
+                    backToMenu.href = `/${TENANT}/index.html`;
+                }
+        const assetBase = window.location.origin;
+        const assetUrl = (p) => `${assetBase}/${p.replace(/^\/+/, '')}`;
+        let promotions = [];
+
+        const checkoutItems = document.getElementById('checkout-items');
+        const checkoutTotal = document.getElementById('checkout-total');
+        const checkoutForm = document.getElementById('checkout-form');
+        const pixInfo = document.getElementById('pix-info');
+        const pixCodigoField = document.getElementById('pix-codigo');
+        const pixCopyBtn = document.getElementById('pix-copy-btn');
+        const pixQr = document.getElementById('pix-qr');
+        const pixTimerEl = document.getElementById('pix-timer');
+        const pixRadios = document.querySelectorAll('input[name="forma_pagamento"]');
+        const pixRadio = document.querySelector('input[name="forma_pagamento"][value="pix"]');
+
+        let siteConfig = {
+            deliveryFeesByNeighborhood: {
+                'Vila nova': 7.00,
+                'Imperial': 10.00,
+                'Vila Operária': 10.00,
+                'Planalto': 10.00,
+                'Novo Horizonte': 8.00,
+                'Tropical Palmas': 8.00,
+                'Jardim Municipal': 8.00,
+                'Jardim Brasilia': 10.00,
+                'Irmã Edilha': 10.00,
+                'São Vicente': 8.00,
+                'Praia Bela': 10.00,
+                'Brigadeiro': 10.00,
+                'Padre Luso': 8.00,
+                'Porto Leman': 10.00,
+                'Alto do Porto': 6.00,
+                'Umuarama': 6.00,
+                'Aeroporto': 7.00,
+                'Jardim Querido': 7.00,
+                'Jardim dos Ypês': 5.00,
+                'Jardim América': 6.00,
+                'Centro': 7.00,
+                'Nova Capital': 6.00,
+                'Parque Eldorado': 10.00,
+                'Universitário': 5.00,
+                'Alto da Colina': 10.00,
+                'São Francisco': 10.00,
+                'Beira Rio': 6.00,
+                'Eldorado': 10.00
+            },
+            pixKey: '',
+            pixName: ''
+        };
+        let PIX_CODIGO = siteConfig.pixKey;
+        let pixTimerInterval = null;
+        let pixExpiraEm = null;
+
+        // Carregar configurações do servidor
+        async function carregarConfiguracoes() {
+            try {
+                const resp = await fetchTenant('/company-data');
+                const json = await resp.json();
+                if (json.success && json.companyData) {
+                    siteConfig = {
+                        deliveryFeesByNeighborhood: json.companyData.deliveryFeesByNeighborhood || siteConfig.deliveryFeesByNeighborhood,
+                        pixKey: json.companyData.pixKey || '',
+                        pixCodigo: json.companyData.pixCodigo || '',
+                        pixName: json.companyData.pixName || '',
+                        mpAccessToken: json.companyData.mpAccessToken || ''
+                    };
+                    PIX_CODIGO = siteConfig.pixCodigo || siteConfig.pixKey; // Fallback para pixKey se pixCodigo estiver vazio
+                    console.log('✅ Configurações carregadas:', siteConfig);
+                    console.log('🔑 Token MP:', siteConfig.mpAccessToken ? '✅ Configurado' : '❌ Não configurado');
+                    aplicarPixDisponibilidade();
+                    updateCheckout();
+                }
+            } catch (error) {
+                console.warn('⚠️ Usando configurações padrão');
+            }
+        }
+
+        async function carregarPromocoesCheckout() {
+            try {
+                const resp = await fetchTenant('/promotions');
+                const json = await resp.json();
+                if (json.success && Array.isArray(json.promotions)) {
+                    promotions = json.promotions;
+                    updateCheckout();
+                }
+            } catch (error) {
+                console.warn('⚠️ Não foi possível carregar promoções para o checkout');
+            }
+        }
+
+        carregarConfiguracoes();
+        carregarPromocoesCheckout();
+
+        // Verificar se já existe um pedido PIX registrado ao carregar a página
+        const pedidoPixExistente = localStorage.getItem('pedidoPix');
+        if (pedidoPixExistente) {
+            try {
+                const pedido = JSON.parse(pedidoPixExistente);
+                const confirma = confirm(`⚠️ Você já tem um pedido PIX registrado!\n\nPedido #${pedido.numero}\nTotal: R$${pedido.total.toFixed(2).replace('.', ',')}\n\nDeseja limpar este pedido e fazer um novo?\n\nClique em "Cancelar" para manter o pedido atual e ver o código PIX novamente.`);
+                if (confirma) {
+                    localStorage.removeItem('pedidoPix');
+                    alert('✅ Pedido anterior removido. Você pode fazer um novo pedido.');
+                } else {
+                    // Mostrar informações do pedido existente
+                    alert('📦 Pedido em andamento\n\nSeu pedido ainda está aguardando pagamento. Complete o pagamento via PIX para continuar.');
+                    // Opcional: redirecionar ou bloquear novo pedido
+                }
+            } catch (e) {
+                console.error('Erro ao verificar pedido PIX existente:', e);
+            }
+        }
+
+        // Cancelar pedido
+        document.getElementById('cancel-order-btn').addEventListener('click', () => {
+            if (confirm('Tem certeza que deseja cancelar o pedido? O carrinho será limpo.')) {
+                localStorage.removeItem('cart');
+                localStorage.removeItem('observacoes');
+                window.location.href = 'index.html';
+            }
+        });
+
+        function resolveImage(p) {
+            if (!p) return assetUrl('assets/default.jpg');
+            if (p.startsWith('http')) return p;
+            if (p.startsWith('/uploads')) return `${assetBase}${p}`;
+            if (p.startsWith('/assets')) return `${assetBase}${p}`;
+            if (p.startsWith('assets/')) return assetUrl(p);
+            if (p.startsWith('../')) return assetUrl(p.replace('../', ''));
+            if (p.startsWith('/')) return `${assetBase}${p}`;
+            return assetUrl(p);
+        }
+
+        // Mapeamento de imagens dos itens
+        const itemImages = {
+            'Coringa': assetUrl('assets/Coringa.jpg'),
+            'Darth Vader': assetUrl('assets/darthvader.jpg'),
+            'Gargamel': assetUrl('assets/Gargamel.jpg'),
+            'Lex Luthor': assetUrl('assets/Lex Luthor.jpg'),
+            'Coca Cola Zero Lata': assetUrl('assets/coca lata.png'),
+            'Coca Cola 2L': assetUrl('assets/Coca 2L.jpg')
+        };
+
+        // Bairros e taxas
+        const bairrosTaxas = {
+            'Vila nova': 7.00,
+            'Imperial': 10.00,
+            'Vila Operária': 10.00,
+            'Planalto': 10.00,
+            'Novo Horizonte': 8.00,
+            'Tropical Palmas': 8.00,
+            'Jardim Municipal': 8.00,
+            'Jardim Brasilia': 10.00,
+            'Irmã Edilha': 10.00,
+            'São Vicente': 8.00,
+            'Praia Bela': 10.00,
+            'Brigadeiro': 10.00,
+            'Padre Luso': 8.00,
+            'Porto Leman': 10.00,
+            'Alto do Porto': 6.00,
+            'Umuarama': 6.00,
+            'Aeroporto': 7.00,
+            'Jardim Querido': 7.00,
+            'Jardim dos Ypês': 5.00,
+            'Jardim América': 6.00,
+            'Centro': 7.00,
+            'Nova Capital': 6.00,
+            'Parque Eldorado': 10.00,
+            'Universitário': 5.00,
+            'Alto da Colina': 10.00,
+            'São Francisco': 10.00,
+            'Beira Rio': 6.00,
+            'Eldorado': 10.00
+        };
+
+        let taxaEntrega = 0;
+
+        function updateCheckout() {
+            checkoutItems.innerHTML = '';
+            let subtotal = 0;
+            cart.forEach(item => {
+                const itemTotal = item.totalPrice * item.quantity;
+                subtotal += itemTotal;
+                
+                // Buscar imagem do item ou usar fallback
+                const baseName = (item.name || '').split(' + ')[0];
+                const promo = promotions.find(p => (p.name || p.nome) === baseName);
+                const isPromotion = !!promo;
+                const isCombo = isPromotion && promo.type === 'combo' && promo.items && Array.isArray(promo.items);
+                let imageSrc = resolveImage(item.image || itemImages[baseName] || './assets/default.jpg');
+                
+                const itemElement = document.createElement('div');
+                itemElement.classList.add('flex', 'items-center', 'mb-4', 'border-b', 'pb-2');
+                
+                let comboItemsHTML = '';
+                if (isCombo && promo.items) {
+                    comboItemsHTML = `<p class="text-xs text-gray-600 mt-1">📦 <strong>Combo inclui:</strong> ${promo.items.map(i => i.name).join(', ')}</p>`;
+                }
+                
+                itemElement.innerHTML = `
+                    <img src="${imageSrc}" alt="${item.name}" class="w-16 h-16 rounded-md mr-4 object-cover">
+                    <div class="flex-1">
+                        <p class="font-medium flex items-center gap-2">
+                            ${baseName}
+                            ${isCombo ? '<span class="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded font-bold">COMBO</span>' : ''}
+                            ${isPromotion && !isCombo ? '<span class="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded">Promo</span>' : ''}
+                        </p>
+                        ${comboItemsHTML}
+                        ${item.bebida ? `<p class="text-xs text-gray-600">Bebida: ${item.bebida}</p>` : ''}
+                        ${item.adicionais && item.adicionais.length > 0 ? `<p class="text-xs text-gray-600">Adicionais: ${item.adicionais.join(', ')}</p>` : ''}
+                        ${item.observacoes ? `<p class="text-xs text-gray-600">Obs: ${item.observacoes}</p>` : ''}
+                        <p class="text-sm">Qtd: ${item.quantity} - R$${item.totalPrice.toFixed(2).replace('.', ',')}</p>
+                    </div>
+                    <p class="font-bold">R$${itemTotal.toFixed(2).replace('.', ',')}</p>
+                `;
+                checkoutItems.appendChild(itemElement);
+            });
+            
+            // Inicia taxa com valor padrão da configuração
+            taxaEntrega = siteConfig.deliveryFee || 5.00;
+            updateTotal();
+        }
+
+        // Popular bairros em ordem alfabética
+        const bairroSelect = document.getElementById('bairro');
+        const bairrosOrdenados = Object.keys(bairrosTaxas).sort();
+        bairrosOrdenados.forEach(bairro => {
+            const option = document.createElement('option');
+            option.value = bairro;
+            option.textContent = bairro;
+            bairroSelect.appendChild(option);
+        });
+
+        // Preencher observações salvas
+        document.getElementById('observacoes').value = observacoesSalvas;
+
+        // Máscara para WhatsApp
+        const whatsappInput = document.getElementById('whatsapp');
+        whatsappInput.addEventListener('input', (e) => {
+            let value = e.target.value.replace(/\D/g, '');
+            value = value.slice(0, 11); // Limitar a 11 dígitos
+            if (value.length > 2) {
+                value = `(${value.slice(0, 2)}) ${value.slice(2)}`;
+            }
+            if (value.length > 9) {
+                value = `${value.slice(0, 9)}-${value.slice(9)}`;
+            }
+            e.target.value = value;
+        });
+
+        // PIX helpers
+        function atualizarQrPix(codigo) {
+            pixCodigoField.value = codigo;
+            const encoded = encodeURIComponent(codigo);
+            pixQr.src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encoded}`;
+        }
+
+        function aplicarPixDisponibilidade() {
+            const chave = siteConfig.pixKey || '';
+            const codigo = siteConfig.pixCodigo || '';
+            if (!chave || !codigo) {
+                if (pixRadio) {
+                    pixRadio.checked = false;
+                    pixRadio.disabled = true;
+                }
+                pixInfo.classList.add('hidden');
+                limparTimerPix();
+                pixCodigoField.value = '';
+                pixQr.src = '';
+                return;
+            }
+            if (pixRadio) {
+                pixRadio.disabled = false;
+            }
+            pixCodigoField.title = siteConfig.pixName ? `Titular: ${siteConfig.pixName}` : '';
+            atualizarQrPix(codigo);
+        }
+
+        function limparTimerPix() {
+            if (pixTimerInterval) {
+                clearInterval(pixTimerInterval);
+                pixTimerInterval = null;
+            }
+            pixTimerEl.textContent = '--:--';
+            pixExpiraEm = null;
+        }
+
+        function iniciarTimerPix(minutos = 15) {
+            limparTimerPix();
+            const agora = Date.now();
+            pixExpiraEm = new Date(agora + minutos * 60 * 1000).toISOString();
+            pixTimerInterval = setInterval(() => {
+                const restanteMs = new Date(pixExpiraEm).getTime() - Date.now();
+                if (restanteMs <= 0) {
+                    pixTimerEl.textContent = 'Expirado';
+                    limparTimerPix();
+                    return;
+                }
+                const totalSec = Math.floor(restanteMs / 1000);
+                const m = String(Math.floor(totalSec / 60)).padStart(2, '0');
+                const s = String(totalSec % 60).padStart(2, '0');
+                pixTimerEl.textContent = `${m}:${s}`;
+            }, 1000);
+        }
+
+        atualizarQrPix(PIX_CODIGO);
+
+        if (pixCopyBtn) {
+            pixCopyBtn.addEventListener('click', () => {
+                navigator.clipboard.writeText(pixCodigoField.value).then(() => {
+                    alert('Código Pix copiado');
+                });
+            });
+        }
+
+        pixRadios.forEach(radio => {
+            radio.addEventListener('change', async () => {
+                if (radio.value === 'pix' && radio.checked) {
+                    if (!siteConfig.pixCodigo) {
+                        alert('PIX não configurado pelo estabelecimento. Escolha outra forma de pagamento.');
+                        radio.checked = false;
+                        pixInfo.classList.add('hidden');
+                        return;
+                    }
+                    pixInfo.classList.remove('hidden');
+                    iniciarTimerPix();
+                    
+                    // Validar formulário antes de criar pedido
+                    const nome = document.getElementById('nome').value.trim();
+                    const whatsapp = document.getElementById('whatsapp').value.trim();
+                    const tipoEntrega = document.querySelector('input[name="tipo_entrega"]:checked')?.value;
+                    
+                    if (!nome || !whatsapp || !tipoEntrega) {
+                        alert('⚠️ Por favor, preencha Nome, WhatsApp e Tipo de Entrega antes de selecionar PIX.');
+                        radio.checked = false;
+                        pixInfo.classList.add('hidden');
+                        limparTimerPix();
+                        return;
+                    }
+                    
+                    // Se delivery, validar endereço
+                    if (tipoEntrega === 'delivery') {
+                        const bairro = document.getElementById('bairro').value;
+                        const rua = document.getElementById('rua').value.trim();
+                        const numero = document.getElementById('numero').value.trim();
+                        if (!bairro || !rua || !numero) {
+                            alert('⚠️ Por favor, preencha o endereço completo para delivery.');
+                            radio.checked = false;
+                            pixInfo.classList.add('hidden');
+                            limparTimerPix();
+                            return;
+                        }
+                    }
+                    
+                    // Criar pedido automaticamente
+                    await finalizarPedidoPix();
+                    
+                } else if (radio.checked) {
+                    pixInfo.classList.add('hidden');
+                    limparTimerPix();
+                    // Reabilitar botão finalizar para outras formas
+                    document.getElementById('finalizar-btn').disabled = false;
+                    document.getElementById('finalizar-btn').textContent = 'Finalizar Pedido';
+                }
+            });
+        });
+
+        // Ajusta disponibilidade do PIX na carga inicial (caso config local já exista)
+        aplicarPixDisponibilidade();
+        
+        // Função para finalizar pedido PIX automaticamente
+        async function finalizarPedidoPix() {
+            const formData = new FormData(checkoutForm);
+            const nome = formData.get('nome');
+            const whatsapp = formData.get('whatsapp');
+            const tipoEntrega = formData.get('tipo_entrega');
+            const bairro = formData.get('bairro');
+            const rua = formData.get('rua');
+            const numero = formData.get('numero');
+            const complemento = formData.get('complemento');
+            const observacoes = formData.get('observacoes');
+            
+            // Calcular total
+            let subtotal = 0;
+            cart.forEach(item => {
+                subtotal += item.totalPrice * item.quantity;
+            });
+            const total = subtotal + taxaEntrega;
+            
+            const pedidoApi = {
+                cliente_nome: nome,
+                cliente_telefone: whatsapp,
+                cliente_endereco: tipoEntrega === 'delivery' ? `${rua}, ${numero}${complemento ? ', ' + complemento : ''}, ${bairro}` : 'Retirada no balcão',
+                itens: cart.map(item => ({
+                    nome: item.name,
+                    quantidade: item.quantity,
+                    precoTotal: item.totalPrice
+                })),
+                total: total,
+                forma_pagamento: 'pix',
+                observacoes: observacoes
+            };
+            
+            try {
+                const response = await fetchTenant('/pedidos', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(pedidoApi)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    console.log('✅ Pedido PIX criado automaticamente:', result);
+                    
+                    // Salvar no localStorage
+                    localStorage.setItem('pedidoPix', JSON.stringify({
+                        id: result.pedido.id,
+                        numero: result.pedido.numero_pedido,
+                        total: total,
+                        data: new Date().toISOString()
+                    }));
+                    
+                    // Desabilitar botão finalizar
+                    const finalizarBtn = document.getElementById('finalizar-btn');
+                    finalizarBtn.disabled = true;
+                    finalizarBtn.textContent = '✅ Pedido Registrado - Aguardando Pagamento';
+                    finalizarBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                    
+                    // Mostrar mensagem
+                    alert(`✅ Pedido registrado com sucesso!\n\nPedido #${result.pedido.numero_pedido}\n\nRealize o pagamento via PIX e aguarde a confirmação.\n\nVocê pode fechar esta página após copiar o código PIX.`);
+                    
+                } else {
+                    console.error('❌ Erro ao criar pedido PIX:', result);
+                    alert('❌ Erro ao registrar pedido: ' + (result.message || 'Erro desconhecido'));
+                }
+            } catch (error) {
+                console.error('❌ Erro ao enviar pedido PIX:', error);
+                alert('❌ Erro ao conectar com o servidor: ' + error.message);
+            }
+        }
+
+        // Atualizar taxa ao mudar bairro
+        bairroSelect.addEventListener('change', (e) => {
+            const bairro = e.target.value;
+            taxaEntrega = (siteConfig.deliveryFeesByNeighborhood && siteConfig.deliveryFeesByNeighborhood[bairro]) || bairrosTaxas[bairro] || 0;
+            updateTotal();
+        });
+
+        function updateTotal() {
+            let subtotal = 0;
+            cart.forEach(item => {
+                subtotal += item.totalPrice * item.quantity;
+            });
+            
+            // Calcular taxa de entrega
+            let taxa = 0;
+            if (document.getElementById('delivery').checked) {
+                taxa = taxaEntrega;
+            }
+            
+            const total = subtotal + taxa;
+            checkoutTotal.textContent = total.toFixed(2).replace('.', ',');
+            document.getElementById('taxa-entrega').textContent = `R$${taxa.toFixed(2).replace('.', ',')}`;
+        }
+
+        // Mostrar/ocultar campos de endereço
+        const retiradaRadio = document.getElementById('retirada');
+        const deliveryRadio = document.getElementById('delivery');
+        const enderecoFieldsRequired = document.querySelectorAll('#bairro, #rua, #numero');
+        const enderecoFieldsAll = document.querySelectorAll('#bairro, #rua, #numero, #complemento, #observacoes');
+
+        function toggleEnderecoFields() {
+            const isDelivery = deliveryRadio.checked;
+            enderecoFieldsRequired.forEach(field => {
+                field.required = isDelivery;
+            });
+            enderecoFieldsAll.forEach(field => {
+                field.parentElement.style.display = isDelivery ? 'block' : 'none';
+            });
+            // Garantir que complemento e observações nunca sejam obrigatórios
+            document.getElementById('complemento').required = false;
+            document.getElementById('observacoes').required = false;
+            // Garantir que nome e WhatsApp sempre sejam obrigatórios
+            document.getElementById('nome').required = true;
+            document.getElementById('whatsapp').required = true;
+            
+            // Recalcular taxa quando muda entre retirada e delivery
+            updateTotal();
+        }
+
+        retiradaRadio.addEventListener('change', toggleEnderecoFields);
+        deliveryRadio.addEventListener('change', toggleEnderecoFields);
+
+        // Inicialmente, ocultar campos se retirada estiver selecionada
+        toggleEnderecoFields();
+
+        checkoutForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Se for PIX, já foi processado automaticamente
+            const formaPagamento = document.querySelector('input[name="forma_pagamento"]:checked')?.value;
+            if (formaPagamento === 'pix') {
+                alert('⚠️ Pedido PIX já foi registrado. Aguarde a confirmação do pagamento.');
+                return;
+            }
+            
+            const formData = new FormData(checkoutForm);
+            const tipoEntrega = formData.get('tipo_entrega');
+            const nome = formData.get('nome');
+            const whatsapp = formData.get('whatsapp');
+            const bairro = formData.get('bairro');
+            const rua = formData.get('rua');
+            const numero = formData.get('numero');
+            const complemento = formData.get('complemento');
+            const observacoes = formData.get('observacoes');
+
+            // Validação especial para PIX
+            if (formaPagamento === 'pix') {
+                if (!siteConfig.pixCodigo && !siteConfig.mpAccessToken) {
+                    alert('❌ Erro: Dados de PIX não configurados. Por favor, contacte o proprietário.');
+                    return;
+                }
+                
+                // Se houver token MP (dinâmico), usar API
+                if (siteConfig.mpAccessToken) {
+                    console.log('📱 Usando PIX dinâmico via Mercado Pago');
+                } else {
+                    // Usar PIX estático
+                    if (!siteConfig.pixName || !siteConfig.pixCodigo) {
+                        alert('❌ Erro: Dados de PIX não configurados. Por favor, contacte o proprietário.');
+                        return;
+                    }
+                    const confirmacao = confirm(`💳 Confirmação de Pagamento PIX\n\n✅ Código PIX copiado?\n\nPor favor, realize a transferência no valor total e confirme para prosseguir com seu pedido.\n\nClique em OK para confirmar que realizou o pagamento.`);
+                    if (!confirmacao) {
+                        alert('⚠️ Pedido cancelado. Você pode completar o pagamento e tentar novamente.');
+                        return;
+                    }
+                }
+            }
+
+            // Calcular total
+            let subtotal = 0;
+            cart.forEach(item => {
+                subtotal += item.totalPrice * item.quantity;
+            });
+            const total = subtotal + taxaEntrega;
+
+            // Dados de pagamento
+            const pagamento = {
+                forma: formaPagamento,
+                pixCodigo: formaPagamento === 'pix' && !siteConfig.mpAccessToken ? PIX_CODIGO : null,
+                pixExpiraEm: formaPagamento === 'pix' && !siteConfig.mpAccessToken ? pixExpiraEm : null,
+                pixConfirmado: formaPagamento === 'pix' && !siteConfig.mpAccessToken ? true : null
+            };
+
+            // Preparar dados do pedido para o backend
+            const pedidoData = {
+                cliente: {
+                    nome: nome,
+                    whatsapp: whatsapp
+                },
+                itens: cart.map(item => ({
+                    nome: item.name,
+                    quantidade: item.quantity,
+                    precoUnitario: item.basePrice,
+                    precoTotal: item.totalPrice,
+                    bebida: item.bebida,
+                    adicionais: item.adicionais,
+                    observacoes: item.observacoes,
+                    imagem: item.image
+                })),
+                total: total,
+                endereco: tipoEntrega === 'delivery' ? `${rua}, ${numero}${complemento ? ', ' + complemento : ''}` : 'Retirada no balcão',
+                bairro: bairro || 'N/A',
+                taxaEntrega: taxaEntrega,
+                tipoEntrega: tipoEntrega,
+                observacoes: observacoes,
+                pagamento: pagamento,
+                status: formaPagamento === 'pix' ? 'pago' : 'pendente'
+            };
+
+            try {
+                // Se for PIX dinâmico (com token MP), criar pagamento antes
+                let pixDinamico = null;
+                if (formaPagamento === 'pix' && siteConfig.mpAccessToken) {
+                    try {
+                        const mpResp = await fetchTenant('/mp-pix-create', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                amount: total,
+                                description: `Pedido - ${nome}`,
+                                orderId: `temp-${Date.now()}`
+                            })
+                        });
+                        const ct = (mpResp.headers.get('content-type') || '').toLowerCase();
+                        if (!mpResp.ok || !ct.includes('application/json')) {
+                            throw new Error(`mp-pix-create falhou: status ${mpResp.status}`);
+                        }
+                        pixDinamico = await mpResp.json();
+                        if (pixDinamico.success) {
+                            console.log('✅ PIX dinâmico criado:', pixDinamico.paymentId);
+                            // Atualizar dados do pagamento com dados dinâmicos
+                            pagamento.pixCodigo = pixDinamico.copiaECola;
+                            pagamento.pixDinamico = true;
+                            pagamento.mpPaymentId = pixDinamico.paymentId;
+                            pedidoData.pagamento = pagamento;
+                        }
+                    } catch (err) {
+                        console.error('⚠️ Erro ao criar PIX dinâmico, usando estático:', err);
+                    }
+                }
+
+                // Adaptar formato para o backend (campos planos)
+                const pedidoApi = {
+                    cliente_nome: nome,
+                    cliente_telefone: whatsapp,
+                    cliente_endereco: tipoEntrega === 'delivery' ? `${rua}, ${numero}${complemento ? ', ' + complemento : ''}, ${bairro}` : 'Retirada no balcão',
+                    itens: cart.map(item => ({
+                        nome: item.name,
+                        quantidade: item.quantity,
+                        precoTotal: item.totalPrice
+                    })),
+                    total: total,
+                    forma_pagamento: formaPagamento,
+                    observacoes: observacoes
+                };
+
+                // Enviar pedido ao backend
+                const response = await fetchTenant('/pedidos', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(pedidoApi)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    console.log('✅ Pedido salvo:', result);
+                    // Criar mensagem para WhatsApp
+                    const order = cart.map(item => `${item.name} x${item.quantity}`).join(', ');
+                    let message = `Olá! Meu nome é ${nome}. Gostaria de fazer o seguinte pedido: ${order}.`;
+                    
+                    if (tipoEntrega === 'delivery') {
+                        const endereco = `${rua}, ${numero}${complemento ? ', ' + complemento : ''}, ${bairro}`;
+                        message += ` Tipo: Delivery. Endereço: ${endereco}. Taxa de entrega: R$${taxaEntrega.toFixed(2).replace('.', ',')}.`;
+                    } else {
+                        message += ` Tipo: Retirar no balcão.`;
+                    }
+                    
+                    message += ` Subtotal: R$${subtotal.toFixed(2).replace('.', ',')}. Total: R$${total.toFixed(2).replace('.', ',')}.`;
+                    
+                    if (observacoes) {
+                        message += ` Observações: ${observacoes}.`;
+                    }
+
+                    message += ` Pagamento: ${formaPagamento === 'pix' ? 'Pix' : formaPagamento === 'debito' ? 'Débito' : 'Crédito'}.`;
+                    
+                    message += ` WhatsApp: ${whatsapp}`;
+                    message += ` | Pedido #${result.pedido.id}`;
+
+                    // Codificar mensagem para URL
+                    const encodedMessage = encodeURIComponent(message);
+                    const whatsappUrl = `https://wa.me/5563999999999?text=${encodedMessage}`; // Substitua pelo número real
+
+                    // Limpar carrinho
+                    cart = [];
+                    localStorage.setItem('cart', JSON.stringify(cart));
+                    localStorage.removeItem('observacoes');
+                    
+                    // Mensagem diferente para PIX
+                    if (formaPagamento === 'pix') {
+                        if (pixDinamico && pixDinamico.copiaECola) {
+                            alert(`✅ Pedido confirmado com sucesso!\n\n💳 Pagamento via PIX (Dinâmico)\n\n📋 Copia e Cola:\n${pixDinamico.copiaECola}\n\nSeu pedido foi registrado e confirmado.\n\nPedido #${result.pedido.id}`);
+                        } else {
+                            alert(`✅ Pedido confirmado com sucesso!\n\n💳 Pagamento via PIX\n\nSeu pedido foi registrado e confirmado. Você será redirecionado para o WhatsApp para confirmação.\n\nPedido #${result.pedido.id}`);
+                        }
+                    } else {
+                        alert('✅ Pedido salvo com sucesso! Você será redirecionado para o WhatsApp.');
+                    }
+                    
+                    // Redirecionar para WhatsApp
+                    window.open(whatsappUrl, '_blank');
+                    
+                    // Redirecionar para a página inicial
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 1000);
+                } else {
+                    console.error('❌ Erro do servidor:', result);
+                    alert('❌ Erro ao salvar pedido: ' + (result.message || result.erro || 'Erro desconhecido'));
+                }
+            } catch (error) {
+                console.error('❌ Erro ao enviar pedido:', error);
+                alert('❌ Erro ao conectar com o servidor: ' + error.message);
+            }
+        });
+    </script>
+</body>
+</html>
