@@ -4,10 +4,18 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# Variáveis de ambiente
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
 # Banco de dados local
 *.db
 *.sqlite
 *.sqlite3
+sessions/
 
 # Autenticação WhatsApp
 .wwebjs_auth/
@@ -19,14 +27,8 @@ whatsapp-auth/
 Thumbs.db
 *.log
 
-# Uploads locais (use cloud storage em produção)
+# Uploads (se usar cloud, descomentar)
 # uploads/
-
-# Configurações locais
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
 
 # Build
 dist/
@@ -38,7 +40,3 @@ build/
 *.swp
 *.swo
 *~
-
-# Backup
-_backup/
-*.backup

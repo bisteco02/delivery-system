@@ -72,28 +72,36 @@
     </style>
     <script>
         // Ocultar todas as abas exceto a salva ANTES de qualquer renderização
-        (() => {
+        (function() {
             const abaSalva = localStorage.getItem('abaPainelAtiva');
-            const allTabs = document.querySelectorAll('.tab-section');
-            const allBtns = document.querySelectorAll('.tab-btn');
-            
-            if (abaSalva) {
-                allTabs.forEach(tab => {
-                    if (tab.id !== abaSalva) {
-                        tab.classList.add('hidden');
-                    }
-                });
-                allBtns.forEach(btn => {
-                    if (btn.dataset.tab !== abaSalva) {
-                        btn.classList.remove('active', 'bg-zinc-900', 'text-white');
-                        btn.classList.add('bg-gray-200');
-                    } else {
-                        btn.classList.add('active', 'bg-zinc-900', 'text-white');
-                        btn.classList.remove('bg-gray-200');
-                    }
-                });
-                console.log('⚡ CSS pré-renderização aplicado para aba:', abaSalva);
-            }
+            window.addEventListener('DOMContentLoaded', function() {
+                const allTabs = document.querySelectorAll('.tab-section');
+                const allBtns = document.querySelectorAll('.tab-btn');
+                let found = false;
+                if (abaSalva) {
+                    allTabs.forEach(tab => {
+                        if (tab.id === abaSalva) {
+                            tab.classList.remove('hidden');
+                            found = true;
+                        } else {
+                            tab.classList.add('hidden');
+                        }
+                    });
+                    allBtns.forEach(btn => {
+                        if (btn.dataset.tab !== abaSalva) {
+                            btn.classList.remove('active', 'bg-zinc-900', 'text-white');
+                            btn.classList.add('bg-gray-200');
+                        } else {
+                            btn.classList.add('active', 'bg-zinc-900', 'text-white');
+                            btn.classList.remove('bg-gray-200');
+                        }
+                    });
+                }
+                // Se não houver aba salva ou não encontrada, mostra a primeira
+                if (!found && allTabs[0]) {
+                    allTabs[0].classList.remove('hidden');
+                }
+            });
         })();
     </script>
 </head>
@@ -121,10 +129,12 @@
             <button class="tab-btn bg-gray-200 px-4 py-2 rounded" data-tab="tab-pagamentos">Meus dados</button>
             <button class="tab-btn bg-gray-200 px-4 py-2 rounded" data-tab="tab-config">Configurações</button>
             <button class="tab-btn bg-gray-200 px-4 py-2 rounded" data-tab="tab-promotions">Promoções</button>
+            <button class="tab-btn bg-gray-200 px-4 py-2 rounded" data-tab="tab-addons">Adicionais</button>
+            <button class="tab-btn bg-gray-200 px-4 py-2 rounded" data-tab="tab-monte">Monte sua pizza</button>
             <button class="tab-btn bg-gray-200 px-4 py-2 rounded" data-tab="tab-relatorios">Relatórios</button>
         </div>
         <!-- Dashboard / Cardápio -->
-        <section id="tab-dashboard" class="tab-section">
+        <section id="tab-dashboard" class="tab-section hidden">
             <!-- Cardápio Digital -->
             <div class="bg-white p-6 rounded-lg shadow mb-6">
                 <h2 class="text-2xl font-bold mb-4">📋 Cardápio Digital</h2>
@@ -190,6 +200,11 @@
                         <input id="toggle-auto-confirmar" type="checkbox" class="toggle-checkbox" />
                         <span class="text-sm font-medium">✅ Auto confirmar</span>
                     </label>
+
+                    <div class="flex gap-2">
+                        <button id="minimize-all-orders" type="button" class="px-3 py-2 border rounded-lg text-sm hover:bg-gray-100 transition">➖ Minimizar todos</button>
+                        <button id="expand-all-orders" type="button" class="px-3 py-2 border rounded-lg text-sm hover:bg-gray-100 transition">➕ Expandir todos</button>
+                    </div>
                 </div>
             </div>
 
@@ -657,6 +672,57 @@
             </div>
         </section>
 
+        <!-- Adicionais -->
+        <section id="tab-addons" class="tab-section hidden">
+            <div class="bg-white p-6 rounded-lg shadow mb-6">
+                <div class="flex justify-between items-center mb-4">
+                    <div>
+                        <h2 class="text-2xl font-bold mb-2">🍟 Gerenciar Adicionais</h2>
+                        <p class="text-gray-600">Adicione, edite e controle os adicionais disponíveis nos itens</p>
+                    </div>
+                    
+                    <button id="add-addon-btn" type="button" onclick="abrirModalAddon(-1)" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition font-semibold flex items-center gap-2">
+                        <i class="fa fa-plus"></i> Adicionar Adicional
+                    </button>
+                </div>
+
+                <!-- Lista de Adicionais -->
+                <div id="addons-list" class="space-y-3">
+                    <!-- Adicionais serão carregados via JavaScript -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Monte sua pizza -->
+        <section id="tab-monte" class="tab-section hidden">
+            <div class="bg-white p-6 rounded-lg shadow mb-6">
+                <div class="flex justify-between items-center mb-4">
+                    <div>
+                        <h2 class="text-2xl font-bold mb-2">🍕 Monte sua pizza</h2>
+                        <p class="text-gray-600">Escolha quais sabores (pizzas) aparecem como metades no Monte sua pizza</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button type="button" onclick="abrirModalNovoSaborMonte()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition font-semibold flex items-center gap-2">
+                            <i class="fa fa-plus"></i> Novo sabor
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mb-4 flex items-center gap-3">
+                    <label class="text-sm font-medium text-gray-700">Filtrar tamanho:</label>
+                    <select id="monte-filter-select" class="border rounded px-2 py-1">
+                        <option value="all">Todos</option>
+                        <option value="8">8 pedaços</option>
+                        <option value="4">4 pedaços</option>
+                    </select>
+                </div>
+
+                <div id="monte-pizzas-list" class="space-y-3">
+                    <!-- Sabores (pizzas) serão carregados via JavaScript -->
+                </div>
+            </div>
+        </section>
+
         <!-- Relatórios -->
         <section id="tab-relatorios" class="tab-section hidden">
             <!-- Cabeçalho com Filtro - Atualizado -->
@@ -864,9 +930,31 @@
 
         <!-- Conectar WhatsApp -->
         <section id="tab-whatsapp" class="tab-section hidden">
-            <div class="bg-white p-4 rounded shadow">
-                <p class="font-semibold mb-2">Conectar WhatsApp</p>
-                <p class="text-gray-600 text-sm">Em breve: integração para disparar confirmações e status.</p>
+            <div class="bg-white p-6 rounded shadow">
+                <h2 class="text-2xl font-bold mb-6">📱 WhatsApp Business</h2>
+                
+                <div id="whatsapp-status" class="mb-6 p-4 rounded-lg border">
+                    <p class="font-semibold">Status: <span id="status-text" class="text-gray-600">Verificando...</span></p>
+                    <p class="text-sm text-gray-500 mt-1">Número conectado: <span id="connected-number">-</span></p>
+                    <p class="text-sm text-gray-500">Número da empresa: <span id="company-number">-</span></p>
+                </div>
+
+                <div id="qr-section" class="hidden mb-6">
+                    <h3 class="text-lg font-semibold mb-3">🔗 Conectar WhatsApp</h3>
+                    <p class="text-sm text-gray-600 mb-4">Escaneie o QR code abaixo com o WhatsApp do seu negócio:</p>
+                    <div id="qr-code-container" class="flex justify-center">
+                        <div id="qr-code" class="border p-4 rounded-lg bg-white"></div>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-3 text-center">Certifique-se de escanear com o número configurado em "Meus Dados"</p>
+                </div>
+
+                <div id="connected-section" class="hidden">
+                    <h3 class="text-lg font-semibold mb-3 text-green-600">✅ WhatsApp Conectado</h3>
+                    <p class="text-sm text-gray-600 mb-4">Seu WhatsApp está funcionando! Os pedidos serão enviados automaticamente.</p>
+                    <button id="disconnect-whatsapp" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition">
+                        Desconectar
+                    </button>
+                </div>
             </div>
         </section>
     </main>
@@ -941,12 +1029,6 @@
                     </div>
                 </div>
 
-                <div class="pt-2">
-                    <label class="flex items-center gap-2 cursor-pointer">
-                        <input id="edit-item-active" type="checkbox" class="w-4 h-4 rounded" checked />
-                        <span class="text-sm font-medium text-gray-700">Item ativo (visível no menu)</span>
-                    </label>
-                </div>
             </div>
 
             <div class="p-6 border-t border-gray-200 bg-gray-50 flex gap-3 sticky bottom-0">
@@ -1118,6 +1200,25 @@
                             <label class="block text-xs font-medium text-gray-700 mb-1">Preço promocional (R$) <span class="text-red-500">*</span></label>
                             <input id="combo-price-promo" type="number" step="0.01" min="0" onchange="atualizarPrecoCombo();" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" placeholder="Defina o preço final do combo" />
                         </div>
+                    <div class="grid grid-cols-1 gap-2 pt-2 border-t border-gray-200">
+                        <div>
+                            <label class="block text-xs font-medium text-gray-700 mb-1">Refrigerante incluído</label>
+                            <select id="combo-bebida-type" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                                <option value="nenhum">Nenhum refrigerante</option>
+                                <option value="escolha">Refrigerante a sua escolha (gratuito)</option>
+                                <option value="coca-lata">Coca Cola Lata (R$ 5,00)</option>
+                                <option value="coca-zero-lata">Coca Cola Zero Lata (R$ 6,00)</option>
+                                <option value="coca-2l">Coca Cola 2L (R$ 14,00)</option>
+                                <option value="coca-zero-2l">Coca Cola Zero 2L (R$ 15,00)</option>
+                                <option value="guarana-lata">Guaraná Antártica Lata (R$ 5,00)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input id="combo-allow-adicionais" type="checkbox" class="w-4 h-4 rounded" checked />
+                                <span class="text-sm font-medium text-gray-700">Permitir adicionais no combo</span>
+                            </label>
+                        </div>
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-gray-700 mb-1">Imagem do combo (opcional)</label>
@@ -1144,6 +1245,52 @@
                 <button id="save-promo-btn" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition">
                     Salvar Promoção
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Adicional -->
+    <div id="addon-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
+            <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+                <h2 class="text-2xl font-bold">🍟 Adicional</h2>
+                <button id="close-addon-modal" class="text-gray-500 hover:text-gray-700 text-2xl leading-none">×</button>
+            </div>
+
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Nome do adicional</label>
+                    <input id="addon-name" type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Ex: Burger de gado" />
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Preço (R$)</label>
+                    <input id="addon-price" type="number" step="0.01" min="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Ex: 8.00" />
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Categoria</label>
+                    <select id="addon-category" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <option value="" disabled selected>Escolha uma categoria</option>
+                        <!-- Categorias serão carregadas dinamicamente do cardápio -->
+                    </select>
+                </div>
+
+                <div class="pt-2">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input id="addon-active" type="checkbox" class="w-4 h-4 rounded" checked />
+                        <span class="text-sm font-medium text-gray-700">Adicional ativo (disponível para seleção)</span>
+                    </label>
+                </div>
+
+                <div class="flex gap-2">
+                    <button id="cancel-addon-btn" class="flex-1 px-4 py-2 bg-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-400 transition">
+                        Cancelar
+                    </button>
+                    <button id="save-addon-btn" class="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition">
+                        Salvar
+                    </button>
+                </div>
             </div>
         </div>
     </div>

@@ -1,5 +1,3 @@
-console.log('🚀 Painel Admin carregado - Versão 1.1');
-
 let pedidos = [];
 let filtroAtivo = 'todos';
 let filtroPagamento = 'todos';
@@ -7,101 +5,56 @@ let filtroTipo = 'todos';
 let searchTerm = '';
 let autoRefreshInterval = null;
 let somAtivo = false;
-let autoConfirmar = false; // Controla se auto confirmação está ativa
+let autoConfirmar = false;
 let ultimoPedidoIds = new Set();
 let primeiraVez = true;
 
-// Preferências do admin (auto-refresh e som)
 let adminPrefs = (() => {
     try { return JSON.parse(localStorage.getItem('adminPrefs') || '{}'); } catch { return {}; }
 })();
 
-// Inicializar estado de som a partir das preferências
 somAtivo = !!adminPrefs.somAtivo;
 autoConfirmar = !!adminPrefs.autoConfirmar;
 
-// Tenant helpers
 const TENANT = (() => {
     const pathParts = window.location.pathname.split('/').filter(Boolean);
-    let slug = 'padoca-do-dede'; // Default correto
-    
-    console.log('🔍 Detectando tenant - pathname:', window.location.pathname);
-    console.log('🔍 PathParts:', pathParts);
+    let slug = 'padoca-do-dede';
     
     if (pathParts.length > 0 && !pathParts[0].includes('.')) {
         slug = pathParts[0];
-        console.log('🔍 Slug do path:', slug);
-        // Normalizar variações do slug
         if (slug === 'padoca-dede') {
             slug = 'padoca-do-dede';
-            console.log('🔄 Slug normalizado para:', slug);
         }
     }
     
     const searchParams = new URLSearchParams(window.location.search);
     const finalTenant = searchParams.get('tenant') || slug;
-    console.log('🏪 Tenant final:', finalTenant);
     return finalTenant;
 })();
 const API_BASE = `${window.location.origin}/api`;
 const tenantHeaders = { 'x-tenant': TENANT };
-console.log('🏪 Tenant detectado:', TENANT);
-console.log('📡 API Base:', API_BASE);
-console.log('📋 Headers do tenant:', tenantHeaders);
 const fetchTenant = (path, options = {}) => fetch(`${API_BASE}${path}`, {
     ...options,
     headers: { ...(options.headers || {}), ...tenantHeaders }
 });
 
-// ⚡ RESTAURAR ABA ATIVA IMEDIATAMENTE (antes de qualquer renderização)
-// Isso evita o "flash" visual de mudança de aba
-(() => {
-    const abaSalva = localStorage.getItem('abaPainelAtiva');
-    if (abaSalva && document.getElementById(abaSalva)) {
-        // Mostrar apenas a aba salva, ocultar as outras
-        document.querySelectorAll('.tab-section').forEach(sec => {
-            if (sec.id === abaSalva) {
-                sec.classList.remove('hidden');
-            } else {
-                sec.classList.add('hidden');
-            }
-        });
-        // Atualizar botões de aba
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            if (btn.dataset.tab === abaSalva) {
-                btn.classList.add('active', 'bg-zinc-900', 'text-white');
-            } else {
-                btn.classList.remove('active', 'bg-zinc-900', 'text-white');
-            }
-        });
-        
-        // Atualizar título do header (será definido depois, quando tabTitles estiver disponível)
-        // Temporariamente, aguarde um pouco
-        setTimeout(() => {
-            const tabTitlesTemp = {
-                'tab-dashboard': '📦 Painel Admin - Início',
-                'tab-pedidos': '📋 Painel Admin - Ver pedidos',
-                'tab-itens': '🍔 Painel Admin - Meus itens',
-                'tab-categorias': '� Painel Admin - Categorias',
-                'tab-pagamentos': '💳 Painel Admin - Formas de pagamento',
-                'tab-config': '⚙️ Painel Admin - Configurações',
-                'tab-promotions': '🎉 Painel Admin - Promoções',
-                'tab-relatorios': '📊 Painel Admin - Relatórios',
-                'tab-senha': '🔐 Painel Admin - Alterar senha',
-                'tab-whatsapp': '💬 Painel Admin - Conectar WhatsApp'
-            };
-            if (tabTitlesTemp[abaSalva]) {
-                document.getElementById('header-title').textContent = tabTitlesTemp[abaSalva];
-            }
-        }, 0);
-        
-        console.log('⚡ Aba restaurada imediatamente (sem flash):', abaSalva);
+// Helper para ler JSON seguro — em caso de retorno HTML/erro, inclui o texto no erro
+async function parseJSONResponse(response) {
+    const text = await response.text();
+    try {
+        return JSON.parse(text);
+    } catch (e) {
+        const err = new Error('Erro ao fazer parse do JSON');
+        err.responseText = text;
+        throw err;
     }
-})();
+}
+
+
 
 function ajustarLinksTenant() {
     const back = document.getElementById('back-to-site');
-    if (back) back.href = `/${TENANT}/index.html`;
+    if (back) back.href = 'index.html';
 }
 
 // Funções do Modal de Confirmação de Filtro
@@ -196,22 +149,19 @@ document.addEventListener('click', (e) => {
 // Auto-refresh helpers
 function iniciarAutoRefresh() {
     if (autoRefreshInterval) clearInterval(autoRefreshInterval);
-    console.log('🔄 Auto-refresh ATIVADO (intervalo: 8s)');
     autoRefreshInterval = setInterval(() => {
         const tab = document.getElementById('tab-pedidos');
         const visivel = tab && !tab.classList.contains('hidden');
         if (visivel) {
-            console.log('🔄 Auto-refresh executando...');
             carregarPedidos();
         }
-    }, 8000); // 8s: responsivo sem sobrecarregar
+    }, 8000);
 }
 
 function pararAutoRefresh() {
     if (autoRefreshInterval) {
         clearInterval(autoRefreshInterval);
         autoRefreshInterval = null;
-        console.log('⏹️ Auto-refresh DESATIVADO');
     }
 }
 
@@ -279,9 +229,8 @@ let menu = [
     {name: "Guaraná Antártica Lata", category: "bebidas", price: 5.00, image: "./assets/Guarana Lata.jpg", description: "", ativo: true}
 ];
 
-// Som de notificação (usar caminho absoluto para evitar problemas com rotas tenant)
-const audioNovo = new Audio(`/${TENANT}/assets/fart-with-reverb.mp3`);
-console.log('🔊 Áudio configurado:', audioNovo.src);
+// Som de notificação
+const audioNovo = new Audio('/assets/fart-with-reverb.mp3');
 
 const tabTitles = {
     'tab-dashboard': '📦 Painel Admin - Início',
@@ -291,89 +240,206 @@ const tabTitles = {
     'tab-pagamentos': '💳 Painel Admin - Formas de pagamento',
     'tab-config': '⚙️ Painel Admin - Configurações',
     'tab-promotions': '🎉 Painel Admin - Promoções',
+    'tab-monte': '🍕 Painel Admin - Monte sua pizza',
     'tab-relatorios': '📊 Painel Admin - Relatórios'
 };
-function setTab(tabId) {
-    console.log(`🔄 Tentando abrir aba: ${tabId}`);
+function setTab(tabId, addon = null, index = -1) {
     document.querySelectorAll('.tab-section').forEach(sec => sec.classList.add('hidden'));
-    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active', 'bg-zinc-900', 'text-white'));
+    // Mostrar a seção da aba selecionada
     const target = document.getElementById(tabId);
-    console.log(`✅ Elemento encontrado:`, target);
     if (target) target.classList.remove('hidden');
-    const tabBtn = document.querySelector(`[data-tab="${tabId}"]`);
-    if (tabBtn) tabBtn.classList.add('active', 'bg-zinc-900', 'text-white');
-    if (tabTitles[tabId]) {
-        document.getElementById('header-title').textContent = tabTitles[tabId];
-    }
-    
-    // Salvar aba ativa no localStorage para persistência
-    localStorage.setItem('abaPainelAtiva', tabId);
-    
-    // Carregar pedidos ao abrir a aba "Ver pedidos"
-    if (tabId === 'tab-pedidos') {
-        console.log('📋 Aba Ver pedidos aberta - carregando pedidos');
-        carregarPedidos();
-        // Respeitar preferência de auto-refresh ao abrir a aba
-        console.log('🔍 Verificando preferência de auto-refresh:', adminPrefs.autoRefresh);
-        if (adminPrefs.autoRefresh) iniciarAutoRefresh(); else pararAutoRefresh();
-    }
-    // Atualizar KPIs ao abrir a aba "Relatórios"
-    else if (tabId === 'tab-relatorios') {
-        console.log('📊 Aba Relatórios aberta - carregando e atualizando dados');
-        console.log('📦 Pedidos atuais no array:', pedidos.length);
-        
-        // Se já tiver pedidos carregados, atualizar imediatamente
-        if (pedidos.length > 0) {
-            console.log('✅ Usando pedidos já carregados');
-            atualizarKpis();
-        }
-        
-        // Sempre carregar pedidos para sincronizar (atualiza em background)
-        carregarPedidos().then(() => {
-            console.log('✅ Pedidos recarregados, atualizando KPIs novamente');
-            atualizarKpis();
-        }).catch(err => {
-            console.error('❌ Erro ao carregar pedidos:', err);
-            // Mesmo em caso de erro, atualizar KPIs com dados atuais
-            atualizarKpis();
-        });
-        // Manter auto-refresh ativo na aba de relatórios se preferência estiver ativada
-        console.log('🔍 Verificando preferência de auto-refresh para relatórios:', adminPrefs.autoRefresh);
-        if (adminPrefs.autoRefresh) iniciarAutoRefresh(); else pararAutoRefresh();
-    }
-    else {
-        // Pausar auto-refresh quando sair da aba de pedidos
-        pararAutoRefresh();
-    }
-}
 
-async function carregarPedidos() {
+    // Atualizar botões de aba (visual)
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        if (btn.dataset.tab === tabId) {
+            btn.classList.add('active', 'bg-zinc-900', 'text-white');
+        } else {
+            btn.classList.remove('active', 'bg-zinc-900', 'text-white');
+        }
+    });
+
+    // Atualizar título do header se disponível
+    if (typeof tabTitles !== 'undefined' && tabTitles[tabId]) {
+        const header = document.getElementById('header-title');
+        if (header) header.textContent = tabTitles[tabId];
+    }
+
+    // Disparar carregamentos específicos ao abrir certas abas
     try {
-        console.log('🔄 Iniciando carregamento de pedidos...');
-        console.log('🔍 Auto-refresh interval ID:', autoRefreshInterval);
-        console.trace('📍 Chamado de:'); // Mostra de onde foi chamado
-        
+        if (tabId === 'tab-pedidos') carregarPedidos();
+        if (tabId === 'tab-addons') carregarAddons();
+        if (tabId === 'tab-monte') renderizarMontePizzasList();
+        if (tabId === 'tab-itens') renderizarCardapioEdit();
+    } catch (e) {
+        console.warn('Erro ao executar carregamento da aba:', e);
+    }
+
+    // Se for aba de addons e addon foi passado, abrir modal
+    if (tabId === 'tab-addons' && addon) {
+        const nameEl = document.getElementById('addon-name');
+        const priceEl = document.getElementById('addon-price');
+        const categoryEl = document.getElementById('addon-category');
+        const activeEl = document.getElementById('addon-active');
+        const modalEl = document.getElementById('addon-modal');
+
+        if (nameEl) nameEl.value = addon.name || '';
+        if (priceEl) priceEl.value = addon.price || '';
+        if (categoryEl) categoryEl.value = (index >= 0 ? (addon.category || 'geral') : '');
+        if (activeEl) activeEl.checked = addon.ativo !== false;
+
+        if (modalEl) {
+            modalEl.classList.remove('hidden');
+            // garantir visibilidade
+            try {
+                modalEl.style.display = 'flex';
+                modalEl.style.pointerEvents = '';
+            } catch {}
+            try {
+                modalEl.style.outline = '';
+                modalEl.style.backgroundColor = '';
+            } catch (e) {}
+
+            // checar ancestrais e mover para body se estiverem escondendo
+            try {
+                let el = modalEl.parentElement;
+                const badAncestors = [];
+                while (el) {
+                    const c = window.getComputedStyle(el);
+                    if (c.display === 'none' || c.visibility === 'hidden' || Number(c.opacity) === 0) {
+                        badAncestors.push(el);
+                    }
+                    el = el.parentElement;
+                }
+                if (badAncestors.length) {
+                    try {
+                        if (modalEl.parentElement !== document.body) {
+                            modalEl.__originalParent = modalEl.parentElement;
+                            modalEl.__originalNextSibling = modalEl.nextSibling;
+                            document.body.appendChild(modalEl);
+                            modalEl.style.position = 'fixed';
+                            modalEl.style.inset = '0';
+                            modalEl.style.display = 'flex';
+                        }
+                    } catch (e) {}
+                }
+            } catch (e) {}
+
+            try { nameEl?.focus(); } catch (e) {}
+        } else {
+            console.warn('addon-modal element not found');
+        }
+    }
+    // Função que carrega os pedidos (encapsula os awaits)
+    async function carregarPedidos() {
+        try {
         document.getElementById('loading').classList.remove('hidden');
         document.getElementById('pedidos-container').classList.add('hidden');
         document.getElementById('empty-state').classList.add('hidden');
 
-        console.log('📡 Fazendo requisição para:', `${API_BASE}/pedidos`);
-        console.log('📋 Headers:', tenantHeaders);
-        
         const response = await fetchTenant('/pedidos');
-        console.log('📥 Resposta recebida:', response.status, response.ok);
         
         if (!response.ok) {
             throw new Error(`Erro HTTP: ${response.status} ${response.statusText}`);
         }
         
         const result = await response.json();
+
+        if (result.success) {
+            const anteriores = new Set(pedidos.map(p => p.id));
+            pedidos = result.pedidos.sort((a, b) => new Date(b.data) - new Date(a.data));
+
+            // Sempre renderizar e atualizar KPIs
+            renderizarPedidos();
+            atualizarKpis();
+
+            // Detectar novos pedidos (sempre na primeira vez, ou se houver novos)
+            let novos = [];
+            if (primeiraVez) {
+                // Considera todos como novos na primeira vez se houver pedidos
+                if (pedidos.length > 0) {
+                    novos = pedidos;
+                }
+            } else {
+                novos = pedidos.filter(p => !anteriores.has(p.id) && anteriores.size > 0);
+            }
+            if (novos.length > 0) {
+
+                if (somAtivo) {
+                    audioNovo.volume = 1.0;
+                    audioNovo.play().then(() => {
+                        console.log('✅ Som tocado com sucesso');
+                    }).catch(err => {
+                        console.error('❌ Erro ao tocar som:', err);
+                    });
+                }
+
+                // Auto confirmar novos pedidos se ativo
+                if (autoConfirmar) {
+                    novos.forEach(async (pedido) => {
+                        if (pedido.status === 'pendente') {
+                            console.log(`✅ Auto confirmando pedido #${pedido.numero_pedido || pedido.id}...`);
+                            await atualizarStatus(pedido.id, 'confirmado');
+
+                            // Imprimir após confirmar
+                            setTimeout(() => {
+                                console.log(`🖨️ Imprimindo pedido #${pedido.numero_pedido || pedido.id} automaticamente...`);
+                                imprimirPedido(pedido.id);
+                            }, 1000);
+                        }
+                    });
+                } else {
+                    // Imprimir automaticamente apenas pedidos já confirmados
+                    novos.forEach(pedido => {
+                        if (pedido.status === 'confirmado') {
+                            console.log(`🖨️ Imprimindo pedido #${pedido.numero_pedido || pedido.id} automaticamente...`);
+                            setTimeout(() => imprimirPedido(pedido.id), 500);
+                        }
+                    });
+                }
+            }
+            primeiraVez = false;
+            ultimoPedidoIds = new Set(pedidos.map(p => p.id));
+        } else {
+            console.warn('⚠️ Resposta do servidor sem success:', result);
+            mostrarConfirmacao('❌ Erro', 'Erro ao carregar pedidos');
+        }
+    } catch (error) {
+        console.error('❌ Erro detalhado:', error);
+        console.error('Stack:', error.stack);
+        mostrarConfirmacao('❌ Erro', `Erro ao conectar: ${error.message}`);
+    } finally {
+        document.getElementById('loading').classList.add('hidden');
+    }
+    }
+}
+
+// Definição global de carregarPedidos — garante que a chamada esteja disponível
+async function carregarPedidos() {
+    try {
+        console.log('🔍 Auto-refresh interval ID:', autoRefreshInterval);
+        console.trace('📍 Chamado de:'); // Mostra de onde foi chamado
+
+        document.getElementById('loading').classList.remove('hidden');
+        document.getElementById('pedidos-container').classList.add('hidden');
+        document.getElementById('empty-state').classList.add('hidden');
+
+        console.log('📡 Fazendo requisição para:', `${API_BASE}/pedidos`);
+        console.log('📋 Headers:', tenantHeaders);
+
+        const response = await fetchTenant('/pedidos');
+        console.log('📥 Resposta recebida:', response.status, response.ok);
+
+        if (!response.ok) {
+            throw new Error(`Erro HTTP: ${response.status} ${response.statusText}`);
+        }
+
+        const result = await response.json();
         console.log('📦 Dados recebidos:', result);
 
         if (result.success) {
             const anteriores = new Set(pedidos.map(p => p.id));
             pedidos = result.pedidos.sort((a, b) => new Date(b.data) - new Date(a.data));
-            
+
             // Sempre renderizar e atualizar KPIs
             renderizarPedidos();
             atualizarKpis();
@@ -382,7 +448,7 @@ async function carregarPedidos() {
             const novos = pedidos.filter(p => !anteriores.has(p.id) && anteriores.size > 0);
             if (!primeiraVez && novos.length > 0) {
                 console.log(`🔔 ${novos.length} novo(s) pedido(s) detectado(s)!`);
-                
+
                 // Tocar som se ativo
                 if (somAtivo) {
                     console.log('🔊 Tocando som...');
@@ -393,14 +459,14 @@ async function carregarPedidos() {
                         console.error('❌ Erro ao tocar som:', err);
                     });
                 }
-                
+
                 // Auto confirmar novos pedidos se ativo
                 if (autoConfirmar) {
                     novos.forEach(async (pedido) => {
                         if (pedido.status === 'pendente') {
                             console.log(`✅ Auto confirmando pedido #${pedido.numero_pedido || pedido.id}...`);
                             await atualizarStatus(pedido.id, 'confirmado');
-                            
+
                             // Imprimir após confirmar
                             setTimeout(() => {
                                 console.log(`🖨️ Imprimindo pedido #${pedido.numero_pedido || pedido.id} automaticamente...`);
@@ -449,6 +515,11 @@ async function carregarPedidos() {
     if (toggleSomEl) toggleSomEl.checked = !!adminPrefs.somAtivo;
     if (toggleAutoConfirmarEl) toggleAutoConfirmarEl.checked = !!adminPrefs.autoConfirmar;
 
+    // Ativar comportamentos automaticamente se preferências estiverem salvas
+    if (toggleAuto && toggleAuto.checked) iniciarAutoRefresh();
+    if (toggleSomEl && toggleSomEl.checked) somAtivo = true;
+    if (toggleAutoConfirmarEl && toggleAutoConfirmarEl.checked) autoConfirmar = true;
+
     if (toggleAuto) toggleAuto.addEventListener('change', (e) => {
         const on = !!e.target.checked;
         console.log('🎚️ Toggle auto-refresh mudou para:', on);
@@ -461,7 +532,6 @@ async function carregarPedidos() {
         somAtivo = !!e.target.checked;
         adminPrefs.somAtivo = somAtivo;
         localStorage.setItem('adminPrefs', JSON.stringify(adminPrefs));
-        
         // Testar som ao ativar
         if (somAtivo) {
             console.log('🔊 Testando som...');
@@ -483,19 +553,19 @@ async function carregarPedidos() {
     });
 })();
 
-function filtrarPedidos() {
-    const filtrados = pedidos.filter(p => {
-        const byStatus = filtroAtivo === 'todos' ? true : p.status === filtroAtivo;
-        const termo = searchTerm.trim().toLowerCase();
+function filtrarPedidos(pedidosArray = pedidos, filtroStatus = filtroAtivo, filtroPag = filtroPagamento, filtroTip = filtroTipo, search = searchTerm) {
+    const filtrados = pedidosArray.filter(p => {
+        const byStatus = filtroStatus === 'todos' ? true : p.status === filtroStatus;
+        const termo = search.trim().toLowerCase();
         const bySearch = termo === '' ? true : (p.cliente.nome.toLowerCase().includes(termo) || (p.cliente.whatsapp || '').toLowerCase().includes(termo));
-        const byPagamento = filtroPagamento === 'todos' ? true : (p.pagamento && p.pagamento.forma === filtroPagamento);
-        const byTipo = filtroTipo === 'todos' ? true : (p.tipoEntrega === filtroTipo);
+        const byPagamento = filtroPag === 'todos' ? true : (p.pagamento && p.pagamento.forma === filtroPag);
+        const byTipo = filtroTip === 'todos' ? true : (p.tipoEntrega === filtroTip);
         return byStatus && bySearch && byPagamento && byTipo;
     });
     
     // Debug: Contar status de todos os pedidos
     const statusCount = {};
-    pedidos.forEach(p => {
+    pedidosArray.forEach(p => {
         statusCount[p.status] = (statusCount[p.status] || 0) + 1;
     });
     console.log('📊 Status dos pedidos:', statusCount);
@@ -562,18 +632,19 @@ function desenharGraficoStatus(pendentes, confirmados, entregues, cancelados) {
     console.log('✅ Gráfico de status desenhado com sucesso');
 }
 
-function atualizarKpis() {
-    console.log('📊 atualizarKpis() chamado. Total de pedidos:', pedidos.length);
-    console.log('📦 Dados de pedidos:', pedidos);
+function atualizarKpis(pedidosFiltrados = null) {
+    const pedidosParaCalculo = pedidosFiltrados || pedidos;
+    console.log('📊 atualizarKpis() chamado. Total de pedidos:', pedidosParaCalculo.length);
+    console.log('📦 Dados de pedidos:', pedidosParaCalculo);
     
-    const totalDia = pedidos.reduce((sum, p) => sum + (p.total || 0), 0);
-    const pendentes = pedidos.filter(p => p.status === 'pendente').length;
-    const confirmados = pedidos.filter(p => p.status === 'confirmado').length;
-    const cancelados = pedidos.filter(p => p.status === 'cancelado').length;
-    const totalPedidos = pedidos.length;
-    const entregues = pedidos.filter(p => p.status === 'entregue').length;
-    const menorPedido = pedidos.length > 0 ? Math.min(...pedidos.map(p => p.total || 0)) : 0;
-    const maiorPedido = pedidos.length > 0 ? Math.max(...pedidos.map(p => p.total || 0)) : 0;
+    const totalDia = pedidosParaCalculo.reduce((sum, p) => sum + (p.total || 0), 0);
+    const pendentes = pedidosParaCalculo.filter(p => p.status === 'pendente').length;
+    const confirmados = pedidosParaCalculo.filter(p => p.status === 'confirmado').length;
+    const cancelados = pedidosParaCalculo.filter(p => p.status === 'cancelado').length;
+    const totalPedidos = pedidosParaCalculo.length;
+    const entregues = pedidosParaCalculo.filter(p => p.status === 'entregue').length;
+    const menorPedido = pedidosParaCalculo.length > 0 ? Math.min(...pedidosParaCalculo.map(p => p.total || 0)) : 0;
+    const maiorPedido = pedidosParaCalculo.length > 0 ? Math.max(...pedidosParaCalculo.map(p => p.total || 0)) : 0;
     const ticketMedio = totalPedidos > 0 ? totalDia / totalPedidos : 0;
     const taxaConclusao = totalPedidos > 0 ? (entregues + confirmados) / totalPedidos * 100 : 0;
     
@@ -629,8 +700,8 @@ function atualizarKpis() {
         document.getElementById('stat-entregues-count').textContent = entregues;
     }
     if (document.getElementById('pedido-antigo')) {
-        if (pedidos.length > 0) {
-            const pedidoAntigo = new Date(Math.min(...pedidos.map(p => new Date(p.data).getTime())));
+        if (pedidosParaCalculo.length > 0) {
+            const pedidoAntigo = new Date(Math.min(...pedidosParaCalculo.map(p => new Date(p.data).getTime())));
             const dataFormatada = pedidoAntigo.toLocaleDateString('pt-BR');
             document.getElementById('pedido-antigo').textContent = dataFormatada;
         } else {
@@ -653,7 +724,7 @@ function atualizarKpis() {
     }
     
     // ===== DESENHAR GRÁFICO DE STATUS =====
-    desenharGraficoStatus(pendentes, confirmados, entregues, cancelados);
+    // Removido: gráfico só é desenhado quando filtrado
     
     // Manter KPIs antigos para compatibilidade
     if (document.getElementById('kpi-total-dia')) {
@@ -669,9 +740,11 @@ function atualizarKpis() {
 
 function renderizarPedidos() {
     const container = document.getElementById('pedidos-container');
-    const pedidosFiltrados = filtrarPedidos();
+    const hoje = new Date().toDateString();
+    const pedidosHoje = pedidos.filter(p => new Date(p.data).toDateString() === hoje);
+    const pedidosFiltrados = filtrarPedidos(pedidosHoje);
 
-    console.log(`📋 Renderizando pedidos. Total: ${pedidos.length}, Filtrados: ${pedidosFiltrados.length}, Filtro atual: ${filtroAtivo}`);
+    console.log(`📋 Renderizando pedidos de hoje. Total hoje: ${pedidosHoje.length}, Filtrados: ${pedidosFiltrados.length}, Filtro atual: ${filtroAtivo}`);
 
     if (pedidosFiltrados.length === 0) {
         container.classList.add('hidden');
@@ -699,6 +772,7 @@ function renderizarPedidos() {
                     <div>
                         <h3 class="text-xl font-bold">#${pedido.id}</h3>
                         <p class="text-sm text-gray-600">${dataFormatada}</p>
+                        <p class="text-sm font-semibold mt-1">Total: R$${pedido.total.toFixed(2).replace('.', ',')}</p>
                     </div>
                     <div class="flex flex-col items-end gap-2">
                         <span class="px-3 py-1 rounded-full text-sm font-semibold ${getStatusClass(pedido.status)}">
@@ -708,73 +782,106 @@ function renderizarPedidos() {
                         <span class="px-2 py-1 rounded-full text-xs ${isPix ? (expirou ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700') : 'bg-gray-100 text-gray-700'}">
                             ${isPix ? (expirou ? 'Pix expirado' : 'Pix') : forma.toUpperCase()}
                         </span>
+                        <button id="pedido-toggle-${pedido.id}" onclick="togglePedidoDetalhes('${pedido.id}')" class="px-3 py-1 border rounded text-xs hover:bg-gray-100 transition flex items-center gap-1">
+                            <i class="fa fa-minus"></i> Minimizar
+                        </button>
                     </div>
                 </div>
 
-                <div class="mb-4">
-                    <h4 class="font-bold mb-2"><i class="fa fa-user"></i> Cliente</h4>
-                    <p><strong>Nome:</strong> ${pedido.cliente.nome}</p>
-                    <p><strong>WhatsApp:</strong> ${pedido.cliente.whatsapp}</p>
-                    <div class="flex gap-2 mt-2 flex-wrap text-sm">
-                        <button onclick="copiarTexto('${pedido.cliente.whatsapp}', 'whatsapp')" class="px-3 py-1 border rounded hover:bg-gray-100 transition">📋 Copiar WhatsApp</button>
-                        <a href="https://wa.me/55${whatsappLimpo}" target="_blank" class="px-3 py-1 border rounded flex items-center gap-1 hover:bg-green-50 transition"><i class="fa fa-whatsapp text-green-600"></i> Abrir WhatsApp</a>
-                    </div>
-                </div>
-
-                <div class="mb-4">
-                    <h4 class="font-bold mb-2"><i class="fa fa-shopping-cart"></i> Itens</h4>
-                    ${pedido.itens.map(item => `
-                        <div class="flex justify-between py-1 border-b text-sm">
-                            <span>${item.nome} x${item.quantidade}</span>
-                            <span class="font-semibold">R$${item.precoTotal.toFixed(2).replace('.', ',')}</span>
-                        </div>
-                    `).join('')}
-                </div>
-
-                <div class="mb-4">
-                    <h4 class="font-bold mb-2"><i class="fa fa-truck"></i> Entrega</h4>
-                    <p><strong>Tipo:</strong> ${tipoEntrega}</p>
-                    ${pedido.tipoEntrega === 'delivery' ? `
-                        <p><strong>Endereço:</strong> ${pedido.endereco}</p>
-                        <p><strong>Bairro:</strong> ${pedido.bairro}</p>
-                        <p><strong>Taxa:</strong> R$${pedido.taxaEntrega.toFixed(2).replace('.', ',')}</p>
-                        <button onclick="copiarTexto('${pedido.endereco.replace(/'/g, "\\'")}')" class="mt-2 px-3 py-1 border rounded text-sm">Copiar endereço</button>
-                    ` : ''}
-                </div>
-
-                ${pedido.observacoes ? `
+                <div id="pedido-detalhes-${pedido.id}">
                     <div class="mb-4">
-                        <h4 class="font-bold mb-2"><i class="fa fa-comment"></i> Observações</h4>
-                        <p class="text-gray-700">${pedido.observacoes}</p>
+                        <h4 class="font-bold mb-2"><i class="fa fa-user"></i> Cliente</h4>
+                        <p><strong>Nome:</strong> ${pedido.cliente.nome}</p>
+                        <p><strong>WhatsApp:</strong> ${pedido.cliente.whatsapp}</p>
+                        <div class="flex gap-2 mt-2 flex-wrap text-sm">
+                            <button onclick="copiarTexto('${pedido.cliente.whatsapp}', 'whatsapp')" class="px-3 py-1 border rounded hover:bg-gray-100 transition">📋 Copiar WhatsApp</button>
+                            <a href="https://wa.me/55${whatsappLimpo}" target="_blank" class="px-3 py-1 border rounded flex items-center gap-1 hover:bg-green-50 transition"><i class="fa fa-whatsapp text-green-600"></i> Abrir WhatsApp</a>
+                        </div>
                     </div>
-                ` : ''}
 
-                <div class="mb-4">
-                    <h4 class="font-bold mb-2"><i class="fa fa-credit-card"></i> Pagamento</h4>
-                    <p><strong>Forma:</strong> ${forma.toUpperCase()}</p>
-                    ${isPix ? `
-                        <p><strong>Pix copia e cola:</strong> ${pedido.pagamento.pixCodigo || ''}</p>
-                        ${pixExpira ? `<p><strong>Expira:</strong> ${pixExpira.toLocaleString('pt-BR')} ${expirou ? '(expirado)' : ''}</p>` : ''}
+                    <div class="mb-4">
+                        <h4 class="font-bold mb-2"><i class="fa fa-shopping-cart"></i> Itens</h4>
+                        ${pedido.itens.map(item => `
+                            <div class="flex justify-between py-1 border-b text-sm">
+                                <span>${item.nome} x${item.quantidade}</span>
+                                <span class="font-semibold">R$${item.precoTotal.toFixed(2).replace('.', ',')}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    <div class="mb-4">
+                        <h4 class="font-bold mb-2"><i class="fa fa-truck"></i> Entrega</h4>
+                        <p><strong>Tipo:</strong> ${tipoEntrega}</p>
+                        ${pedido.tipoEntrega === 'delivery' ? `
+                            <p><strong>Endereço:</strong> ${pedido.endereco}</p>
+                            <p><strong>Bairro:</strong> ${pedido.bairro}</p>
+                            <p><strong>Taxa:</strong> R$${pedido.taxaEntrega.toFixed(2).replace('.', ',')}</p>
+                            <button onclick="copiarTexto('${pedido.endereco.replace(/'/g, "\\'")}')" class="mt-2 px-3 py-1 border rounded text-sm">Copiar endereço</button>
+                        ` : ''}
+                    </div>
+
+                    ${pedido.observacoes ? `
+                        <div class="mb-4">
+                            <h4 class="font-bold mb-2"><i class="fa fa-comment"></i> Observações</h4>
+                            <p class="text-gray-700">${pedido.observacoes}</p>
+                        </div>
                     ` : ''}
-                </div>
 
-                <div class="flex justify-between items-center pt-4 border-t">
-                    <p class="text-xl font-bold">Total: R$${pedido.total.toFixed(2).replace('.', ',')}</p>
-                    <div class="flex gap-2 flex-wrap justify-end">
-                        <button onclick="imprimirPedido('${pedido.id}')" class="px-3 py-1 border rounded text-sm flex items-center gap-1"><i class="fa fa-print"></i> Imprimir</button>
-                        <select onchange="atualizarStatus('${pedido.id}', this.value)" class="border border-gray-300 rounded-lg px-3 py-2">
-                            <option value="pendente" ${pedido.status === 'pendente' ? 'selected' : ''}>Pendente</option>
-                            <option value="confirmado" ${pedido.status === 'confirmado' ? 'selected' : ''}>Confirmado</option>
-                            <option value="pronto" ${pedido.status === 'pronto' ? 'selected' : ''}>Pronto</option>
-                            <option value="a_caminho" ${pedido.status === 'a_caminho' ? 'selected' : ''}>A Caminho</option>
-                            <option value="entregue" ${pedido.status === 'entregue' ? 'selected' : ''}>Entregue</option>
-                            <option value="cancelado" ${pedido.status === 'cancelado' ? 'selected' : ''}>Cancelado</option>
-                        </select>
+                    <div class="mb-4">
+                        <h4 class="font-bold mb-2"><i class="fa fa-credit-card"></i> Pagamento</h4>
+                        <p><strong>Forma:</strong> ${forma.toUpperCase()}</p>
+                        ${isPix ? `
+                            <p><strong>Pix copia e cola:</strong> ${pedido.pagamento.pixCodigo || ''}</p>
+                            ${pixExpira ? `<p><strong>Expira:</strong> ${pixExpira.toLocaleString('pt-BR')} ${expirou ? '(expirado)' : ''}</p>` : ''}
+                        ` : ''}
+                    </div>
+
+                    <div class="flex justify-between items-center pt-4 border-t">
+                        <p class="text-xl font-bold">Total: R$${pedido.total.toFixed(2).replace('.', ',')}</p>
+                        <div class="flex gap-2 flex-wrap justify-end">
+                            <button onclick="imprimirPedido('${pedido.id}')" class="px-3 py-1 border rounded text-sm flex items-center gap-1"><i class="fa fa-print"></i> Imprimir</button>
+                            <select onchange="atualizarStatus('${pedido.id}', this.value)" class="border border-gray-300 rounded-lg px-3 py-2">
+                                <option value="pendente" ${pedido.status === 'pendente' ? 'selected' : ''}>Pendente</option>
+                                <option value="confirmado" ${pedido.status === 'confirmado' ? 'selected' : ''}>Confirmado</option>
+                                <option value="pronto" ${pedido.status === 'pronto' ? 'selected' : ''}>Pronto</option>
+                                <option value="a_caminho" ${pedido.status === 'a_caminho' ? 'selected' : ''}>A Caminho</option>
+                                <option value="entregue" ${pedido.status === 'entregue' ? 'selected' : ''}>Entregue</option>
+                                <option value="cancelado" ${pedido.status === 'cancelado' ? 'selected' : ''}>Cancelado</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>
         `;
     }).join('');
+}
+
+function togglePedidoDetalhes(pedidoId) {
+    const detalhes = document.getElementById(`pedido-detalhes-${pedidoId}`);
+    const btn = document.getElementById(`pedido-toggle-${pedidoId}`);
+    if (!detalhes || !btn) return;
+    const isHidden = detalhes.classList.contains('hidden');
+    if (isHidden) {
+        detalhes.classList.remove('hidden');
+        btn.innerHTML = '<i class="fa fa-minus"></i> Minimizar';
+    } else {
+        detalhes.classList.add('hidden');
+        btn.innerHTML = '<i class="fa fa-plus"></i> Expandir';
+    }
+}
+
+function minimizarTodosPedidos() {
+    document.querySelectorAll('[id^="pedido-detalhes-"]').forEach(el => el.classList.add('hidden'));
+    document.querySelectorAll('[id^="pedido-toggle-"]').forEach(btn => {
+        btn.innerHTML = '<i class="fa fa-plus"></i> Expandir';
+    });
+}
+
+function expandirTodosPedidos() {
+    document.querySelectorAll('[id^="pedido-detalhes-"]').forEach(el => el.classList.remove('hidden'));
+    document.querySelectorAll('[id^="pedido-toggle-"]').forEach(btn => {
+        btn.innerHTML = '<i class="fa fa-minus"></i> Minimizar';
+    });
 }
 
 function getStatusClass(status) {
@@ -1087,7 +1194,7 @@ function imprimirPedido(id) {
         <tr>
             <td style="padding: 8px; border-bottom: 1px solid #ddd;">${item.quantidade}x</td>
             <td style="padding: 8px; border-bottom: 1px solid #ddd;">${item.nome}</td>
-            <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: right;">R$ ${item.preco.toFixed(2).replace('.', ',')}</td>
+            <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: right;">R$ ${((item.preco ?? item.precoUnitario ?? 0).toFixed(2)).replace('.', ',')}</td>
         </tr>
     `).join('');
     
@@ -1535,6 +1642,8 @@ function abrirModalPromocao(index, mode = 'manual') {
         document.getElementById('combo-active').checked = promo.ativo !== false;
         document.getElementById('combo-image').value = promo.image || '';
         document.getElementById('combo-image-file').value = '';
+        document.getElementById('combo-bebida-type').value = promo.bebidaType || 'nenhum';
+        document.getElementById('combo-allow-adicionais').checked = promo.allowAdicionais !== false;
         
         // Restaurar itens selecionados se editando
         if (promo.items && Array.isArray(promo.items)) {
@@ -1666,6 +1775,31 @@ function renderizarChecklistCombo() {
     
     // Renderizar itens agrupados por categoria com melhor layout
     let html = '<div class="space-y-4">';
+    
+    // Adicionar seção especial para refrigerante à escolha
+    const isRefriSelected = selectedComboItems.some(sItem => sItem.name === 'Refrigerante a sua escolha');
+    html += `
+        <div class="space-y-2">
+            <div class="sticky top-0 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-3 py-2 rounded-lg font-bold text-sm shadow-md z-10">
+                <i class="fa fa-glass-whiskey mr-2"></i>Opções Especiais
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                <label class="flex flex-col items-center gap-2 p-2 border-2 rounded-lg cursor-pointer transition-all ${isRefriSelected ? 'bg-blue-50 border-blue-500 shadow-lg scale-105' : 'border-gray-200 hover:border-blue-400 hover:shadow-md'}">
+                    <input type="checkbox" 
+                           ${isRefriSelected ? 'checked' : ''} 
+                           onchange="toggleComboItem({name: 'Refrigerante a sua escolha', price: 0, image: './assets/default.jpg'}, this.checked); event.stopPropagation();"
+                           class="w-5 h-5 rounded cursor-pointer accent-blue-500" />
+                    <div class="w-full h-20 bg-gradient-to-br from-blue-100 to-blue-200 rounded flex items-center justify-center">
+                        <i class="fa fa-glass-whiskey text-blue-600 text-2xl"></i>
+                    </div>
+                    <div class="text-center w-full px-1">
+                        <div class="font-semibold text-gray-800 text-xs leading-tight mb-1">Refrigerante a sua escolha</div>
+                        <div class="text-xs text-blue-600 font-bold">Grátis</div>
+                    </div>
+                </label>
+            </div>
+        </div>
+    `;
     
     Object.values(categorias).forEach(categoria => {
         // Filtrar por categoria se não for "todos"
@@ -1840,6 +1974,9 @@ async function salvarPromocaoCombo() {
         }
     }
 
+    const bebidaType = document.getElementById('combo-bebida-type').value;
+    const allowAdicionais = document.getElementById('combo-allow-adicionais').checked;
+
     const promo = { 
         name, 
         description, 
@@ -1848,7 +1985,9 @@ async function salvarPromocaoCombo() {
         image, 
         ativo,
         items: selectedComboItems,
-        type: 'combo'
+        type: 'combo',
+        bebidaType,
+        allowAdicionais
     };
 
     if (editingPromotionIndex === null) {
@@ -1914,7 +2053,12 @@ function abrirModalEdicao(index) {
     document.getElementById('edit-item-description').value = item.description || '';
     document.getElementById('edit-item-price').value = item.price;
     document.getElementById('edit-item-image').value = item.image;
-    document.getElementById('edit-item-active').checked = item.ativo;
+    const activeEl = document.getElementById('edit-item-active');
+    if (activeEl) activeEl.checked = item.ativo;
+    const drinkTypeEl = document.getElementById('edit-item-drink-type');
+    if (drinkTypeEl) drinkTypeEl.value = item.drinkType || 'nenhum';
+    const allowAddonsEl = document.getElementById('edit-item-allow-addons');
+    if (allowAddonsEl) allowAddonsEl.checked = item.allowAddons !== false;
     document.getElementById('edit-item-image-file').value = '';
     
     // Mostrar preview se houver imagem
@@ -1936,7 +2080,8 @@ function abrirModalNovoItem() {
     document.getElementById('edit-item-description').value = '';
     document.getElementById('edit-item-price').value = '';
     document.getElementById('edit-item-image').value = '';
-    document.getElementById('edit-item-active').checked = true;
+    const activeEl = document.getElementById('edit-item-active');
+    if (activeEl) activeEl.checked = true;
     document.getElementById('edit-item-image-file').value = '';
     document.getElementById('edit-item-image-preview').style.display = 'none';
     
@@ -1954,7 +2099,12 @@ async function salvarEdicaoItem() {
     const descricao = document.getElementById('edit-item-description').value.trim();
     const preco = parseFloat(document.getElementById('edit-item-price').value);
     let imagem = document.getElementById('edit-item-image').value.trim();
-    const ativo = document.getElementById('edit-item-active').checked;
+    const ativoEl = document.getElementById('edit-item-active');
+    const drinkTypeEl = document.getElementById('edit-item-drink-type');
+    const allowAddonsEl = document.getElementById('edit-item-allow-addons');
+    const ativo = ativoEl ? ativoEl.checked : (editingItemIndex === null ? true : menu[editingItemIndex].ativo);
+    const drinkType = drinkTypeEl ? drinkTypeEl.value : (editingItemIndex === null ? 'nenhum' : menu[editingItemIndex].drinkType || 'nenhum');
+    const allowAddons = allowAddonsEl ? allowAddonsEl.checked : (editingItemIndex === null ? true : menu[editingItemIndex].allowAddons !== false);
     const fileInput = document.getElementById('edit-item-image-file');
     
     if (!nome || isNaN(preco) || preco < 0) {
@@ -1994,7 +2144,9 @@ async function salvarEdicaoItem() {
             description: descricao,
             price: preco,
             image: imagem,
-            ativo: ativo
+            ativo: ativo,
+            drinkType: drinkType,
+            allowAddons: allowAddons
         };
         menu.push(novoItem);
         mostrarConfirmacao('✅ Sucesso', 'Novo item adicionado com sucesso!');
@@ -2006,11 +2158,14 @@ async function salvarEdicaoItem() {
         menu[editingItemIndex].price = preco;
         menu[editingItemIndex].image = imagem;
         menu[editingItemIndex].ativo = ativo;
+        menu[editingItemIndex].drinkType = drinkType;
+        menu[editingItemIndex].allowAddons = allowAddons;
         mostrarConfirmacao('✅ Sucesso', 'Item atualizado com sucesso!');
     }
     
     renderizarCardapioEdit();
     renderizarCardapioView();
+    renderizarMontePizzasList();
     sincronizarCardapio();
     fecharModalEdicao();
 }
@@ -2167,15 +2322,84 @@ function atualizarFiltrosView() {
     });
 }
 
+function obterOrdemCategorias() {
+    const order = [];
+    const seen = new Set();
+
+    (customCategories || []).forEach(cat => {
+        if (cat.key && !seen.has(cat.key)) {
+            order.push(cat.key);
+            seen.add(cat.key);
+        }
+    });
+
+    Object.keys(categoriasPadrao).forEach(key => {
+        if (!seen.has(key)) {
+            order.push(key);
+            seen.add(key);
+        }
+    });
+
+    (menu || []).forEach(item => {
+        const key = item.category;
+        if (key && !seen.has(key)) {
+            order.push(key);
+            seen.add(key);
+        }
+    });
+
+    return order;
+}
+
+function obterCategoriasGerenciadas() {
+    const merged = { ...categoriasPadrao };
+    customCategories.forEach(cat => {
+        merged[cat.key] = { emoji: cat.emoji || '📦', nome: cat.nome };
+    });
+    const allItems = menu || [];
+    allItems.forEach(item => {
+        const key = item.category;
+        if (key && !merged[key]) {
+            merged[key] = { emoji: '📦', nome: getCategoryName(key) };
+        }
+    });
+
+    const order = obterOrdemCategorias();
+    return order
+        .filter(key => merged[key])
+        .map(key => ({ key, nome: merged[key].nome, emoji: merged[key].emoji || '📦' }));
+}
+
 function atualizarSelectCategorias() {
     const select = document.getElementById('edit-item-category');
     if (!select) return;
-    
-    const categorias = obterCategoriasDoCardapio();
-    
-    select.innerHTML = Object.values(categorias).map(cat => 
+
+    const categorias = obterCategoriasGerenciadas();
+    const selectedValue = select.value;
+
+    select.innerHTML = categorias.map(cat =>
         `<option value="${cat.key}">${cat.emoji} ${cat.nome}</option>`
     ).join('');
+
+    if (selectedValue) {
+        select.value = selectedValue;
+    }
+
+    // Também popular o select de categoria do modal de adicionais (addon-category)
+    try {
+        const addonSelect = document.getElementById('addon-category');
+        if (addonSelect) {
+            const addonSelected = addonSelect.value;
+            const opts = categorias.map(cat => `<option value="${cat.key}">${cat.nome}</option>`);
+            // manter placeholder para forçar seleção explícita
+            addonSelect.innerHTML = '<option value="" disabled selected>Escolha uma categoria</option>' + opts.join('');
+            if (addonSelected) {
+                addonSelect.value = addonSelected;
+            }
+        }
+    } catch (e) {
+        console.warn('Erro ao popular addon-category:', e);
+    }
 }
 
 function abrirGerenciarCategorias() {
@@ -2199,23 +2423,14 @@ function renderCategoriasModal() {
         merged[cat.key] = { emoji: cat.emoji || '📦', nome: cat.nome };
     });
 
-    // Render padrões (com overrides se existirem)
-    Object.keys(categoriasPadrao).forEach(key => {
-        const cat = merged[key] || categoriasPadrao[key];
+    const orderedKeys = obterOrdemCategorias();
+    orderedKeys.forEach(key => {
+        const isPadrao = !!categoriasPadrao[key];
+        const cat = merged[key] || { nome: key, emoji: '📦' };
         linhas.push(criarLinhaCategoria(key, cat.nome, cat.emoji || '📦', false, {
-            keyLocked: true,
-            deletable: false,
-            badgeText: 'padrão'
-        }));
-    });
-
-    // Render custom (exclui os que já são padrão)
-    customCategories.forEach(cat => {
-        if (categoriasPadrao[cat.key]) return; // já renderizado acima
-        linhas.push(criarLinhaCategoria(cat.key, cat.nome, cat.emoji || '📦', false, {
-            keyLocked: false,
-            deletable: true,
-            badgeText: ''
+            keyLocked: isPadrao,
+            deletable: !isPadrao,
+            badgeText: isPadrao ? 'padrão' : ''
         }));
     });
 
@@ -2230,6 +2445,8 @@ function criarLinhaCategoria(key = '', nome = '', emoji = '📦', isNew = true, 
             <input class="w-32 border rounded px-2 py-1 text-sm" placeholder="id" value="${key}" data-field="key" ${keyLocked ? 'disabled' : ''} title="Identificador (minúsculo)" />
             <input class="flex-1 border rounded px-2 py-1 text-sm" placeholder="Nome de exibição" value="${nome}" data-field="nome" />
             ${badgeText ? `<span class="text-xs text-gray-500">${badgeText}</span>` : (isNew ? '<span class="text-xs text-gray-500">novo</span>' : '')}
+            <button class="text-gray-600 hover:text-gray-800 px-2" data-action="move-up" title="Mover para cima"><i class="fa fa-arrow-up"></i></button>
+            <button class="text-gray-600 hover:text-gray-800 px-2" data-action="move-down" title="Mover para baixo"><i class="fa fa-arrow-down"></i></button>
             ${deletable ? '<button class="text-red-600 hover:text-red-700 px-2" data-action="delete" title="Remover"><i class="fa fa-trash"></i></button>' : ''}
         </div>
     `;
@@ -2246,7 +2463,8 @@ async function salvarCategorias() {
     if (!list) return;
 
     const rows = Array.from(list.querySelectorAll('[data-row]'));
-    const catMap = {};
+    const catMap = new Map();
+    const order = [];
 
     for (const row of rows) {
         const emoji = (row.querySelector('[data-field="emoji"]')?.value || '📦').trim();
@@ -2269,11 +2487,16 @@ async function salvarCategorias() {
         }
 
         // Última linha com mesmo key prevalece (permite editar padrão)
-        catMap[key] = { key, nome, emoji: emoji || '📦' };
+        if (catMap.has(key)) {
+            const prevIndex = order.indexOf(key);
+            if (prevIndex >= 0) order.splice(prevIndex, 1);
+        }
+        catMap.set(key, { key, nome, emoji: emoji || '📦' });
+        order.push(key);
     }
 
     // Guardar todas as categorias (inclusive overrides das padrão) como customCategories
-    customCategories = Object.values(catMap);
+    customCategories = order.map(key => catMap.get(key));
 
     try {
         const response = await fetchTenant('/custom-categories', {
@@ -2337,6 +2560,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             atualizarSelectCategorias();
             renderizarCardapioView();
             renderizarCardapioEdit();
+            renderizarMontePizzasList();
         }
     } catch (error) {
         console.warn('⚠️ Não foi possível carregar cardápio do servidor:', error);
@@ -2352,6 +2576,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             atualizarFiltrosCategoria();
             atualizarFiltrosView();
             atualizarSelectCategorias();
+            
         }
     } catch (error) {
         console.warn('⚠️ Não foi possível carregar categorias customizadas:', error);
@@ -2370,9 +2595,28 @@ document.addEventListener('DOMContentLoaded', async function() {
         console.warn('⚠️ Não foi possível carregar promoções do servidor:', error);
     }
 
+    const monteFilterSelect = document.getElementById('monte-filter-select');
+    if (monteFilterSelect) {
+        monteFilterSelect.addEventListener('change', () => renderizarMontePizzasList());
+    }
+
+    const minimizeAllBtn = document.getElementById('minimize-all-orders');
+    if (minimizeAllBtn) minimizeAllBtn.addEventListener('click', minimizarTodosPedidos);
+    const expandAllBtn = document.getElementById('expand-all-orders');
+    if (expandAllBtn) expandAllBtn.addEventListener('click', expandirTodosPedidos);
+
     document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.addEventListener('click', () => setTab(btn.dataset.tab));
+        btn.addEventListener('click', () => {
+            localStorage.setItem('abaPainelAtiva', btn.dataset.tab);
+            setTab(btn.dataset.tab);
+        });
     });
+
+    // Restaurar aba ativa ao carregar
+    const abaSalva = localStorage.getItem('abaPainelAtiva');
+    if (abaSalva) {
+        setTab(abaSalva);
+    }
 
     document.getElementById('refresh-btn').addEventListener('click', carregarPedidos);
 
@@ -2383,7 +2627,11 @@ document.addEventListener('DOMContentLoaded', async function() {
             document.getElementById('data-inicio-relatorio').value = '';
             document.getElementById('data-fim-relatorio').value = '';
             console.log('🔄 Filtro de datas resetado');
-            atualizarKpis();
+            // Aplicar filtro para hoje
+            const hoje = new Date().toISOString().split('T')[0];
+            document.getElementById('data-inicio-relatorio').value = hoje;
+            document.getElementById('data-fim-relatorio').value = hoje;
+            atualizarRelatoriosPorData(hoje, hoje);
             
             const totalPedidos = pedidos.length;
             const totalFaturamento = pedidos.reduce((sum, p) => sum + (p.total || 0), 0);
@@ -2396,6 +2644,77 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 
     // Filtro por data nos relatórios
+    function atualizarRelatoriosPorData(dataInicio, dataFim) {
+        const inicio = new Date(dataInicio);
+        const fim = new Date(dataFim);
+        
+        const pedidosFiltrados = pedidos.filter(p => {
+            const dataPedido = new Date(p.data);
+            return dataPedido >= inicio && dataPedido <= fim;
+        });
+        
+        console.log(`📅 Filtro de datas aplicado: ${dataInicio} a ${dataFim}`);
+        console.log(`📦 Pedidos encontrados: ${pedidosFiltrados.length}`);
+        
+        // Atualizar estatísticas com pedidos filtrados
+        const totalFiltrado = pedidosFiltrados.reduce((sum, p) => sum + (p.total || 0), 0);
+        const pendentes = pedidosFiltrados.filter(p => p.status === 'pendente').length;
+        const confirmados = pedidosFiltrados.filter(p => p.status === 'confirmado').length;
+        const cancelados = pedidosFiltrados.filter(p => p.status === 'cancelado').length;
+        const entregues = pedidosFiltrados.filter(p => p.status === 'entregue').length;
+        
+        // Atualizar cards com dados filtrados
+        document.getElementById('stat-total-pedidos-rel').textContent = pedidosFiltrados.length;
+        document.getElementById('stat-pendentes-rel').textContent = pendentes;
+        document.getElementById('stat-confirmados-rel').textContent = confirmados;
+        document.getElementById('stat-cancelados-rel').textContent = cancelados;
+        document.getElementById('total-faturamento').textContent = `R$ ${totalFiltrado.toFixed(2).replace('.', ',')}`;
+        
+        const ticketMedio = pedidosFiltrados.length > 0 ? totalFiltrado / pedidosFiltrados.length : 0;
+        document.getElementById('ticket-medio').textContent = `R$ ${ticketMedio.toFixed(2).replace('.', ',')}`;
+        
+        const maiorPedido = pedidosFiltrados.length > 0 ? Math.max(...pedidosFiltrados.map(p => p.total || 0)) : 0;
+        document.getElementById('maior-pedido').textContent = `R$ ${maiorPedido.toFixed(2).replace('.', ',')}`;
+        
+        const taxaConclusao = pedidosFiltrados.length > 0 ? ((entregues + confirmados) / pedidosFiltrados.length * 100).toFixed(1) : 0;
+        document.getElementById('taxa-conclusao').textContent = `${taxaConclusao}%`;
+        
+        document.getElementById('total-cancelados').textContent = cancelados;
+        
+        // Abrir modal com informações do filtro
+        abrirModalFiltro('filtrar', {
+            totalPedidos: pedidosFiltrados.length,
+            faturamento: totalFiltrado
+        });
+        
+        // Atualizar gráfico
+        desenharGraficoStatus(pendentes, confirmados, entregues, cancelados);
+        
+        // Atualizar resumo detalhado
+        if (document.getElementById('resumo-faturamento')) {
+            document.getElementById('resumo-faturamento').textContent = `R$ ${totalFiltrado.toFixed(2).replace('.', ',')}`;
+        }
+        if (document.getElementById('resumo-ticket')) {
+            document.getElementById('resumo-ticket').textContent = `R$ ${ticketMedio.toFixed(2).replace('.', ',')}`;
+        }
+        if (document.getElementById('resumo-total')) {
+            document.getElementById('resumo-total').textContent = pedidosFiltrados.length;
+        }
+        if (document.getElementById('resumo-taxa')) {
+            document.getElementById('resumo-taxa').textContent = `${taxaConclusao}%`;
+        }
+        if (document.getElementById('stat-entregues-rel')) {
+            document.getElementById('stat-entregues-rel').textContent = entregues;
+        }
+        if (document.getElementById('stat-entregues-count')) {
+            document.getElementById('stat-entregues-count').textContent = entregues;
+        }
+        if (document.getElementById('menor-pedido')) {
+            const menorPedido = pedidosFiltrados.length > 0 ? Math.min(...pedidosFiltrados.map(p => p.total || 0)) : 0;
+            document.getElementById('menor-pedido').textContent = `R$ ${menorPedido.toFixed(2).replace('.', ',')}`;
+        }
+    }
+
     const btnFiltrarDatas = document.getElementById('btn-filtrar-datas');
     if (btnFiltrarDatas) {
         btnFiltrarDatas.addEventListener('click', () => {
@@ -2407,74 +2726,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 return;
             }
             
-            const inicio = new Date(dataInicio);
-            const fim = new Date(dataFim);
-            
-            const pedidosFiltrados = pedidos.filter(p => {
-                const dataPedido = new Date(p.data);
-                return dataPedido >= inicio && dataPedido <= fim;
-            });
-            
-            console.log(`📅 Filtro de datas aplicado: ${dataInicio} a ${dataFim}`);
-            console.log(`📦 Pedidos encontrados: ${pedidosFiltrados.length}`);
-            
-            // Atualizar estatísticas com pedidos filtrados
-            const totalFiltrado = pedidosFiltrados.reduce((sum, p) => sum + (p.total || 0), 0);
-            const pendentes = pedidosFiltrados.filter(p => p.status === 'pendente').length;
-            const confirmados = pedidosFiltrados.filter(p => p.status === 'confirmado').length;
-            const cancelados = pedidosFiltrados.filter(p => p.status === 'cancelado').length;
-            const entregues = pedidosFiltrados.filter(p => p.status === 'entregue').length;
-            
-            // Atualizar cards com dados filtrados
-            document.getElementById('stat-total-pedidos-rel').textContent = pedidosFiltrados.length;
-            document.getElementById('stat-pendentes-rel').textContent = pendentes;
-            document.getElementById('stat-confirmados-rel').textContent = confirmados;
-            document.getElementById('stat-cancelados-rel').textContent = cancelados;
-            document.getElementById('total-faturamento').textContent = `R$ ${totalFiltrado.toFixed(2).replace('.', ',')}`;
-            
-            const ticketMedio = pedidosFiltrados.length > 0 ? totalFiltrado / pedidosFiltrados.length : 0;
-            document.getElementById('ticket-medio').textContent = `R$ ${ticketMedio.toFixed(2).replace('.', ',')}`;
-            
-            const maiorPedido = pedidosFiltrados.length > 0 ? Math.max(...pedidosFiltrados.map(p => p.total || 0)) : 0;
-            document.getElementById('maior-pedido').textContent = `R$ ${maiorPedido.toFixed(2).replace('.', ',')}`;
-            
-            const taxaConclusao = pedidosFiltrados.length > 0 ? ((entregues + confirmados) / pedidosFiltrados.length * 100).toFixed(1) : 0;
-            document.getElementById('taxa-conclusao').textContent = `${taxaConclusao}%`;
-            
-            document.getElementById('total-cancelados').textContent = cancelados;
-            
-            // Abrir modal com informações do filtro
-            abrirModalFiltro('filtrar', {
-                totalPedidos: pedidosFiltrados.length,
-                faturamento: totalFiltrado
-            });
-            
-            // Atualizar gráfico
-            desenharGraficoStatus(pendentes, confirmados, entregues, cancelados);
-            
-            // Atualizar resumo detalhado
-            if (document.getElementById('resumo-faturamento')) {
-                document.getElementById('resumo-faturamento').textContent = `R$ ${totalFiltrado.toFixed(2).replace('.', ',')}`;
-            }
-            if (document.getElementById('resumo-ticket')) {
-                document.getElementById('resumo-ticket').textContent = `R$ ${ticketMedio.toFixed(2).replace('.', ',')}`;
-            }
-            if (document.getElementById('resumo-total')) {
-                document.getElementById('resumo-total').textContent = pedidosFiltrados.length;
-            }
-            if (document.getElementById('resumo-taxa')) {
-                document.getElementById('resumo-taxa').textContent = `${taxaConclusao}%`;
-            }
-            if (document.getElementById('stat-entregues-rel')) {
-                document.getElementById('stat-entregues-rel').textContent = entregues;
-            }
-            if (document.getElementById('stat-entregues-count')) {
-                document.getElementById('stat-entregues-count').textContent = entregues;
-            }
-            if (document.getElementById('menor-pedido')) {
-                const menorPedido = pedidosFiltrados.length > 0 ? Math.min(...pedidosFiltrados.map(p => p.total || 0)) : 0;
-                document.getElementById('menor-pedido').textContent = `R$ ${menorPedido.toFixed(2).replace('.', ',')}`;
-            }
+            atualizarRelatoriosPorData(dataInicio, dataFim);
         });
     }
 
@@ -2636,11 +2888,28 @@ document.addEventListener('DOMContentLoaded', async function() {
     if (addCategoryRowBtn) addCategoryRowBtn.addEventListener('click', adicionarLinhaCategoria);
     if (categoriesList) {
         categoriesList.addEventListener('click', (e) => {
-            const btn = e.target.closest('[data-action="delete"]');
-            if (!btn) return;
-            const row = btn.closest('[data-row]');
-            if (row) {
-                row.remove();
+            const deleteBtn = e.target.closest('[data-action="delete"]');
+            if (deleteBtn) {
+                const row = deleteBtn.closest('[data-row]');
+                if (row) row.remove();
+                return;
+            }
+
+            const moveUpBtn = e.target.closest('[data-action="move-up"]');
+            if (moveUpBtn) {
+                const row = moveUpBtn.closest('[data-row]');
+                if (!row) return;
+                const prev = row.previousElementSibling;
+                if (prev) categoriesList.insertBefore(row, prev);
+                return;
+            }
+
+            const moveDownBtn = e.target.closest('[data-action="move-down"]');
+            if (moveDownBtn) {
+                const row = moveDownBtn.closest('[data-row]');
+                if (!row) return;
+                const next = row.nextElementSibling;
+                if (next) categoriesList.insertBefore(next, row);
             }
         });
     }
@@ -3112,6 +3381,567 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Carrega configurações ao inicializar
     carregarConfiguracoes();
 });
+
+// ==================== WHATSAPP ====================
+
+async function carregarStatusWhatsApp() {
+    try {
+        const response = await fetch('/whatsapp/status');
+        const data = await response.json();
+        
+        const statusText = document.getElementById('status-text');
+        const connectedNumber = document.getElementById('connected-number');
+        const companyNumber = document.getElementById('company-number');
+        const qrSection = document.getElementById('qr-section');
+        const connectedSection = document.getElementById('connected-section');
+        
+        if (data.connected) {
+            statusText.textContent = 'Conectado';
+            statusText.className = 'text-green-600 font-semibold';
+            connectedNumber.textContent = data.number || '-';
+            connectedSection.classList.remove('hidden');
+            qrSection.classList.add('hidden');
+        } else if (data.qr) {
+            statusText.textContent = 'Aguardando conexão';
+            statusText.className = 'text-yellow-600 font-semibold';
+            connectedNumber.textContent = '-';
+            qrSection.classList.remove('hidden');
+            connectedSection.classList.add('hidden');
+            
+            // Gerar QR code
+            const qrContainer = document.getElementById('qr-code');
+            qrContainer.innerHTML = '';
+            new QRCode(qrContainer, {
+                text: data.qr,
+                width: 256,
+                height: 256
+            });
+        } else {
+            statusText.textContent = 'Desconectado';
+            statusText.className = 'text-red-600 font-semibold';
+            connectedNumber.textContent = '-';
+            qrSection.classList.add('hidden');
+            connectedSection.classList.add('hidden');
+        }
+        
+        // Carregar número da empresa
+        const companyData = await carregarDadosEmpresaLocal();
+        if (companyData && companyData.companyWhatsapp) {
+            companyNumber.textContent = companyData.companyWhatsapp;
+        } else {
+            companyNumber.textContent = 'Não configurado';
+        }
+        
+    } catch (error) {
+        console.error('Erro ao carregar status WhatsApp:', error);
+        document.getElementById('status-text').textContent = 'Erro ao verificar';
+    }
+}
+
+async function carregarDadosEmpresaLocal() {
+    try {
+        const data = localStorage.getItem('companyData');
+        return data ? JSON.parse(data) : null;
+    } catch {
+        return null;
+    }
+}
+
+// Carregar status WhatsApp quando abrir a aba
+document.addEventListener('click', (e) => {
+    if (e.target.closest('[data-tab="tab-whatsapp"]')) {
+        setTimeout(carregarStatusWhatsApp, 500);
+    }
+});
+
+// Desconectar WhatsApp
+document.getElementById('disconnect-whatsapp')?.addEventListener('click', async () => {
+    if (confirm('Tem certeza que deseja desconectar o WhatsApp?')) {
+        try {
+            await fetch('/whatsapp/disconnect', { method: 'POST' });
+            mostrarConfirmacao('✅ Sucesso', 'WhatsApp desconectado!');
+            carregarStatusWhatsApp();
+        } catch (error) {
+            mostrarConfirmacao('❌ Erro', 'Erro ao desconectar WhatsApp');
+        }
+    }
+});
+
+// ===== ADICIONAIS MANAGEMENT =====
+let addons = [];
+let editingAddonIndex = -1;
+
+async function carregarAddons() {
+    try {
+        const response = await fetchTenant('/addons');
+        const data = await parseJSONResponse(response);
+        if (data.success && Array.isArray(data.addons)) {
+            addons = data.addons;
+            console.log('✅ Adicionais carregados do servidor');
+            renderizarAddonsList();
+        }
+    } catch (error) {
+        console.warn('⚠️ Não foi possível carregar adicionais do servidor:', error);
+        // Fallback para dados hardcoded se não conseguir carregar
+        addons = [
+            { name: "Burger de gado", price: 8.00, category: "burgers", ativo: true },
+            { name: "Burger de porco", price: 8.00, category: "burgers", ativo: true },
+            { name: "Bacon", price: 5.00, category: "burgers", ativo: true },
+            { name: "Cheddar", price: 4.00, category: "burgers", ativo: true },
+            { name: "Mussarela", price: 3.00, category: "burgers", ativo: true },
+            { name: "Cebola caramelizada", price: 3.00, category: "burgers", ativo: true },
+            { name: "Tomate", price: 2.00, category: "geral", ativo: true },
+            { name: "Alface", price: 2.00, category: "geral", ativo: true },
+            { name: "Cebola roxa", price: 2.00, category: "geral", ativo: true },
+            { name: "Requeijão", price: 6.00, category: "pizzas", ativo: true },
+            { name: "Calabresa", price: 7.00, category: "pizzas", ativo: true },
+            { name: "Frango", price: 6.00, category: "pizzas", ativo: true }
+        ];
+        renderizarAddonsList();
+    }
+}
+
+function renderizarAddonsList() {
+    const container = document.getElementById('addons-list');
+    if (!container) return;
+    
+    if (addons.length === 0) {
+        container.innerHTML = '<p class="text-gray-500 text-sm">Nenhum adicional cadastrado.</p>';
+        return;
+    }
+    // Agrupar por categoria (normalizando nomes semelhantes)
+    const normalize = (s) => (s || 'geral').toString().toLowerCase().trim();
+    const grouped = {};
+    addons.forEach((addon, idx) => {
+        const keyRaw = normalize(addon.category);
+        let key = keyRaw;
+        if (key === 'burgers' || key === 'burger') key = 'burguers';
+        if (!grouped[key]) grouped[key] = { key, display: addon.category || 'geral', items: [] };
+        grouped[key].items.push({ addon, idx });
+    });
+
+    const categories = Object.values(grouped);
+
+    let html = '';
+    // filtro de categorias
+    html += '<div class="mb-3 flex items-center gap-3"><label class="text-sm font-medium">Filtrar por categoria:</label><select id="addon-filter-select" class="border rounded px-2 py-1"><option value="all">Todos</option>';
+    categories.forEach(c => {
+        html += `<option value="${c.key}">${c.display}</option>`;
+    });
+    html += '</select></div>';
+
+    // listar por categoria
+    categories.forEach(c => {
+        html += `<div class="group-wrapper mb-4" data-cat="${c.key}">`;
+        html += `<h3 class="font-bold text-lg mb-2">${c.display}</h3>`;
+        html += '<div class="space-y-3">';
+        c.items.forEach(({ addon, idx }) => {
+            const ativo = addon.ativo !== false;
+            html += `
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden transition hover:shadow-xl ${!ativo ? 'opacity-60' : ''}">
+                <div class="p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="font-bold text-lg">${addon.name || 'Sem nome'}</h4>
+                        <span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">${addon.category || 'geral'}</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="font-bold text-green-600">R$ ${Number(addon.price || 0).toFixed(2).replace('.', ',')}</span>
+                        ${ativo ? '<span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">ATIVO</span>' : '<span class="text-xs bg-red-100 text-red-700 px-2 py-1 rounded">INATIVO</span>'}
+                    </div>
+                </div>
+                <div class="border-t px-3 py-2 bg-gray-50 grid grid-cols-3 gap-2">
+                    <button onclick="abrirModalAddon(${idx}); event.stopPropagation();" class="bg-blue-600 text-white font-semibold py-2 rounded text-sm flex items-center justify-center gap-2 hover:opacity-90 transition">
+                        <i class="fa fa-edit"></i> Editar
+                    </button>
+                    <button onclick="toggleAddonAtivo(${idx}); event.stopPropagation();" class="${ativo ? 'bg-orange-500' : 'bg-green-600'} text-white font-semibold py-2 rounded text-sm flex items-center justify-center gap-2 hover:opacity-90 transition" title="${ativo ? 'Desabilitar' : 'Habilitar'}">
+                        <i class="fa fa-${ativo ? 'eye-slash' : 'eye'}"></i> ${ativo ? 'Desab.' : 'Hab.'}
+                    </button>
+                    <button onclick="deletarAddon(${idx}); event.stopPropagation();" class="bg-red-600 text-white font-semibold py-2 rounded text-sm flex items-center justify-center gap-2 hover:opacity-90 transition" title="Deletar">
+                        <i class="fa fa-trash"></i> Del.
+                    </button>
+                </div>
+            </div>
+            `;
+        });
+        html += '</div></div>';
+    });
+
+    container.innerHTML = html;
+
+    // aplicar listener do filtro
+    const select = document.getElementById('addon-filter-select');
+    if (select) {
+        select.addEventListener('change', (e) => {
+            const val = e.target.value;
+            document.querySelectorAll('#addons-list .group-wrapper').forEach(g => {
+                if (val === 'all' || g.dataset.cat === val) g.style.display = '';
+                else g.style.display = 'none';
+            });
+        });
+    }
+}
+
+function renderizarMontePizzasList() {
+    const container = document.getElementById('monte-pizzas-list');
+    if (!container) return;
+
+    const filtroSelect = document.getElementById('monte-filter-select');
+    const filtro = filtroSelect ? filtroSelect.value : 'all';
+
+    const pizzasList = (menu || []).map((item, idx) => ({ item, idx }))
+        .filter(({ item }) => (item.category || '').toString().toLowerCase().includes('pizz'))
+        .filter(({ item }) => {
+            if (filtro === 'all') return true;
+            const nome = (item.name || '').toString().toLowerCase();
+            if (filtro === '8') return nome.includes('8 peda');
+            if (filtro === '4') return nome.includes('4 peda');
+            return true;
+        });
+
+    if (pizzasList.length === 0) {
+        container.innerHTML = '<p class="text-gray-500 text-sm">Nenhuma pizza cadastrada.</p>';
+        return;
+    }
+
+    let html = '';
+    pizzasList.forEach(({ item, idx }) => {
+        const ativoMonte = item.monteEnabled !== false;
+        html += `
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden transition hover:shadow-xl ${!ativoMonte ? 'opacity-60' : ''}">
+            <div class="p-4">
+                <div class="flex items-center justify-between mb-2">
+                    <h4 class="font-bold text-lg">${item.name || 'Sem nome'}</h4>
+                    <span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">Pizza</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="font-bold text-green-600">R$ ${Number(item.price || 0).toFixed(2).replace('.', ',')}</span>
+                    ${ativoMonte ? '<span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">NO MONTE</span>' : '<span class="text-xs bg-red-100 text-red-700 px-2 py-1 rounded">OCULTO</span>'}
+                </div>
+            </div>
+            <div class="border-t px-3 py-2 bg-gray-50 grid grid-cols-3 gap-2">
+                <button onclick="abrirModalEdicao(${idx}); event.stopPropagation();" class="bg-blue-600 text-white font-semibold py-2 rounded text-sm flex items-center justify-center gap-2 hover:opacity-90 transition">
+                    <i class="fa fa-edit"></i> Editar
+                </button>
+                <button onclick="toggleMontePizza(${idx}); event.stopPropagation();" class="${ativoMonte ? 'bg-orange-500' : 'bg-green-600'} text-white font-semibold py-2 rounded text-sm flex items-center justify-center gap-2 hover:opacity-90 transition" title="${ativoMonte ? 'Ocultar no Monte' : 'Mostrar no Monte'}">
+                    <i class="fa fa-${ativoMonte ? 'eye-slash' : 'eye'}"></i> ${ativoMonte ? 'Ocultar' : 'Mostrar'}
+                </button>
+                <button onclick="deletarItem(${idx}); event.stopPropagation();" class="bg-red-600 text-white font-semibold py-2 rounded text-sm flex items-center justify-center gap-2 hover:opacity-90 transition" title="Deletar">
+                    <i class="fa fa-trash"></i> Del.
+                </button>
+            </div>
+        </div>
+        `;
+    });
+
+    container.innerHTML = html;
+}
+
+function toggleMontePizza(index) {
+    if (!menu[index]) return;
+    menu[index].monteEnabled = !(menu[index].monteEnabled !== false);
+    renderizarMontePizzasList();
+    sincronizarCardapio();
+}
+
+function abrirModalNovoSaborMonte() {
+    abrirModalNovoItem();
+    const categoryEl = document.getElementById('edit-item-category');
+    if (categoryEl) categoryEl.value = 'pizzas';
+}
+
+function popularCategoriasAdicionais(selectElement, selectedCategory = '') {
+    if (!selectElement) return;
+
+    const categoriasArray = obterCategoriasGerenciadas();
+    const extraAddonsCats = [
+        { key: 'sabores', nome: 'Sabores (Monte)' },
+        { key: 'bolinhos', nome: 'Bolinhos (Monte)' }
+    ];
+
+    // Limpar select e adicionar opção padrão
+    selectElement.innerHTML = '<option value="" disabled selected>Escolha uma categoria</option>';
+
+    // Adicionar categorias dinâmicas (inclui customizadas e padrão)
+    categoriasArray.forEach(cat => {
+        const option = document.createElement('option');
+        option.value = cat.key;
+        option.textContent = cat.nome;
+        if (selectedCategory && cat.key === selectedCategory) {
+            option.selected = true;
+        }
+        selectElement.appendChild(option);
+    });
+
+    // Adicionar categorias específicas de adicionais do Monte sua pizza
+    extraAddonsCats.forEach(cat => {
+        if ([...selectElement.options].some(o => o.value === cat.key)) return;
+        const option = document.createElement('option');
+        option.value = cat.key;
+        option.textContent = cat.nome;
+        if (selectedCategory && cat.key === selectedCategory) {
+            option.selected = true;
+        }
+        selectElement.appendChild(option);
+    });
+
+    // Se não houver categoria selecionada, selecionar o placeholder
+    if (!selectedCategory) {
+        selectElement.selectedIndex = 0;
+    }
+}
+
+function abrirModalAddon(index = -1) {
+    editingAddonIndex = index;
+    const addon = addons[index] || {};
+    console.log('abrirModalAddon called, index=', index, 'addon=', addon);
+
+    const nameEl = document.getElementById('addon-name');
+    const priceEl = document.getElementById('addon-price');
+    const categoryEl = document.getElementById('addon-category');
+    const activeEl = document.getElementById('addon-active');
+    const modalEl = document.getElementById('addon-modal');
+
+    // Popular categorias dinamicamente
+    popularCategoriasAdicionais(categoryEl, addon.category);
+
+    if (nameEl) nameEl.value = addon.name || '';
+    if (priceEl) priceEl.value = addon.price || '';
+    if (activeEl) activeEl.checked = addon.ativo !== false;
+
+    if (modalEl) {
+        modalEl.classList.remove('hidden');
+        // garantir visibilidade caso algum estilo inline esteja ocultando
+        try {
+            modalEl.style.display = 'flex';
+            modalEl.style.zIndex = '9999';
+            modalEl.style.opacity = '1';
+            modalEl.style.pointerEvents = 'auto';
+        } catch (e) {
+            console.warn('erro ao aplicar estilos inline no modal', e);
+        }
+        // log do estilo computado para diagnóstico
+        try {
+            const cs = window.getComputedStyle(modalEl);
+            const csInfo = { display: cs.display, visibility: cs.visibility, opacity: cs.opacity, zIndex: cs.zIndex, pointerEvents: cs.pointerEvents };
+            console.log('addon-modal computedStyle:', csInfo);
+            // bounding rect
+            try {
+                const r = modalEl.getBoundingClientRect();
+                const rectInfo = { top: r.top, left: r.left, width: r.width, height: r.height };
+                console.log('addon-modal boundingRect:', rectInfo);
+            } catch (e) {
+                console.warn('erro ao obter boundingRect do modal', e);
+            }
+            // destacar visualmente para confirmar presença
+            try {
+                modalEl.style.outline = '4px solid rgba(255,0,0,0.9)';
+                modalEl.style.backgroundColor = 'rgba(255,0,0,0.04)';
+            } catch (e) {
+                console.warn('erro ao aplicar destaque visual no modal', e);
+            }
+            // verificar ancestrais com display/visibility problemáticos
+            try {
+                let el = modalEl.parentElement;
+                const badAncestors = [];
+                while (el) {
+                    const c = window.getComputedStyle(el);
+                    if (c.display === 'none' || c.visibility === 'hidden' || Number(c.opacity) === 0) {
+                        badAncestors.push({ tag: el.tagName, id: el.id || null, class: el.className || null, display: c.display, visibility: c.visibility, opacity: c.opacity });
+                    }
+                    el = el.parentElement;
+                }
+                if (badAncestors.length) {
+                    console.warn('ancestors with hiding styles:', JSON.parse(JSON.stringify(badAncestors)));
+                    // Se existirem ancestrais que escondem o modal, mova o modal temporariamente para body
+                    try {
+                        if (modalEl.parentElement !== document.body) {
+                            modalEl.__originalParent = modalEl.parentElement;
+                            modalEl.__originalNextSibling = modalEl.nextSibling;
+                            document.body.appendChild(modalEl);
+                            console.log('addon-modal movido para document.body temporariamente para garantir visibilidade');
+                            // reforçar estilos para exibir corretamente
+                            modalEl.style.position = 'fixed';
+                            modalEl.style.inset = '0';
+                            modalEl.style.display = 'flex';
+                        }
+                    } catch (e) {
+                        console.warn('erro ao mover modal para body', e);
+                    }
+                }
+            } catch (e) {
+                console.warn('erro ao inspecionar ancestrais do modal', e);
+            }
+        } catch (e) {
+            console.warn('erro ao obter computedStyle do modal', e);
+        }
+        // tentar focar o primeiro input para trazer atenção
+        try { document.getElementById('addon-name')?.focus(); } catch (e) {}
+    } else {
+        console.warn('addon-modal element not found');
+    }
+}
+
+function fecharModalAddon() {
+    const modalEl = document.getElementById('addon-modal');
+    if (modalEl) {
+        // restaurar posição original se foi movido
+        try {
+            if (modalEl.__originalParent) {
+                if (modalEl.__originalNextSibling && modalEl.__originalNextSibling.parentElement === modalEl.__originalParent) {
+                    modalEl.__originalParent.insertBefore(modalEl, modalEl.__originalNextSibling);
+                } else {
+                    modalEl.__originalParent.appendChild(modalEl);
+                }
+                delete modalEl.__originalParent;
+                delete modalEl.__originalNextSibling;
+            }
+        } catch (e) {}
+
+        modalEl.classList.add('hidden');
+        try {
+            modalEl.style.display = 'none';
+            modalEl.style.zIndex = '';
+            modalEl.style.opacity = '';
+            modalEl.style.pointerEvents = '';
+            modalEl.style.outline = '';
+            modalEl.style.backgroundColor = '';
+            modalEl.style.position = '';
+            modalEl.style.inset = '';
+        } catch (e) {}
+    }
+    editingAddonIndex = -1;
+}
+
+async function salvarAddon() {
+    const name = document.getElementById('addon-name').value.trim();
+    const price = parseFloat(document.getElementById('addon-price').value) || 0;
+    const category = document.getElementById('addon-category').value;
+    const ativo = document.getElementById('addon-active').checked;
+    
+    if (!name) {
+        mostrarConfirmacao('❌ Erro', 'Nome do adicional é obrigatório!');
+        return;
+    }
+    if (!category) {
+        mostrarConfirmacao('❌ Erro', 'Categoria é obrigatória!');
+        return;
+    }
+    
+    const addonData = { name, price, category, ativo };
+    
+    try {
+        if (editingAddonIndex >= 0) {
+            // Editar existente
+            const response = await fetchTenant(`/addons/${encodeURIComponent(addons[editingAddonIndex].name)}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(addonData)
+            });
+            const data = await parseJSONResponse(response);
+            if (data.success) {
+                addons[editingAddonIndex] = addonData;
+                mostrarConfirmacao('✅ Sucesso', 'Adicional atualizado!');
+                try { localStorage.setItem('addons-updated', new Date().toISOString()); } catch(e){}
+            } else {
+                throw new Error(data.message || 'Erro ao atualizar adicional');
+            }
+        } else {
+            // Criar novo
+            const response = await fetchTenant('/addons', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(addonData)
+            });
+            const data = await parseJSONResponse(response);
+            if (data.success) {
+                addons.push(addonData);
+                mostrarConfirmacao('✅ Sucesso', 'Adicional criado!');
+                try { localStorage.setItem('addons-updated', new Date().toISOString()); } catch(e){}
+            } else {
+                throw new Error(data.message || 'Erro ao criar adicional');
+            }
+        }
+        
+        renderizarAddonsList();
+        fecharModalAddon();
+    } catch (error) {
+        console.error('Erro ao salvar adicional:', error);
+        mostrarConfirmacao('❌ Erro', error.message || 'Erro ao salvar adicional');
+    }
+}
+
+async function toggleAddonAtivo(index) {
+    const addon = addons[index];
+    if (!addon) return;
+    
+    const novoStatus = !addon.ativo;
+    
+    try {
+        const response = await fetchTenant(`/addons/${encodeURIComponent(addon.name)}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ...addon, ativo: novoStatus })
+        });
+        const data = await parseJSONResponse(response);
+        if (data.success) {
+            addons[index].ativo = novoStatus;
+            renderizarAddonsList();
+            mostrarConfirmacao('✅ Sucesso', `Adicional ${novoStatus ? 'habilitado' : 'desabilitado'}!`);
+            try { localStorage.setItem('addons-updated', new Date().toISOString()); } catch(e){}
+        } else {
+            throw new Error(data.message || 'Erro ao alterar status');
+        }
+    } catch (error) {
+        console.error('Erro ao alterar status do adicional:', error);
+        mostrarConfirmacao('❌ Erro', error.message || 'Erro ao alterar status do adicional');
+    }
+}
+
+async function deletarAddon(index) {
+    const addon = addons[index];
+    if (!addon) return;
+    
+    if (!confirm(`Tem certeza que deseja deletar o adicional "${addon.name}"?`)) {
+        return;
+    }
+    
+    try {
+        const response = await fetchTenant(`/addons/${encodeURIComponent(addon.name)}`, {
+            method: 'DELETE'
+        });
+        const data = await parseJSONResponse(response);
+        if (data.success) {
+            addons.splice(index, 1);
+            renderizarAddonsList();
+            mostrarConfirmacao('✅ Sucesso', 'Adicional deletado!');
+            try { localStorage.setItem('addons-updated', new Date().toISOString()); } catch(e){}
+        } else {
+            throw new Error(data.message || 'Erro ao deletar adicional');
+        }
+    } catch (error) {
+        console.error('Erro ao deletar adicional:', error);
+        mostrarConfirmacao('❌ Erro', error.message || 'Erro ao deletar adicional');
+    }
+}
+
+// Event listeners para adicionais (com checks de existência)
+const closeAddonBtn = document.getElementById('close-addon-modal');
+if (closeAddonBtn) closeAddonBtn.addEventListener('click', fecharModalAddon);
+const cancelAddonBtn = document.getElementById('cancel-addon-btn');
+if (cancelAddonBtn) cancelAddonBtn.addEventListener('click', fecharModalAddon);
+const saveAddonBtn = document.getElementById('save-addon-btn');
+if (saveAddonBtn) saveAddonBtn.addEventListener('click', salvarAddon);
+const addAddonBtn = document.getElementById('add-addon-btn');
+if (addAddonBtn) addAddonBtn.addEventListener('click', () => abrirModalAddon(-1));
+
+// Carregar adicionais quando a aba for aberta (corrigido para data-tab="tab-addons")
+const tabAddonsBtn = document.querySelector('[data-tab="tab-addons"]');
+if (tabAddonsBtn) tabAddonsBtn.addEventListener('click', () => {
+    carregarAddons();
+});
+
+
+
 
 
 

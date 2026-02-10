@@ -1,0 +1,618 @@
+[
+  {
+    "id": "1768853899726",
+    "cliente": {
+      "nome": "Diego Moreira Martins",
+      "whatsapp": "(63) 9842-10312"
+    },
+    "itens": [
+      {
+        "nome": "CORINGA + Coca Cola Zero Lata - R$6,00",
+        "quantidade": 1,
+        "precoUnitario": 33,
+        "precoTotal": 43,
+        "bebida": "Coca Cola Zero Lata - R$6,00",
+        "adicionais": [
+          "Cheddar - R$4,00"
+        ],
+        "observacoes": "",
+        "imagem": "./assets/Coringa.jpg"
+      }
+    ],
+    "total": 53,
+    "endereco": "13 de Julho, 825, 1",
+    "bairro": "Alto da Colina",
+    "taxaEntrega": 10,
+    "tipoEntrega": "delivery",
+    "observacoes": "1",
+    "status": "entregue",
+    "data": "2026-01-19T20:18:19.726Z"
+  },
+  {
+    "id": "1768854184739",
+    "cliente": {
+      "nome": "Diego Moreira Martins",
+      "whatsapp": "(63) 9842-10312"
+    },
+    "itens": [
+      {
+        "nome": "DARTH VADER + Coca Cola Zero Lata - R$6,00",
+        "quantidade": 1,
+        "precoUnitario": 33,
+        "precoTotal": 51.75,
+        "bebida": "Coca Cola Zero Lata - R$6,00",
+        "adicionais": [
+          "Cebola Crispy - R$4,00",
+          "Bacon - R$5,00",
+          "Tomate - R$1,25",
+          "Cebola roxa - R$1,25",
+          "Alface - R$1,25"
+        ],
+        "observacoes": "",
+        "imagem": "./assets/darthvader.jpg"
+      }
+    ],
+    "total": 58.75,
+    "endereco": "13 de Julho, 825",
+    "bairro": "Centro",
+    "taxaEntrega": 7,
+    "tipoEntrega": "delivery",
+    "observacoes": "",
+    "status": "cancelado",
+    "data": "2026-01-19T20:23:04.739Z"
+  },
+  {
+    "id": "1768855472258",
+    "cliente": {
+      "nome": "Diego Moreira ",
+      "whatsapp": "(63) 9842-10312",
+      "whatsappLimpo": "63984210312"
+    },
+    "itens": [
+      {
+        "nome": "CORINGA + Coca Cola Zero Lata - R$6,00",
+        "quantidade": 1,
+        "precoUnitario": 33,
+        "precoTotal": 43,
+        "bebida": "Coca Cola Zero Lata - R$6,00",
+        "adicionais": [
+          "Cebola Crispy - R$4,00"
+        ],
+        "observacoes": "",
+        "imagem": "./assets/Coringa.jpg"
+      }
+    ],
+    "total": 43,
+    "endereco": "Retirada no balcão",
+    "bairro": "N/A",
+    "taxaEntrega": 0,
+    "tipoEntrega": "retirada",
+    "observacoes": "",
+    "status": "pendente",
+    "data": "2026-01-19T20:44:32.258Z"
+  },
+  {
+    "id": "1769002394949",
+    "cliente": {
+      "nome": "Diego Moreira Martins",
+      "whatsapp": "(63) 9842-10312",
+      "whatsappLimpo": "63984210312"
+    },
+    "itens": [
+      {
+        "nome": "CORINGA + Coca Cola Zero Lata - R$6,00",
+        "quantidade": 1,
+        "precoUnitario": 33,
+        "precoTotal": 43,
+        "bebida": "Coca Cola Zero Lata - R$6,00",
+        "adicionais": [
+          "Cebola Crispy - R$4,00"
+        ],
+        "observacoes": "",
+        "imagem": "./assets/Coringa.jpg"
+      }
+    ],
+    "total": 43,
+    "endereco": "Retirada no balcão",
+    "bairro": "N/A",
+    "taxaEntrega": 0,
+    "tipoEntrega": "retirada",
+    "observacoes": "",
+    "pagamento": {
+      "forma": "debito",
+      "pixCodigo": null,
+      "pixExpiraEm": null
+    },
+    "status": "cancelado",
+    "data": "2026-01-21T13:33:14.949Z"
+  },
+  {
+    "id": "1769003457841",
+    "cliente": {
+      "nome": "Diego Moreira Martins",
+      "whatsapp": "(99) 9999-99999",
+      "whatsappLimpo": "99999999999"
+    },
+    "itens": [
+      {
+        "nome": "CORINGA",
+        "quantidade": 1,
+        "precoUnitario": 33,
+        "precoTotal": 37,
+        "bebida": "",
+        "adicionais": [
+          "Cheddar - R$4,00"
+        ],
+        "observacoes": "",
+        "imagem": "/uploads/Coringa-1769002541301.jpg"
+      }
+    ],
+    "total": 37,
+    "endereco": "Retirada no balcão",
+    "bairro": "N/A",
+    "taxaEntrega": 0,
+    "tipoEntrega": "retirada",
+    "observacoes": "",
+    "pagamento": {
+      "forma": "credito",
+      "pixCodigo": null,
+      "pixExpiraEm": null
+    },
+    "status": "cancelado",
+    "data": "2026-01-21T13:50:57.841Z"
+  },
+  {
+    "id": "1769003648668",
+    "cliente": {
+      "nome": "teste",
+      "whatsapp": "(99) 8787-87878",
+      "whatsappLimpo": "99878787878"
+    },
+    "itens": [
+      {
+        "nome": "DARTH VADER + Coca Cola Zero Lata - R$6,00",
+        "quantidade": 1,
+        "precoUnitario": 33,
+        "precoTotal": 43,
+        "bebida": "Coca Cola Zero Lata - R$6,00",
+        "adicionais": [
+          "Mussarela - R$4,00"
+        ],
+        "observacoes": "",
+        "imagem": "./assets/darthvader.jpg"
+      }
+    ],
+    "total": 43,
+    "endereco": "Retirada no balcão",
+    "bairro": "N/A",
+    "taxaEntrega": 0,
+    "tipoEntrega": "retirada",
+    "observacoes": "",
+    "pagamento": {
+      "forma": "debito",
+      "pixCodigo": null,
+      "pixExpiraEm": null
+    },
+    "status": "entregue",
+    "data": "2026-01-21T13:54:08.668Z"
+  },
+  {
+    "id": "1769004506160",
+    "cliente": {
+      "nome": "Antonio",
+      "whatsapp": "(11) 1111-11111",
+      "whatsappLimpo": "11111111111"
+    },
+    "itens": [
+      {
+        "nome": "GARGAMEL + Coca Cola Zero Lata - R$6,00",
+        "quantidade": 1,
+        "precoUnitario": 24,
+        "precoTotal": 52,
+        "bebida": "Coca Cola Zero Lata - R$6,00",
+        "adicionais": [
+          "6 bolinhos de Carne de Sol com requeijao - R$22,00"
+        ],
+        "observacoes": "",
+        "imagem": "./assets/Gargamel.jpg"
+      }
+    ],
+    "total": 52,
+    "endereco": "Retirada no balcão",
+    "bairro": "N/A",
+    "taxaEntrega": 0,
+    "tipoEntrega": "retirada",
+    "observacoes": "",
+    "pagamento": {
+      "forma": "debito",
+      "pixCodigo": null,
+      "pixExpiraEm": null
+    },
+    "status": "confirmado",
+    "data": "2026-01-21T14:08:26.160Z"
+  },
+  {
+    "id": "1769390887165",
+    "cliente": {
+      "nome": "Teste",
+      "whatsapp": "63999999999",
+      "whatsappLimpo": "63999999999"
+    },
+    "itens": [
+      {
+        "nome": "Item Teste",
+        "quantidade": 1,
+        "precoTotal": 10
+      }
+    ],
+    "total": 10,
+    "pagamento": {
+      "forma": null
+    },
+    "status": "pendente",
+    "data": "2026-01-26T01:28:07.165Z"
+  },
+  {
+    "id": "1769391146195",
+    "cliente": {
+      "nome": "Teste",
+      "whatsapp": "63999999999",
+      "whatsappLimpo": "63999999999"
+    },
+    "itens": [
+      {
+        "nome": "Item Teste",
+        "quantidade": 1,
+        "precoTotal": 10
+      }
+    ],
+    "total": 10,
+    "pagamento": {
+      "forma": "pix"
+    },
+    "status": "pendente",
+    "data": "2026-01-26T01:32:26.195Z"
+  },
+  {
+    "id": "1769391601074",
+    "cliente": {
+      "nome": "Diego Moreira Martins",
+      "whatsapp": "(63) 9842-10312",
+      "whatsappLimpo": "63984210312"
+    },
+    "itens": [
+      {
+        "nome": "CORINGA + Coca Cola Zero Lata - R$6,00",
+        "quantidade": 1,
+        "precoUnitario": 33,
+        "precoTotal": 44,
+        "bebida": "Coca Cola Zero Lata - R$6,00",
+        "adicionais": [
+          "Bacon - R$5,00"
+        ],
+        "observacoes": "",
+        "imagem": "/uploads/Coringa-1769002541301.jpg"
+      }
+    ],
+    "total": 44,
+    "endereco": "Retirada no balcão",
+    "bairro": "N/A",
+    "taxaEntrega": 0,
+    "tipoEntrega": "retirada",
+    "observacoes": "",
+    "pagamento": {
+      "forma": "debito"
+    },
+    "status": "pendente",
+    "data": "2026-01-26T01:40:01.074Z"
+  },
+  {
+    "id": "1769431209866",
+    "cliente": {
+      "nome": "Diego Moreira Martins",
+      "whatsapp": "(63) 9842-10312",
+      "whatsappLimpo": "63984210312"
+    },
+    "itens": [
+      {
+        "nome": "CORINGA + Coca Cola Zero Lata - R$6,00",
+        "quantidade": 1,
+        "precoUnitario": 33,
+        "precoTotal": 44,
+        "bebida": "Coca Cola Zero Lata - R$6,00",
+        "adicionais": [
+          "Bacon - R$5,00"
+        ],
+        "observacoes": "",
+        "imagem": "/uploads/Coringa-1769002541301.jpg"
+      }
+    ],
+    "total": 44,
+    "endereco": "Retirada no balcão",
+    "bairro": "N/A",
+    "taxaEntrega": 0,
+    "tipoEntrega": "retirada",
+    "observacoes": "",
+    "pagamento": {
+      "forma": "dinheiro"
+    },
+    "status": "pendente",
+    "data": "2026-01-26T12:40:09.866Z"
+  },
+  {
+    "id": "1769431277842",
+    "cliente": {
+      "nome": "Antonio B A Martins",
+      "whatsapp": "(99) 8787-87878",
+      "whatsappLimpo": "99878787878"
+    },
+    "itens": [
+      {
+        "nome": "CORINGA + Coca Cola Zero Lata - R$6,00",
+        "quantidade": 1,
+        "precoUnitario": 33,
+        "precoTotal": 61,
+        "bebida": "Coca Cola Zero Lata - R$6,00",
+        "adicionais": [
+          "6 bolinhos de Carne de Sol com requeijao - R$22,00"
+        ],
+        "observacoes": "",
+        "imagem": "/uploads/Coringa-1769002541301.jpg"
+      }
+    ],
+    "total": 61,
+    "endereco": "Retirada no balcão",
+    "bairro": "Alto da Colina",
+    "taxaEntrega": 0,
+    "tipoEntrega": "retirada",
+    "observacoes": "",
+    "pagamento": {
+      "forma": "debito"
+    },
+    "status": "pendente",
+    "data": "2026-01-26T12:41:17.842Z"
+  },
+  {
+    "id": "1769725589644",
+    "cliente": {
+      "nome": "Teste Auto",
+      "whatsapp": "5599999999999",
+      "whatsappLimpo": "5599999999999"
+    },
+    "itens": [
+      {
+        "nome": "Hamburguer Teste",
+        "quantidade": 1,
+        "precoUnitario": 20,
+        "precoTotal": 20
+      }
+    ],
+    "total": 20,
+    "endereco": "Rua Teste, 123",
+    "bairro": "Centro",
+    "taxaEntrega": 5,
+    "tipoEntrega": "delivery",
+    "observacoes": "Pedido de teste",
+    "pagamento": {
+      "forma": "dinheiro"
+    },
+    "status": "pendente",
+    "data": "2026-01-29T22:26:29.644Z"
+  },
+  {
+    "id": "1769725700357",
+    "cliente": {
+      "nome": "Teste Auto",
+      "whatsapp": "5599999999999",
+      "whatsappLimpo": "5599999999999"
+    },
+    "itens": [
+      {
+        "nome": "Hamburguer Teste",
+        "quantidade": 1,
+        "precoUnitario": 20,
+        "precoTotal": 20
+      }
+    ],
+    "total": 20,
+    "endereco": "Rua Teste, 123",
+    "bairro": "Centro",
+    "taxaEntrega": 5,
+    "tipoEntrega": "delivery",
+    "observacoes": "Pedido de teste",
+    "pagamento": {
+      "forma": "dinheiro"
+    },
+    "status": "pendente",
+    "data": "2026-01-29T22:28:20.357Z"
+  },
+  {
+    "id": "1769725701362",
+    "cliente": {
+      "nome": "Teste Auto",
+      "whatsapp": "5599999999999",
+      "whatsappLimpo": "5599999999999"
+    },
+    "itens": [
+      {
+        "nome": "Hamburguer Teste",
+        "quantidade": 1,
+        "precoUnitario": 20,
+        "precoTotal": 20
+      }
+    ],
+    "total": 20,
+    "endereco": "Rua Teste, 123",
+    "bairro": "Centro",
+    "taxaEntrega": 5,
+    "tipoEntrega": "delivery",
+    "observacoes": "Pedido de teste",
+    "pagamento": {
+      "forma": "dinheiro"
+    },
+    "status": "confirmado",
+    "data": "2026-01-29T22:28:21.362Z"
+  },
+  {
+    "id": "1769725702095",
+    "cliente": {
+      "nome": "Teste Auto",
+      "whatsapp": "5599999999999",
+      "whatsappLimpo": "5599999999999"
+    },
+    "itens": [
+      {
+        "nome": "Hamburguer Teste",
+        "quantidade": 1,
+        "precoUnitario": 20,
+        "precoTotal": 20
+      }
+    ],
+    "total": 20,
+    "endereco": "Rua Teste, 123",
+    "bairro": "Centro",
+    "taxaEntrega": 5,
+    "tipoEntrega": "delivery",
+    "observacoes": "Pedido de teste",
+    "pagamento": {
+      "forma": "dinheiro"
+    },
+    "status": "pendente",
+    "data": "2026-01-29T22:28:22.095Z"
+  },
+  {
+    "id": "1769725863898",
+    "cliente": {
+      "nome": "Teste Auto",
+      "whatsapp": "5599999999999",
+      "whatsappLimpo": "5599999999999"
+    },
+    "itens": [
+      {
+        "nome": "Hamburguer Teste",
+        "quantidade": 1,
+        "precoUnitario": 20,
+        "precoTotal": 20
+      }
+    ],
+    "total": 20,
+    "endereco": "Rua Teste, 123",
+    "bairro": "Centro",
+    "taxaEntrega": 5,
+    "tipoEntrega": "delivery",
+    "observacoes": "Pedido de teste",
+    "pagamento": {
+      "forma": "dinheiro"
+    },
+    "status": "confirmado",
+    "data": "2026-01-29T22:31:03.898Z"
+  },
+  {
+    "id": "1769725870729",
+    "cliente": {
+      "nome": "Teste Auto",
+      "whatsapp": "5599999999999",
+      "whatsappLimpo": "5599999999999"
+    },
+    "itens": [
+      {
+        "nome": "Hamburguer Teste",
+        "quantidade": 1,
+        "precoUnitario": 20,
+        "precoTotal": 20
+      }
+    ],
+    "total": 20,
+    "endereco": "Rua Teste, 123",
+    "bairro": "Centro",
+    "taxaEntrega": 5,
+    "tipoEntrega": "delivery",
+    "observacoes": "Pedido de teste",
+    "pagamento": {
+      "forma": "dinheiro"
+    },
+    "status": "pendente",
+    "data": "2026-01-29T22:31:10.729Z"
+  },
+  {
+    "id": "1769725871111",
+    "cliente": {
+      "nome": "Teste Auto",
+      "whatsapp": "5599999999999",
+      "whatsappLimpo": "5599999999999"
+    },
+    "itens": [
+      {
+        "nome": "Hamburguer Teste",
+        "quantidade": 1,
+        "precoUnitario": 20,
+        "precoTotal": 20
+      }
+    ],
+    "total": 20,
+    "endereco": "Rua Teste, 123",
+    "bairro": "Centro",
+    "taxaEntrega": 5,
+    "tipoEntrega": "delivery",
+    "observacoes": "Pedido de teste",
+    "pagamento": {
+      "forma": "dinheiro"
+    },
+    "status": "pendente",
+    "data": "2026-01-29T22:31:11.111Z"
+  },
+  {
+    "id": "1769725871868",
+    "cliente": {
+      "nome": "Teste Auto",
+      "whatsapp": "5599999999999",
+      "whatsappLimpo": "5599999999999"
+    },
+    "itens": [
+      {
+        "nome": "Hamburguer Teste",
+        "quantidade": 1,
+        "precoUnitario": 20,
+        "precoTotal": 20
+      }
+    ],
+    "total": 20,
+    "endereco": "Rua Teste, 123",
+    "bairro": "Centro",
+    "taxaEntrega": 5,
+    "tipoEntrega": "delivery",
+    "observacoes": "Pedido de teste",
+    "pagamento": {
+      "forma": "dinheiro"
+    },
+    "status": "confirmado",
+    "data": "2026-01-29T22:31:11.868Z"
+  },
+  {
+    "id": "1769728094952",
+    "cliente": {
+      "nome": "Teste Auto",
+      "whatsapp": "5599999999999",
+      "whatsappLimpo": "5599999999999"
+    },
+    "itens": [
+      {
+        "nome": "Hamburguer Teste",
+        "quantidade": 1,
+        "precoUnitario": 20,
+        "precoTotal": 20
+      }
+    ],
+    "total": 20,
+    "endereco": "Rua Teste, 123",
+    "bairro": "Centro",
+    "taxaEntrega": 5,
+    "tipoEntrega": "delivery",
+    "observacoes": "Pedido de teste",
+    "pagamento": {
+      "forma": "dinheiro"
+    },
+    "status": "confirmado",
+    "data": "2026-01-29T23:08:14.952Z"
+  }
+]

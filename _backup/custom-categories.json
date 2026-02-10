@@ -1,0 +1,27 @@
+[
+  {
+    "key": "burguers",
+    "nome": "Burguers",
+    "emoji": "🍔"
+  },
+  {
+    "key": "pizzas",
+    "nome": "Pizzas",
+    "emoji": "🍕"
+  },
+  {
+    "key": "porcoes",
+    "nome": "Porções",
+    "emoji": "🍟"
+  },
+  {
+    "key": "sobremesas",
+    "nome": "Sobremesas",
+    "emoji": "🍰"
+  },
+  {
+    "key": "bebidas",
+    "nome": "Bebidas",
+    "emoji": "🥤"
+  }
+]

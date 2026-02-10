@@ -10,120 +10,935 @@
     <link href="/styles/output.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
     <title>Finalizar Pedido - Padoca do Dedé</title>
+    <style>
+        :root {
+            --primary: #ff6b6b;
+            --primary-dark: #ee5a24;
+            --secondary: #4a5568;
+            --success: #48bb78;
+            --warning: #ed8936;
+            --danger: #f56565;
+            --gray-50: #f7fafc;
+            --gray-100: #edf2f7;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e0;
+            --gray-400: #a0aec0;
+            --gray-500: #718096;
+            --gray-600: #4a5568;
+            --gray-700: #2d3748;
+            --gray-800: #1a202c;
+            --gray-900: #171923;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            color: #e5e5e5;
+        }
+
+        .checkout-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .checkout-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-family: 'Great Vibes', cursive;
+            font-size: 3rem;
+            color: #dc2626;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: rgba(255,255,255,0.9);
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            background: rgba(255,255,255,0.1);
+            border-radius: 50px;
+            padding: 4px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+            border-radius: 50px;
+            transition: width 0.3s ease;
+            width: 25%;
+        }
+
+        .steps {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+        }
+
+        .step {
+            flex: 1;
+            text-align: center;
+            color: rgba(255,255,255,0.7);
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .step.active {
+            color: white;
+            font-weight: 600;
+        }
+
+        .step.completed {
+            color: var(--success);
+        }
+
+        /* Main Content */
+        .checkout-content {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 1024px) {
+            .checkout-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+
+        /* Form Steps */
+        .form-section, .order-summary, .modal-content {
+            color: var(--gray-800);
+        }
+
+        .form-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .step-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--gray-100);
+        }
+
+        .step-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            margin-right: 15px;
+            box-shadow: 0 4px 15px rgba(255,107,107,0.3);
+        }
+
+        .step-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--gray-800);
+            margin: 0;
+        }
+
+        .step-description {
+            color: var(--gray-500);
+            margin: 5px 0 0 0;
+            font-size: 0.9rem;
+        }
+
+        /* Form Groups */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 500;
+            color: var(--gray-700);
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--gray-200);
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(255,107,107,0.1);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        /* Radio Groups */
+        .radio-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .radio-option {
+            position: relative;
+        }
+
+        .radio-input {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .radio-label {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            border: 2px solid var(--gray-200);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .radio-input:checked + .radio-label {
+            border-color: var(--primary);
+            background: linear-gradient(135deg, rgba(255,107,107,0.05), rgba(238,90,36,0.05));
+            box-shadow: 0 4px 15px rgba(255,107,107,0.2);
+        }
+
+        .radio-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--gray-100);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            color: var(--gray-500);
+            transition: all 0.3s ease;
+        }
+
+        .radio-input:checked + .radio-label .radio-icon {
+            background: var(--primary);
+            color: white;
+        }
+
+        .radio-text {
+            font-weight: 500;
+            color: var(--gray-700);
+        }
+
+        .radio-input:checked + .radio-label .radio-text {
+            color: var(--primary);
+        }
+
+        /* Navigation Buttons */
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            min-width: 120px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            color: white;
+            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--gray-600);
+            border: 2px solid var(--gray-300);
+        }
+
+        .btn-secondary:hover {
+            background: var(--gray-50);
+            border-color: var(--gray-400);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* Order Summary */
+        .order-summary {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+
+        .summary-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--gray-800);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .order-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--gray-100);
+        }
+
+        .order-item:last-child {
+            border-bottom: none;
+        }
+
+        .item-image {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            object-fit: cover;
+            margin-right: 15px;
+            border: 2px solid var(--gray-200);
+        }
+
+        .item-info {
+            flex: 1;
+        }
+
+        .item-name {
+            font-weight: 600;
+            color: var(--gray-800);
+            margin-bottom: 2px;
+        }
+
+        .item-details {
+            font-size: 0.85rem;
+            color: var(--gray-500);
+            margin-bottom: 2px;
+        }
+
+        .item-price {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .summary-total {
+            background: linear-gradient(135deg, var(--gray-50), var(--gray-100));
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+            color: var(--gray-600);
+        }
+
+        .total-row.total {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--gray-800);
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 2px solid var(--primary);
+        }
+
+        /* Modals */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal.show .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--gray-800);
+            margin-bottom: 10px;
+        }
+
+        .modal-body {
+            margin-bottom: 25px;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        /* Payment Section */
+        .payment-methods {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .payment-method {
+            position: relative;
+        }
+
+        .payment-input {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .payment-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            border: 2px solid var(--gray-200);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+            text-align: center;
+        }
+
+        .payment-input:checked + .payment-label {
+            border-color: var(--primary);
+            background: linear-gradient(135deg, rgba(255,107,107,0.05), rgba(238,90,36,0.05));
+            box-shadow: 0 4px 15px rgba(255,107,107,0.2);
+        }
+
+        .payment-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--gray-100);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 8px;
+            color: var(--gray-500);
+            transition: all 0.3s ease;
+        }
+
+        .payment-input:checked + .payment-label .payment-icon {
+            background: var(--primary);
+            color: white;
+        }
+
+        .payment-text {
+            font-weight: 500;
+            color: var(--gray-700);
+            font-size: 0.9rem;
+        }
+
+        .payment-input:checked + .payment-label .payment-text {
+            color: var(--primary);
+        }
+
+        /* PIX Section */
+        .pix-section {
+            background: var(--gray-50);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .pix-section.show {
+            display: block;
+        }
+
+        .pix-qr-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .pix-qr {
+            width: 150px;
+            height: 150px;
+            border: 2px solid var(--gray-200);
+            border-radius: 8px;
+        }
+
+        .pix-code-container {
+            width: 100%;
+        }
+
+        .pix-code {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--gray-300);
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 0.8rem;
+            background: white;
+            margin-bottom: 10px;
+        }
+
+        .pix-timer {
+            text-align: center;
+            font-weight: 600;
+            color: var(--danger);
+            font-size: 1.1rem;
+        }
+
+        /* Animations */
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .slide-up {
+            animation: slideUp 0.4s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .checkout-container {
+                padding: 15px;
+            }
+
+            .checkout-content {
+                grid-template-columns: 1fr;
+            }
+
+            .radio-group {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .logo {
+                font-size: 2.5rem;
+            }
+        }
+
+        /* Loading */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
 </head>
-<body class="bg-gray-100">
-    <header class="w-full bg-zinc-900 py-4">
-        <div class="max-w-7xl mx-auto px-2 flex justify-between items-center">
-            <h1 class="text-2xl font-bold text-white" style="font-family: 'Great Vibes', cursive;">Padoca do Dedé</h1>
-            <a id="back-to-menu" href="index.html" class="text-white hover:text-yellow-400">Voltar ao Menu</a>
-        </div>
-    </header>
+<body>
+    <div class="checkout-container">
+        <!-- Header -->
+        <header class="checkout-header">
+            <h1 class="logo">Padoca do Dedé</h1>
+            <p class="subtitle">🍞 Finalize seu pedido com praticidade</p>
 
-    <main class="max-w-2xl mx-auto px-4 py-8">
-        <h1 class="text-3xl font-bold text-center mb-8">Finalizar Pedido</h1>
-
-        <div class="grid md:grid-cols-2 gap-8">
-            <!-- Resumo do Pedido -->
-            <div class="bg-white p-6 rounded-lg shadow-md">
-                <h2 class="text-xl font-bold mb-4">Resumo do Pedido</h2>
-                <div id="checkout-items"></div>
-                <div class="border-t pt-4 mt-4">
-                    <p class="text-lg font-bold">Total: R$<span id="checkout-total">0,00</span></p>
+            <!-- Progress Bar -->
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <div class="steps">
+                <div class="step active" data-step="1">
+                    <i class="fas fa-utensils"></i>
+                    <span>Tipo de Entrega</span>
+                </div>
+                <div class="step" data-step="2">
+                    <i class="fas fa-user"></i>
+                    <span>Dados Pessoais</span>
+                </div>
+                <div class="step" data-step="3">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>Endereço</span>
+                </div>
+                <div class="step" data-step="4">
+                    <i class="fas fa-credit-card"></i>
+                    <span>Pagamento</span>
                 </div>
             </div>
+        </header>
 
-            <!-- Formulário de Entrega -->
-            <div class="bg-white p-6 rounded-lg shadow-md">
-                <h2 class="text-xl font-bold mb-4">Dados do Pedido</h2>
-                <form id="checkout-form">
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Tipo de Entrega</label>
-                        <div class="flex items-center mb-2">
-                            <input type="radio" id="retirada" name="tipo_entrega" value="retirada" required class="mr-2">
-                            <label for="retirada">Retirar no balcão</label>
+        <!-- Main Content -->
+        <div class="checkout-content">
+            <!-- Form Steps -->
+            <form id="checkout-form" class="form-section">
+                <!-- Step 1: Tipo de Entrega -->
+                <div id="step1" class="step-content">
+                    <div class="step-header">
+                        <div class="step-icon">
+                            <i class="fas fa-utensils"></i>
                         </div>
-                        <div class="flex items-center">
-                            <input type="radio" id="delivery" name="tipo_entrega" value="delivery" required class="mr-2">
-                            <label for="delivery">Delivery</label>
+                        <div>
+                            <h2 class="step-title">Como deseja receber seu pedido?</h2>
+                            <p class="step-description">Escolha a opção mais conveniente para você</p>
                         </div>
                     </div>
-                    <div class="mb-4">
-                        <label for="nome" class="block text-sm font-medium text-gray-700">Nome Completo</label>
-                        <input type="text" id="nome" name="nome" required class="mt-1 block w-full border border-gray-300 rounded-md p-2">
+
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="retirada" name="tipo_entrega" value="retirada" class="radio-input" required>
+                            <label for="retirada" class="radio-label">
+                                <div class="radio-icon">
+                                    <i class="fas fa-store"></i>
+                                </div>
+                                <div class="radio-text">Retirar no Balcão</div>
+                            </label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="delivery" name="tipo_entrega" value="delivery" class="radio-input" required>
+                            <label for="delivery" class="radio-label">
+                                <div class="radio-icon">
+                                    <i class="fas fa-motorcycle"></i>
+                                </div>
+                                <div class="radio-text">Delivery</div>
+                            </label>
+                        </div>
                     </div>
-                    <div class="mb-4">
-                        <label for="whatsapp" class="block text-sm font-medium text-gray-700">Número do WhatsApp</label>
-                        <input type="tel" id="whatsapp" name="whatsapp" required class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="(63) 99999-9999">
+
+                    <div class="nav-buttons">
+                        <button type="button" class="btn btn-secondary" disabled>Anterior</button>
+                        <button type="button" class="btn btn-primary" id="nextStep1">Próximo</button>
                     </div>
-                    <div class="mb-4">
-                        <label for="bairro" class="block text-sm font-medium text-gray-700">Bairro</label>
-                        <select id="bairro" name="bairro" required class="mt-1 block w-full border border-gray-300 rounded-md p-2">
+                </div>
+
+                <!-- Step 2: Dados Pessoais -->
+                <div id="step2" class="step-content" style="display: none;">
+                    <div class="step-header">
+                        <div class="step-icon">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div>
+                            <h2 class="step-title">Seus Dados</h2>
+                            <p class="step-description">Precisamos dessas informações para entrar em contato</p>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="nome" class="form-label">Nome Completo *</label>
+                        <input type="text" id="nome" name="nome" class="form-input" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="whatsapp" class="form-label">WhatsApp *</label>
+                        <input type="tel" id="whatsapp" name="whatsapp" class="form-input" placeholder="(63) 99999-9999" required>
+                    </div>
+
+                    <div class="nav-buttons">
+                        <button type="button" class="btn btn-secondary" id="prevStep2">Anterior</button>
+                        <button type="button" class="btn btn-primary" id="nextStep2">Próximo</button>
+                    </div>
+                </div>
+
+                <!-- Step 3: Endereço -->
+                <div id="step3" class="step-content" style="display: none;">
+                    <div class="step-header">
+                        <div class="step-icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <div>
+                            <h2 class="step-title">Endereço de Entrega</h2>
+                            <p class="step-description">Para entregarmos seu pedido com agilidade</p>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="bairro" class="form-label">Bairro *</label>
+                        <select id="bairro" name="bairro" class="form-select" required>
                             <option value="" disabled selected>Selecione o bairro</option>
-                            <!-- Adicionar bairros aqui -->
                         </select>
                     </div>
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700">Taxa de Entrega</label>
-                        <p class="mt-1 text-lg font-bold text-green-600" id="taxa-entrega">R$0,00</p>
-                    </div>
-                    <div class="mb-4">
-                        <label for="rua" class="block text-sm font-medium text-gray-700">Rua</label>
-                        <input type="text" id="rua" name="rua" required class="mt-1 block w-full border border-gray-300 rounded-md p-2">
-                    </div>
-                    <div class="mb-4">
-                        <label for="numero" class="block text-sm font-medium text-gray-700">Número</label>
-                        <input type="text" id="numero" name="numero" required class="mt-1 block w-full border border-gray-300 rounded-md p-2">
-                    </div>
-                    <div class="mb-4">
-                        <label for="complemento" class="block text-sm font-medium text-gray-700">Complemento (opcional)</label>
-                        <input type="text" id="complemento" name="complemento" class="mt-1 block w-full border border-gray-300 rounded-md p-2">
-                    </div>
-                    <div class="mb-4">
-                        <label for="observacoes" class="block text-sm font-medium text-gray-700">Observações (opcional)</label>
-                        <textarea id="observacoes" name="observacoes" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Ex: Sem cebola, extra queijo, etc."></textarea>
+
+                    <div class="form-group">
+                        <label for="rua" class="form-label">Rua *</label>
+                        <input type="text" id="rua" name="rua" class="form-input" required>
                     </div>
 
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Forma de pagamento</label>
-                        <div class="space-y-2">
-                            <label class="flex items-center gap-2">
-                                <input type="radio" name="forma_pagamento" value="pix" required class="text-red-500">
-                                <span>Pix</span>
-                            </label>
-                            <label class="flex items-center gap-2">
-                                <input type="radio" name="forma_pagamento" value="debito" class="text-red-500">
-                                <span>Cartão de débito</span>
-                            </label>
-                            <label class="flex items-center gap-2">
-                                <input type="radio" name="forma_pagamento" value="credito" class="text-red-500">
-                                <span>Cartão de crédito</span>
+                    <div class="form-group">
+                        <label for="numero" class="form-label">Número *</label>
+                        <input type="text" id="numero" name="numero" class="form-input" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="complemento" class="form-label">Complemento</label>
+                        <input type="text" id="complemento" name="complemento" class="form-input" placeholder="Ex: Apto 101, bloco B">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="observacoes" class="form-label">Observações</label>
+                        <textarea id="observacoes" name="observacoes" class="form-textarea" placeholder="Ex: Sem cebola, extra queijo, etc."></textarea>
+                    </div>
+
+                    <div class="nav-buttons">
+                        <button type="button" class="btn btn-secondary" id="prevStep3">Anterior</button>
+                        <button type="button" class="btn btn-primary" id="nextStep3">Próximo</button>
+                    </div>
+                </div>
+
+                <!-- Step 4: Pagamento -->
+                <div id="step4" class="step-content" style="display: none;">
+                    <div class="step-header">
+                        <div class="step-icon">
+                            <i class="fas fa-credit-card"></i>
+                        </div>
+                        <div>
+                            <h2 class="step-title">Forma de Pagamento</h2>
+                            <p class="step-description">Escolha como deseja pagar seu pedido</p>
+                        </div>
+                    </div>
+
+                    <div class="payment-methods">
+                        <div class="payment-method">
+                            <input type="radio" id="pix" name="forma_pagamento" value="pix" class="payment-input" required>
+                            <label for="pix" class="payment-label">
+                                <div class="payment-icon">
+                                    <i class="fas fa-qrcode"></i>
+                                </div>
+                                <div class="payment-text">PIX</div>
                             </label>
                         </div>
+                        <div class="payment-method">
+                            <input type="radio" id="debito" name="forma_pagamento" value="debito" class="payment-input">
+                            <label for="debito" class="payment-label">
+                                <div class="payment-icon">
+                                    <i class="fas fa-credit-card"></i>
+                                </div>
+                                <div class="payment-text">Débito</div>
+                            </label>
+                        </div>
+                        <div class="payment-method">
+                            <input type="radio" id="credito" name="forma_pagamento" value="credito" class="payment-input">
+                            <label for="credito" class="payment-label">
+                                <div class="payment-icon">
+                                    <i class="fas fa-credit-card"></i>
+                                </div>
+                                <div class="payment-text">Crédito</div>
+                            </label>
+                        </div>
+                        <div class="payment-method">
+                            <input type="radio" id="dinheiro" name="forma_pagamento" value="dinheiro" class="payment-input">
+                            <label for="dinheiro" class="payment-label">
+                                <div class="payment-icon">
+                                    <i class="fas fa-money-bill-wave"></i>
+                                </div>
+                                <div class="payment-text">Dinheiro</div>
+                            </label>
+                        </div>
+                    </div>
 
-                        <div id="pix-info" class="mt-4 hidden border border-gray-200 rounded-lg p-3 bg-gray-50">
-                            <p class="font-semibold mb-2">Pague via Pix (copia e cola):</p>
-                            <div class="flex gap-2 mb-3">
-                                <textarea id="pix-codigo" class="flex-1 border border-gray-300 rounded-md p-2 text-sm" rows="3" readonly></textarea>
-                                <button type="button" id="pix-copy-btn" class="btn-primary whitespace-nowrap">Copiar</button>
-                            </div>
-                            <div class="flex flex-col sm:flex-row items-center gap-4">
-                                <img id="pix-qr" src="" alt="QR Code Pix" class="w-32 h-32 border rounded-md object-contain bg-white">
-                                <div class="text-center sm:text-left">
-                                    <p class="text-sm text-gray-600">Tempo para pagar:</p>
-                                    <p id="pix-timer" class="text-lg font-bold text-red-600">--:--</p>
+                    <!-- Main Content -->
+                    <div class="checkout-content">
+                        <!-- Form Steps -->
+                        <form id="checkout-form" class="form-section">
+                            <!-- Step 1: Tipo de Entrega -->
+                            ...existing code...
+                        </form>
+
+                        <!-- Promoções e Combos -->
+                        <div id="promocoes-combos-section" style="display: none;">
+                            <h2 style="text-align:center; font-size:2rem; font-weight:bold; margin-top:40px;">Promoções e Combos</h2>
+                            <p style="text-align:center; color:#718096; font-size:1.2rem;">Aproveite ofertas especiais e combos prontos para você</p>
+                            <div id="promocoes-combos-list" style="text-align:center; margin-top:20px; color:#718096; font-size:1.1rem;"></div>
+                        </div>
+
+                        <!-- Order Summary -->
+                        <div class="order-summary">
+                            <h3 class="summary-title">
+                                <i class="fas fa-shopping-cart"></i>
+                                Resumo do Pedido
+                            </h3>
+                            <div id="checkout-items"></div>
+                            <div class="summary-total">
+                                <div class="total-row">
+                                    <span>Subtotal:</span>
+                                    <span id="subtotal">R$ 0,00</span>
+                                </div>
+                                <div class="total-row" id="taxa-row" style="display: none;">
+                                    <span>Taxa de Entrega:</span>
+                                    <span id="taxa-entrega">R$ 0,00</span>
+                                </div>
+                                <div class="total-row total">
+                                    <span>Total:</span>
+                                    <span id="checkout-total">R$ 0,00</span>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <button type="submit" id="finalizar-btn" class="w-full btn-primary">Finalizar Pedido</button>
-                    <button type="button" id="cancel-order-btn" class="w-full btn-secondary mt-3">Cancelar Pedido</button>
-                </form>
+                </h3>
+                <div id="checkout-items"></div>
+                <div class="summary-total">
+                    <div class="total-row">
+                        <span>Subtotal:</span>
+                        <span id="subtotal">R$ 0,00</span>
+                    </div>
+                    <div class="total-row" id="taxa-row" style="display: none;">
+                        <span>Taxa de Entrega:</span>
+                        <span id="taxa-entrega">R$ 0,00</span>
+                    </div>
+                    <div class="total-row total">
+                        <span>Total:</span>
+                        <span id="checkout-total">R$ 0,00</span>
+                    </div>
+                </div>
             </div>
         </div>
-    </main>
+    </div>
+
+    <!-- Modal de Confirmação -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Confirmar Pedido</h3>
+            </div>
+            <div class="modal-body">
+                <p>Tem certeza que deseja finalizar este pedido?</p>
+                <div id="confirm-details"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelConfirm">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="confirmOrder">Confirmar</button>
+            </div>
+        </div>
+    </div>
 
     <script>
-        // Carregar carrinho do localStorage ou de uma variável global (simplificado)
+        // Carregar carrinho do localStorage
         let cart = JSON.parse(localStorage.getItem('cart')) || [];
         const observacoesSalvas = localStorage.getItem('observacoes') || '';
         const TENANT = (() => {
@@ -138,26 +953,51 @@
             ...options,
             headers: { ...(options.headers || {}), ...tenantHeaders }
         });
-                // Ajustar link de voltar para respeitar o slug na URL
-                const backToMenu = document.getElementById('back-to-menu');
-                if (backToMenu) {
-                    backToMenu.href = `/${TENANT}/index.html`;
+
+        // Ajustar link de voltar para respeitar o slug na URL
+        const backToMenu = document.querySelector('a[href="index.html"]');
+        if (backToMenu) {
+            backToMenu.href = `/${TENANT}/index.html`;
+        }
+
+        // Carrinho de teste se estiver vazio
+        if (cart.length === 0) {
+            cart = [
+                {
+                    name: 'Hambúrguer Tradicional',
+                    quantity: 2,
+                    basePrice: 15.00,
+                    totalPrice: 15.00,
+                    bebida: 'Coca Cola 2L',
+                    adicionais: [],
+                    observacoes: '',
+                    image: './assets/default.jpg'
+                },
+                {
+                    name: 'Pizza Calabresa',
+                    quantity: 1,
+                    basePrice: 35.00,
+                    totalPrice: 35.00,
+                    bebida: null,
+                    adicionais: ['Extra Queijo'],
+                    observacoes: 'Sem cebola',
+                    image: './assets/default.jpg'
                 }
-        const assetBase = window.location.origin;
-        const assetUrl = (p) => `${assetBase}/${p.replace(/^\/+/, '')}`;
-        let promotions = [];
+            ];
+            localStorage.setItem('cart', JSON.stringify(cart));
+        }
 
-        const checkoutItems = document.getElementById('checkout-items');
-        const checkoutTotal = document.getElementById('checkout-total');
+        // Estado da navegação
+        let currentStep = 1;
+        const totalSteps = 4;
+
+        // Elementos DOM
+        const progressBar = document.getElementById('progressBar');
+        const steps = document.querySelectorAll('.step');
+        const stepContents = document.querySelectorAll('.step-content');
         const checkoutForm = document.getElementById('checkout-form');
-        const pixInfo = document.getElementById('pix-info');
-        const pixCodigoField = document.getElementById('pix-codigo');
-        const pixCopyBtn = document.getElementById('pix-copy-btn');
-        const pixQr = document.getElementById('pix-qr');
-        const pixTimerEl = document.getElementById('pix-timer');
-        const pixRadios = document.querySelectorAll('input[name="forma_pagamento"]');
-        const pixRadio = document.querySelector('input[name="forma_pagamento"][value="pix"]');
 
+        // Configurações do site
         let siteConfig = {
             deliveryFeesByNeighborhood: {
                 'Vila nova': 7.00,
@@ -190,13 +1030,18 @@
                 'Eldorado': 10.00
             },
             pixKey: '',
-            pixName: ''
+            pixName: '',
+            pixCodigo: '',
+            mpAccessToken: ''
         };
+
         let PIX_CODIGO = siteConfig.pixKey;
         let pixTimerInterval = null;
         let pixExpiraEm = null;
+        let bairrosTaxas = siteConfig.deliveryFeesByNeighborhood;
+        let taxaEntrega = 0;
 
-        // Carregar configurações do servidor
+        // Carregar configurações
         async function carregarConfiguracoes() {
             try {
                 const resp = await fetchTenant('/company-data');
@@ -209,17 +1054,28 @@
                         pixName: json.companyData.pixName || '',
                         mpAccessToken: json.companyData.mpAccessToken || ''
                     };
-                    PIX_CODIGO = siteConfig.pixCodigo || siteConfig.pixKey; // Fallback para pixKey se pixCodigo estiver vazio
-                    console.log('✅ Configurações carregadas:', siteConfig);
-                    console.log('🔑 Token MP:', siteConfig.mpAccessToken ? '✅ Configurado' : '❌ Não configurado');
+                    PIX_CODIGO = siteConfig.pixCodigo || siteConfig.pixKey;
+                    bairrosTaxas = siteConfig.deliveryFeesByNeighborhood;
                     aplicarPixDisponibilidade();
                     updateCheckout();
+                } else {
+                    siteConfig.pixKey = '63 99999-9999';
+                    siteConfig.pixCodigo = '00020126580014BR.GOV.BCB.PIX01146399999999952040000530398654040.005802BR5925Padoca do Dedé6009SAO PAULO61080540900062290525TESTEPIX0014BR.GOV.BCB.PIX6304ABCD';
+                    siteConfig.pixName = 'Padoca do Dedé';
+                    PIX_CODIGO = siteConfig.pixCodigo;
+                    aplicarPixDisponibilidade();
                 }
             } catch (error) {
-                console.warn('⚠️ Usando configurações padrão');
+                siteConfig.pixKey = '63 99999-9999';
+                siteConfig.pixCodigo = '00020126580014BR.GOV.BCB.PIX01146399999999952040000530398654040.005802BR5925Padoca do Dedé6009SAO PAULO61080540900062290525TESTEPIX0014BR.GOV.BCB.PIX6304ABCD';
+                siteConfig.pixName = 'Padoca do Dedé';
+                PIX_CODIGO = siteConfig.pixCodigo;
+                aplicarPixDisponibilidade();
             }
         }
 
+
+        // Carregar promoções e combos
         async function carregarPromocoesCheckout() {
             try {
                 const resp = await fetchTenant('/promotions');
@@ -227,43 +1083,38 @@
                 if (json.success && Array.isArray(json.promotions)) {
                     promotions = json.promotions;
                     updateCheckout();
+                    atualizarPromocoesCombos();
+                } else {
+                    promotions = [];
+                    atualizarPromocoesCombos();
                 }
             } catch (error) {
-                console.warn('⚠️ Não foi possível carregar promoções para o checkout');
+                promotions = [];
+                atualizarPromocoesCombos();
             }
         }
 
+        function atualizarPromocoesCombos() {
+            const section = document.getElementById('promocoes-combos-section');
+            const list = document.getElementById('promocoes-combos-list');
+            // Filtra promoções visíveis (não ocultas)
+            const promocoesVisiveis = promotions && promotions.length > 0 ? promotions.filter(p => !p.oculto) : [];
+            if (promocoesVisiveis.length > 0) {
+                section.style.display = 'block';
+                list.innerHTML = '';
+                promocoesVisiveis.forEach(promo => {
+                    list.innerHTML += `<div style="margin-bottom:20px; font-size:1.1rem;">${promo.nome || promo.name} ${promo.type === 'combo' ? '(Combo)' : ''}</div>`;
+                });
+            } else {
+                section.style.display = 'none';
+            }
+        }
+
+        // Inicialização
         carregarConfiguracoes();
         carregarPromocoesCheckout();
 
-        // Verificar se já existe um pedido PIX registrado ao carregar a página
-        const pedidoPixExistente = localStorage.getItem('pedidoPix');
-        if (pedidoPixExistente) {
-            try {
-                const pedido = JSON.parse(pedidoPixExistente);
-                const confirma = confirm(`⚠️ Você já tem um pedido PIX registrado!\n\nPedido #${pedido.numero}\nTotal: R$${pedido.total.toFixed(2).replace('.', ',')}\n\nDeseja limpar este pedido e fazer um novo?\n\nClique em "Cancelar" para manter o pedido atual e ver o código PIX novamente.`);
-                if (confirma) {
-                    localStorage.removeItem('pedidoPix');
-                    alert('✅ Pedido anterior removido. Você pode fazer um novo pedido.');
-                } else {
-                    // Mostrar informações do pedido existente
-                    alert('📦 Pedido em andamento\n\nSeu pedido ainda está aguardando pagamento. Complete o pagamento via PIX para continuar.');
-                    // Opcional: redirecionar ou bloquear novo pedido
-                }
-            } catch (e) {
-                console.error('Erro ao verificar pedido PIX existente:', e);
-            }
-        }
-
-        // Cancelar pedido
-        document.getElementById('cancel-order-btn').addEventListener('click', () => {
-            if (confirm('Tem certeza que deseja cancelar o pedido? O carrinho será limpo.')) {
-                localStorage.removeItem('cart');
-                localStorage.removeItem('observacoes');
-                window.location.href = 'index.html';
-            }
-        });
-
+        // Resolver imagens
         function resolveImage(p) {
             if (!p) return assetUrl('assets/default.jpg');
             if (p.startsWith('http')) return p;
@@ -275,7 +1126,11 @@
             return assetUrl(p);
         }
 
-        // Mapeamento de imagens dos itens
+        const assetBase = window.location.origin;
+        const assetUrl = (p) => `${assetBase}/${p.replace(/^\/+/, '')}`;
+        let promotions = [];
+
+        // Mapeamento de imagens
         const itemImages = {
             'Coringa': assetUrl('assets/Coringa.jpg'),
             'Darth Vader': assetUrl('assets/darthvader.jpg'),
@@ -285,87 +1140,72 @@
             'Coca Cola 2L': assetUrl('assets/Coca 2L.jpg')
         };
 
-        // Bairros e taxas
-        const bairrosTaxas = {
-            'Vila nova': 7.00,
-            'Imperial': 10.00,
-            'Vila Operária': 10.00,
-            'Planalto': 10.00,
-            'Novo Horizonte': 8.00,
-            'Tropical Palmas': 8.00,
-            'Jardim Municipal': 8.00,
-            'Jardim Brasilia': 10.00,
-            'Irmã Edilha': 10.00,
-            'São Vicente': 8.00,
-            'Praia Bela': 10.00,
-            'Brigadeiro': 10.00,
-            'Padre Luso': 8.00,
-            'Porto Leman': 10.00,
-            'Alto do Porto': 6.00,
-            'Umuarama': 6.00,
-            'Aeroporto': 7.00,
-            'Jardim Querido': 7.00,
-            'Jardim dos Ypês': 5.00,
-            'Jardim América': 6.00,
-            'Centro': 7.00,
-            'Nova Capital': 6.00,
-            'Parque Eldorado': 10.00,
-            'Universitário': 5.00,
-            'Alto da Colina': 10.00,
-            'São Francisco': 10.00,
-            'Beira Rio': 6.00,
-            'Eldorado': 10.00
-        };
-
-        let taxaEntrega = 0;
-
+        // Atualizar checkout
         function updateCheckout() {
+            const checkoutItems = document.getElementById('checkout-items');
+            const checkoutTotal = document.getElementById('checkout-total');
+            const subtotalEl = document.getElementById('subtotal');
+            const taxaRow = document.getElementById('taxa-row');
+
             checkoutItems.innerHTML = '';
             let subtotal = 0;
+
             cart.forEach(item => {
                 const itemTotal = item.totalPrice * item.quantity;
                 subtotal += itemTotal;
-                
-                // Buscar imagem do item ou usar fallback
+
                 const baseName = (item.name || '').split(' + ')[0];
                 const promo = promotions.find(p => (p.name || p.nome) === baseName);
                 const isPromotion = !!promo;
                 const isCombo = isPromotion && promo.type === 'combo' && promo.items && Array.isArray(promo.items);
                 let imageSrc = resolveImage(item.image || itemImages[baseName] || './assets/default.jpg');
-                
+
                 const itemElement = document.createElement('div');
-                itemElement.classList.add('flex', 'items-center', 'mb-4', 'border-b', 'pb-2');
-                
+                itemElement.classList.add('order-item');
+
                 let comboItemsHTML = '';
                 if (isCombo && promo.items) {
                     comboItemsHTML = `<p class="text-xs text-gray-600 mt-1">📦 <strong>Combo inclui:</strong> ${promo.items.map(i => i.name).join(', ')}</p>`;
                 }
-                
+
                 itemElement.innerHTML = `
-                    <img src="${imageSrc}" alt="${item.name}" class="w-16 h-16 rounded-md mr-4 object-cover">
-                    <div class="flex-1">
-                        <p class="font-medium flex items-center gap-2">
+                    <img src="${imageSrc}" alt="${item.name}" class="item-image">
+                    <div class="item-info">
+                        <p class="item-name flex items-center gap-2">
                             ${baseName}
                             ${isCombo ? '<span class="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded font-bold">COMBO</span>' : ''}
                             ${isPromotion && !isCombo ? '<span class="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded">Promo</span>' : ''}
                         </p>
                         ${comboItemsHTML}
-                        ${item.bebida ? `<p class="text-xs text-gray-600">Bebida: ${item.bebida}</p>` : ''}
-                        ${item.adicionais && item.adicionais.length > 0 ? `<p class="text-xs text-gray-600">Adicionais: ${item.adicionais.join(', ')}</p>` : ''}
-                        ${item.observacoes ? `<p class="text-xs text-gray-600">Obs: ${item.observacoes}</p>` : ''}
-                        <p class="text-sm">Qtd: ${item.quantity} - R$${item.totalPrice.toFixed(2).replace('.', ',')}</p>
+                        ${item.bebida ? `<p class="item-details">Bebida: ${item.bebida}</p>` : ''}
+                        ${item.adicionais && item.adicionais.length > 0 ? `<p class="item-details">Adicionais: ${item.adicionais.join(', ')}</p>` : ''}
+                        ${item.observacoes ? `<p class="item-details">Obs: ${item.observacoes}</p>` : ''}
+                        <p class="item-details">Qtd: ${item.quantity} x R$${item.totalPrice.toFixed(2).replace('.', ',')}</p>
                     </div>
-                    <p class="font-bold">R$${itemTotal.toFixed(2).replace('.', ',')}</p>
+                    <p class="item-price">R$${itemTotal.toFixed(2).replace('.', ',')}</p>
                 `;
                 checkoutItems.appendChild(itemElement);
             });
-            
-            // Inicia taxa com valor padrão da configuração
-            taxaEntrega = siteConfig.deliveryFee || 5.00;
-            updateTotal();
+
+            // Calcular taxa de entrega
+            const tipoEntrega = document.querySelector('input[name="tipo_entrega"]:checked')?.value;
+            if (tipoEntrega === 'delivery') {
+                const bairro = document.getElementById('bairro')?.value;
+                taxaEntrega = (bairrosTaxas[bairro] || siteConfig.deliveryFee || 5.00);
+                taxaRow.style.display = 'block';
+            } else {
+                taxaEntrega = 0;
+                taxaRow.style.display = 'none';
+            }
+
+            const total = subtotal + taxaEntrega;
+
+            subtotalEl.textContent = `R$${subtotal.toFixed(2).replace('.', ',')}`;
+            document.getElementById('taxa-entrega').textContent = `R$${taxaEntrega.toFixed(2).replace('.', ',')}`;
+            checkoutTotal.textContent = `R$${total.toFixed(2).replace('.', ',')}`;
         }
 
-        // Popular bairros em ordem alfabética
+        // Popular bairros
         const bairroSelect = document.getElementById('bairro');
         const bairrosOrdenados = Object.keys(bairrosTaxas).sort();
         bairrosOrdenados.forEach(bairro => {
@@ -378,11 +1218,148 @@
         // Preencher observações salvas
         document.getElementById('observacoes').value = observacoesSalvas;
 
+        // Navegação entre steps
+        function updateStepNavigation() {
+            const tipoEntrega = document.querySelector('input[name="tipo_entrega"]:checked')?.value;
+
+            // Calcular progresso considerando se pula etapa 3
+            let progress = (currentStep / totalSteps) * 100;
+
+            if (tipoEntrega === 'retirada') {
+                // Para retirada, ajustar o progresso (3 passos efetivos: 1, 2, 4)
+                if (currentStep === 2) {
+                    progress = (2 / 3) * 100; // 66.67%
+                } else if (currentStep === 4) {
+                    progress = 100;
+                } else if (currentStep === 1) {
+                    progress = (1 / 3) * 100; // 33.33%
+                }
+            }
+
+            progressBar.style.width = `${progress}%`;
+
+            // Atualizar steps visuais
+            steps.forEach((step, index) => {
+                const stepNumber = index + 1;
+                step.classList.remove('active', 'completed');
+
+                if (tipoEntrega === 'retirada' && stepNumber === 3) {
+                    // Para retirada, marcar step 3 como completed quando estiver no step 4
+                    if (currentStep === 4) {
+                        step.classList.add('completed');
+                    }
+                } else if (stepNumber === currentStep) {
+                    step.classList.add('active');
+                } else if (stepNumber < currentStep) {
+                    step.classList.add('completed');
+                }
+            });
+
+            // Mostrar step atual
+            stepContents.forEach((content, index) => {
+                content.style.display = (index + 1 === currentStep) ? 'block' : 'none';
+            });
+        }
+
+        function nextStep() {
+            if (currentStep < totalSteps) {
+                const tipoEntrega = document.querySelector('input[name="tipo_entrega"]:checked')?.value;
+
+                // Se for retirada no balcão e estiver no step 2, pular para step 4
+                if (currentStep === 2 && tipoEntrega === 'retirada') {
+                    currentStep = 4;
+                } else {
+                    currentStep++;
+                }
+
+                updateStepNavigation();
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 1) {
+                const tipoEntrega = document.querySelector('input[name="tipo_entrega"]:checked')?.value;
+
+                // Se for retirada no balcão e estiver no step 4, voltar para step 2
+                if (currentStep === 4 && tipoEntrega === 'retirada') {
+                    currentStep = 2;
+                } else {
+                    currentStep--;
+                }
+
+                updateStepNavigation();
+            }
+        }
+
+        // Event listeners para navegação
+        document.getElementById('nextStep1').addEventListener('click', () => {
+            const tipoEntrega = document.querySelector('input[name="tipo_entrega"]:checked');
+            if (!tipoEntrega) {
+                alert('Por favor, selecione o tipo de entrega.');
+                return;
+            }
+            nextStep();
+        });
+
+        document.getElementById('prevStep2').addEventListener('click', prevStep);
+
+        document.getElementById('nextStep2').addEventListener('click', () => {
+            const nome = document.getElementById('nome').value.trim();
+            const whatsapp = document.getElementById('whatsapp').value.trim();
+
+            if (!nome) {
+                alert('Por favor, informe seu nome.');
+                document.getElementById('nome').focus();
+                return;
+            }
+
+            if (!whatsapp) {
+                alert('Por favor, informe seu WhatsApp.');
+                document.getElementById('whatsapp').focus();
+                return;
+            }
+
+            nextStep();
+        });
+
+        document.getElementById('prevStep3').addEventListener('click', prevStep);
+
+        document.getElementById('nextStep3').addEventListener('click', () => {
+            const tipoEntrega = document.querySelector('input[name="tipo_entrega"]:checked')?.value;
+
+            if (tipoEntrega === 'delivery') {
+                const bairro = document.getElementById('bairro').value;
+                const rua = document.getElementById('rua').value.trim();
+                const numero = document.getElementById('numero').value.trim();
+
+                if (!bairro) {
+                    alert('Por favor, selecione o bairro.');
+                    document.getElementById('bairro').focus();
+                    return;
+                }
+
+                if (!rua) {
+                    alert('Por favor, informe a rua.');
+                    document.getElementById('rua').focus();
+                    return;
+                }
+
+                if (!numero) {
+                    alert('Por favor, informe o número.');
+                    document.getElementById('numero').focus();
+                    return;
+                }
+            }
+
+            nextStep();
+        });
+
+        document.getElementById('prevStep4').addEventListener('click', prevStep);
+
         // Máscara para WhatsApp
-        const whatsappInput = document.getElementById('whatsapp');
-        whatsappInput.addEventListener('input', (e) => {
+        document.getElementById('whatsapp').addEventListener('input', (e) => {
             let value = e.target.value.replace(/\D/g, '');
-            value = value.slice(0, 11); // Limitar a 11 dígitos
+            value = value.slice(0, 11);
             if (value.length > 2) {
                 value = `(${value.slice(0, 2)}) ${value.slice(2)}`;
             }
@@ -392,32 +1369,47 @@
             e.target.value = value;
         });
 
-        // PIX helpers
-        function atualizarQrPix(codigo) {
-            pixCodigoField.value = codigo;
-            const encoded = encodeURIComponent(codigo);
-            pixQr.src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encoded}`;
+        // Atualizar taxa quando bairro muda
+        document.getElementById('bairro').addEventListener('change', updateCheckout);
+
+        // Mostrar/esconder campos de endereço
+        function toggleEnderecoFields() {
+            const enderecoFields = document.querySelectorAll('#bairro, #rua, #numero, #complemento');
+            const tipoEntregaRadio = document.querySelector('input[name="tipo_entrega"]:checked');
+
+            if (!tipoEntregaRadio || enderecoFields.length === 0) return;
+
+            const isDelivery = tipoEntregaRadio.value === 'delivery';
+
+            enderecoFields.forEach(field => {
+                field.required = isDelivery;
+                field.parentElement.style.display = isDelivery ? 'block' : 'none';
+            });
+
+            updateCheckout();
         }
 
+        document.querySelectorAll('input[name="tipo_entrega"]').forEach(radio => {
+            radio.addEventListener('change', toggleEnderecoFields);
+        });
+
+        // PIX functionality
         function aplicarPixDisponibilidade() {
             const chave = siteConfig.pixKey || '';
             const codigo = siteConfig.pixCodigo || '';
-            if (!chave || !codigo) {
-                if (pixRadio) {
-                    pixRadio.checked = false;
-                    pixRadio.disabled = true;
-                }
-                pixInfo.classList.add('hidden');
-                limparTimerPix();
-                pixCodigoField.value = '';
-                pixQr.src = '';
-                return;
-            }
+            // PIX sempre disponível para teste - será desabilitado se não houver configuração
+            const pixRadio = document.getElementById('pix');
             if (pixRadio) {
                 pixRadio.disabled = false;
+                pixRadio.parentElement.style.opacity = '1';
             }
-            pixCodigoField.title = siteConfig.pixName ? `Titular: ${siteConfig.pixName}` : '';
-            atualizarQrPix(codigo);
+            atualizarQrPix(codigo || '00020126580014BR.GOV.BCB.PIX01146399999999952040000530398654040.005802BR5925Padoca do Dedé6009SAO PAULO61080540900062290525TESTEPIX0014BR.GOV.BCB.PIX6304ABCD');
+        }
+
+        function atualizarQrPix(codigo) {
+            document.getElementById('pix-codigo').value = codigo;
+            const encoded = encodeURIComponent(codigo);
+            document.getElementById('pix-qr').src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encoded}`;
         }
 
         function limparTimerPix() {
@@ -425,7 +1417,7 @@
                 clearInterval(pixTimerInterval);
                 pixTimerInterval = null;
             }
-            pixTimerEl.textContent = '--:--';
+            document.getElementById('pix-timer').textContent = '--:--';
             pixExpiraEm = null;
         }
 
@@ -436,296 +1428,162 @@
             pixTimerInterval = setInterval(() => {
                 const restanteMs = new Date(pixExpiraEm).getTime() - Date.now();
                 if (restanteMs <= 0) {
-                    pixTimerEl.textContent = 'Expirado';
+                    document.getElementById('pix-timer').textContent = 'Expirado';
                     limparTimerPix();
                     return;
                 }
                 const totalSec = Math.floor(restanteMs / 1000);
                 const m = String(Math.floor(totalSec / 60)).padStart(2, '0');
                 const s = String(totalSec % 60).padStart(2, '0');
-                pixTimerEl.textContent = `${m}:${s}`;
+                document.getElementById('pix-timer').textContent = `${m}:${s}`;
             }, 1000);
         }
 
-        atualizarQrPix(PIX_CODIGO);
-
-        if (pixCopyBtn) {
-            pixCopyBtn.addEventListener('click', () => {
-                navigator.clipboard.writeText(pixCodigoField.value).then(() => {
-                    alert('Código Pix copiado');
-                });
-            });
-        }
-
-        pixRadios.forEach(radio => {
-            radio.addEventListener('change', async () => {
+        // PIX event listeners
+        document.querySelectorAll('input[name="forma_pagamento"]').forEach(radio => {
+            radio.addEventListener('change', () => {
+                const pixInfo = document.getElementById('pix-info');
                 if (radio.value === 'pix' && radio.checked) {
                     if (!siteConfig.pixCodigo) {
                         alert('PIX não configurado pelo estabelecimento. Escolha outra forma de pagamento.');
                         radio.checked = false;
-                        pixInfo.classList.add('hidden');
+                        pixInfo.classList.remove('show');
                         return;
                     }
-                    pixInfo.classList.remove('hidden');
+                    pixInfo.classList.add('show');
                     iniciarTimerPix();
-                    
-                    // Validar formulário antes de criar pedido
-                    const nome = document.getElementById('nome').value.trim();
-                    const whatsapp = document.getElementById('whatsapp').value.trim();
-                    const tipoEntrega = document.querySelector('input[name="tipo_entrega"]:checked')?.value;
-                    
-                    if (!nome || !whatsapp || !tipoEntrega) {
-                        alert('⚠️ Por favor, preencha Nome, WhatsApp e Tipo de Entrega antes de selecionar PIX.');
-                        radio.checked = false;
-                        pixInfo.classList.add('hidden');
-                        limparTimerPix();
-                        return;
-                    }
-                    
-                    // Se delivery, validar endereço
-                    if (tipoEntrega === 'delivery') {
-                        const bairro = document.getElementById('bairro').value;
-                        const rua = document.getElementById('rua').value.trim();
-                        const numero = document.getElementById('numero').value.trim();
-                        if (!bairro || !rua || !numero) {
-                            alert('⚠️ Por favor, preencha o endereço completo para delivery.');
-                            radio.checked = false;
-                            pixInfo.classList.add('hidden');
-                            limparTimerPix();
-                            return;
-                        }
-                    }
-                    
-                    // Criar pedido automaticamente
-                    await finalizarPedidoPix();
-                    
-                } else if (radio.checked) {
-                    pixInfo.classList.add('hidden');
-                    limparTimerPix();
-                    // Reabilitar botão finalizar para outras formas
-                    document.getElementById('finalizar-btn').disabled = false;
-                    document.getElementById('finalizar-btn').textContent = 'Finalizar Pedido';
-                }
-            });
-        });
-
-        // Ajusta disponibilidade do PIX na carga inicial (caso config local já exista)
-        aplicarPixDisponibilidade();
-        
-        // Função para finalizar pedido PIX automaticamente
-        async function finalizarPedidoPix() {
-            const formData = new FormData(checkoutForm);
-            const nome = formData.get('nome');
-            const whatsapp = formData.get('whatsapp');
-            const tipoEntrega = formData.get('tipo_entrega');
-            const bairro = formData.get('bairro');
-            const rua = formData.get('rua');
-            const numero = formData.get('numero');
-            const complemento = formData.get('complemento');
-            const observacoes = formData.get('observacoes');
-            
-            // Calcular total
-            let subtotal = 0;
-            cart.forEach(item => {
-                subtotal += item.totalPrice * item.quantity;
-            });
-            const total = subtotal + taxaEntrega;
-            
-            const pedidoApi = {
-                cliente_nome: nome,
-                cliente_telefone: whatsapp,
-                cliente_endereco: tipoEntrega === 'delivery' ? `${rua}, ${numero}${complemento ? ', ' + complemento : ''}, ${bairro}` : 'Retirada no balcão',
-                itens: cart.map(item => ({
-                    nome: item.name,
-                    quantidade: item.quantity,
-                    precoTotal: item.totalPrice
-                })),
-                total: total,
-                forma_pagamento: 'pix',
-                observacoes: observacoes
-            };
-            
-            try {
-                const response = await fetchTenant('/pedidos', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(pedidoApi)
-                });
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    console.log('✅ Pedido PIX criado automaticamente:', result);
-                    
-                    // Salvar no localStorage
-                    localStorage.setItem('pedidoPix', JSON.stringify({
-                        id: result.pedido.id,
-                        numero: result.pedido.numero_pedido,
-                        total: total,
-                        data: new Date().toISOString()
-                    }));
-                    
-                    // Desabilitar botão finalizar
-                    const finalizarBtn = document.getElementById('finalizar-btn');
-                    finalizarBtn.disabled = true;
-                    finalizarBtn.textContent = '✅ Pedido Registrado - Aguardando Pagamento';
-                    finalizarBtn.classList.add('opacity-50', 'cursor-not-allowed');
-                    
-                    // Mostrar mensagem
-                    alert(`✅ Pedido registrado com sucesso!\n\nPedido #${result.pedido.numero_pedido}\n\nRealize o pagamento via PIX e aguarde a confirmação.\n\nVocê pode fechar esta página após copiar o código PIX.`);
-                    
                 } else {
-                    console.error('❌ Erro ao criar pedido PIX:', result);
-                    alert('❌ Erro ao registrar pedido: ' + (result.message || 'Erro desconhecido'));
+                    pixInfo.classList.remove('show');
+                    limparTimerPix();
                 }
-            } catch (error) {
-                console.error('❌ Erro ao enviar pedido PIX:', error);
-                alert('❌ Erro ao conectar com o servidor: ' + error.message);
-            }
-        }
-
-        // Atualizar taxa ao mudar bairro
-        bairroSelect.addEventListener('change', (e) => {
-            const bairro = e.target.value;
-            taxaEntrega = (siteConfig.deliveryFeesByNeighborhood && siteConfig.deliveryFeesByNeighborhood[bairro]) || bairrosTaxas[bairro] || 0;
-            updateTotal();
+            });
         });
 
-        function updateTotal() {
-            let subtotal = 0;
-            cart.forEach(item => {
-                subtotal += item.totalPrice * item.quantity;
+        document.getElementById('pix-copy-btn').addEventListener('click', () => {
+            navigator.clipboard.writeText(document.getElementById('pix-codigo').value).then(() => {
+                alert('Código Pix copiado!');
             });
-            
-            // Calcular taxa de entrega
-            let taxa = 0;
-            if (document.getElementById('delivery').checked) {
-                taxa = taxaEntrega;
+        });
+
+        // Modal de confirmação
+        const confirmModal = document.getElementById('confirmModal');
+        const confirmDetails = document.getElementById('confirm-details');
+
+        function showConfirmModal() {
+            // Preencher campos obrigatórios para teste se estiverem vazios
+            if (!document.getElementById('nome').value) {
+                document.getElementById('nome').value = 'Cliente Teste';
             }
-            
-            const total = subtotal + taxa;
-            checkoutTotal.textContent = total.toFixed(2).replace('.', ',');
-            document.getElementById('taxa-entrega').textContent = `R$${taxa.toFixed(2).replace('.', ',')}`;
-        }
+            if (!document.getElementById('whatsapp').value) {
+                document.getElementById('whatsapp').value = '(63) 99999-9999';
+            }
+            if (!document.querySelector('input[name="tipo_entrega"]:checked')) {
+                document.getElementById('retirada').checked = true;
+            }
+            if (!document.querySelector('input[name="forma_pagamento"]:checked')) {
+                document.getElementById('pix').checked = true;
+            }
 
-        // Mostrar/ocultar campos de endereço
-        const retiradaRadio = document.getElementById('retirada');
-        const deliveryRadio = document.getElementById('delivery');
-        const enderecoFieldsRequired = document.querySelectorAll('#bairro, #rua, #numero');
-        const enderecoFieldsAll = document.querySelectorAll('#bairro, #rua, #numero, #complemento, #observacoes');
-
-        function toggleEnderecoFields() {
-            const isDelivery = deliveryRadio.checked;
-            enderecoFieldsRequired.forEach(field => {
-                field.required = isDelivery;
-            });
-            enderecoFieldsAll.forEach(field => {
-                field.parentElement.style.display = isDelivery ? 'block' : 'none';
-            });
-            // Garantir que complemento e observações nunca sejam obrigatórios
-            document.getElementById('complemento').required = false;
-            document.getElementById('observacoes').required = false;
-            // Garantir que nome e WhatsApp sempre sejam obrigatórios
-            document.getElementById('nome').required = true;
-            document.getElementById('whatsapp').required = true;
-            
-            // Recalcular taxa quando muda entre retirada e delivery
-            updateTotal();
-        }
-
-        retiradaRadio.addEventListener('change', toggleEnderecoFields);
-        deliveryRadio.addEventListener('change', toggleEnderecoFields);
-
-        // Inicialmente, ocultar campos se retirada estiver selecionada
-        toggleEnderecoFields();
-
-        checkoutForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            // Se for PIX, já foi processado automaticamente
+            const tipoEntrega = document.querySelector('input[name="tipo_entrega"]:checked')?.value;
             const formaPagamento = document.querySelector('input[name="forma_pagamento"]:checked')?.value;
-            if (formaPagamento === 'pix') {
-                alert('⚠️ Pedido PIX já foi registrado. Aguarde a confirmação do pagamento.');
+            const nome = document.getElementById('nome').value;
+            const whatsapp = document.getElementById('whatsapp').value;
+
+            let details = `
+                <div class="bg-gray-50 p-4 rounded-lg mb-4">
+                    <h4 class="font-semibold mb-2">Dados do Cliente:</h4>
+                    <p><strong>Nome:</strong> ${nome}</p>
+                    <p><strong>WhatsApp:</strong> ${whatsapp}</p>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-lg mb-4">
+                    <h4 class="font-semibold mb-2">Tipo de Entrega:</h4>
+                    <p>${tipoEntrega === 'delivery' ? 'Delivery' : 'Retirada no Balcão'}</p>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-lg mb-4">
+                    <h4 class="font-semibold mb-2">Forma de Pagamento:</h4>
+                    <p>${formaPagamento === 'pix' ? 'PIX' : formaPagamento === 'debito' ? 'Cartão de Débito' : formaPagamento === 'credito' ? 'Cartão de Crédito' : 'Dinheiro'}</p>
+                </div>
+            `;
+
+            confirmDetails.innerHTML = details;
+            confirmModal.classList.add('show');
+        }
+
+        document.getElementById('cancelConfirm').addEventListener('click', () => {
+            confirmModal.classList.remove('show');
+        });
+
+        document.getElementById('confirmOrder').addEventListener('click', () => {
+            confirmModal.classList.remove('show');
+            submitOrder();
+        });
+
+        // Submit do formulário
+        checkoutForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const formaPagamento = document.querySelector('input[name="forma_pagamento"]:checked')?.value;
+            if (!formaPagamento) {
+                alert('Por favor, selecione uma forma de pagamento.');
                 return;
             }
-            
-            const formData = new FormData(checkoutForm);
-            const tipoEntrega = formData.get('tipo_entrega');
-            const nome = formData.get('nome');
-            const whatsapp = formData.get('whatsapp');
-            const bairro = formData.get('bairro');
-            const rua = formData.get('rua');
-            const numero = formData.get('numero');
-            const complemento = formData.get('complemento');
-            const observacoes = formData.get('observacoes');
 
-            // Validação especial para PIX
-            if (formaPagamento === 'pix') {
-                if (!siteConfig.pixCodigo && !siteConfig.mpAccessToken) {
-                    alert('❌ Erro: Dados de PIX não configurados. Por favor, contacte o proprietário.');
-                    return;
-                }
-                
-                // Se houver token MP (dinâmico), usar API
-                if (siteConfig.mpAccessToken) {
-                    console.log('📱 Usando PIX dinâmico via Mercado Pago');
-                } else {
-                    // Usar PIX estático
-                    if (!siteConfig.pixName || !siteConfig.pixCodigo) {
-                        alert('❌ Erro: Dados de PIX não configurados. Por favor, contacte o proprietário.');
-                        return;
-                    }
-                    const confirmacao = confirm(`💳 Confirmação de Pagamento PIX\n\n✅ Código PIX copiado?\n\nPor favor, realize a transferência no valor total e confirme para prosseguir com seu pedido.\n\nClique em OK para confirmar que realizou o pagamento.`);
-                    if (!confirmacao) {
-                        alert('⚠️ Pedido cancelado. Você pode completar o pagamento e tentar novamente.');
-                        return;
-                    }
-                }
-            }
+            showConfirmModal();
+        });
 
-            // Calcular total
-            let subtotal = 0;
-            cart.forEach(item => {
-                subtotal += item.totalPrice * item.quantity;
-            });
-            const total = subtotal + taxaEntrega;
+        // Função para enviar pedido
+        async function submitOrder() {
+            const btnText = document.getElementById('btn-text');
+            const btnLoading = document.getElementById('btn-loading');
+            const finalizarBtn = document.getElementById('finalizar-btn');
 
-            // Dados de pagamento
-            const pagamento = {
-                forma: formaPagamento,
-                pixCodigo: formaPagamento === 'pix' && !siteConfig.mpAccessToken ? PIX_CODIGO : null,
-                pixExpiraEm: formaPagamento === 'pix' && !siteConfig.mpAccessToken ? pixExpiraEm : null,
-                pixConfirmado: formaPagamento === 'pix' && !siteConfig.mpAccessToken ? true : null
-            };
-
-            // Preparar dados do pedido para o backend
-            const pedidoData = {
-                cliente: {
-                    nome: nome,
-                    whatsapp: whatsapp
-                },
-                itens: cart.map(item => ({
-                    nome: item.name,
-                    quantidade: item.quantity,
-                    precoUnitario: item.basePrice,
-                    precoTotal: item.totalPrice,
-                    bebida: item.bebida,
-                    adicionais: item.adicionais,
-                    observacoes: item.observacoes,
-                    imagem: item.image
-                })),
-                total: total,
-                endereco: tipoEntrega === 'delivery' ? `${rua}, ${numero}${complemento ? ', ' + complemento : ''}` : 'Retirada no balcão',
-                bairro: bairro || 'N/A',
-                taxaEntrega: taxaEntrega,
-                tipoEntrega: tipoEntrega,
-                observacoes: observacoes,
-                pagamento: pagamento,
-                status: formaPagamento === 'pix' ? 'pago' : 'pendente'
-            };
+            finalizarBtn.disabled = true;
+            btnText.style.display = 'none';
+            btnLoading.style.display = 'inline-block';
 
             try {
-                // Se for PIX dinâmico (com token MP), criar pagamento antes
+                const formData = new FormData(checkoutForm);
+                const tipoEntrega = formData.get('tipo_entrega');
+                const nome = formData.get('nome');
+                const whatsapp = formData.get('whatsapp');
+                const bairro = formData.get('bairro');
+                const rua = formData.get('rua');
+                const numero = formData.get('numero');
+                const complemento = formData.get('complemento');
+                const observacoes = formData.get('observacoes');
+                const formaPagamento = formData.get('forma_pagamento');
+
+                // Calcular totais
+                let subtotal = 0;
+                cart.forEach(item => {
+                    subtotal += item.totalPrice * item.quantity;
+                });
+                const total = subtotal + taxaEntrega;
+
+                // Preparar dados do pedido
+                const pedidoData = {
+                    cliente: { nome, whatsapp },
+                    itens: cart.map(item => ({
+                        nome: item.name,
+                        quantidade: item.quantity,
+                        precoUnitario: item.basePrice,
+                        precoTotal: item.totalPrice,
+                        bebida: item.bebida,
+                        adicionais: item.adicionais,
+                        observacoes: item.observacoes,
+                        imagem: item.image
+                    })),
+                    total,
+                    endereco: tipoEntrega === 'delivery' ? `${rua}, ${numero}${complemento ? ', ' + complemento : ''}` : 'Retirada no balcão',
+                    bairro: bairro || 'N/A',
+                    taxaEntrega,
+                    tipoEntrega,
+                    observacoes,
+                    pagamento: { forma: formaPagamento },
+                    status: formaPagamento === 'pix' ? 'pago' : 'pendente'
+                };
+
+                // PIX dinâmico se disponível
                 let pixDinamico = null;
                 if (formaPagamento === 'pix' && siteConfig.mpAccessToken) {
                     try {
@@ -744,104 +1602,123 @@
                         }
                         pixDinamico = await mpResp.json();
                         if (pixDinamico.success) {
-                            console.log('✅ PIX dinâmico criado:', pixDinamico.paymentId);
-                            // Atualizar dados do pagamento com dados dinâmicos
-                            pagamento.pixCodigo = pixDinamico.copiaECola;
-                            pagamento.pixDinamico = true;
-                            pagamento.mpPaymentId = pixDinamico.paymentId;
-                            pedidoData.pagamento = pagamento;
+                            pedidoData.pagamento.pixDinamico = true;
+                            pedidoData.pagamento.mpPaymentId = pixDinamico.paymentId;
                         }
                     } catch (err) {
-                        console.error('⚠️ Erro ao criar PIX dinâmico, usando estático:', err);
+                        console.error('Erro ao criar PIX dinâmico:', err);
                     }
                 }
 
-                // Adaptar formato para o backend (campos planos)
+                // Formatar para API
                 const pedidoApi = {
-                    cliente_nome: nome,
-                    cliente_telefone: whatsapp,
-                    cliente_endereco: tipoEntrega === 'delivery' ? `${rua}, ${numero}${complemento ? ', ' + complemento : ''}, ${bairro}` : 'Retirada no balcão',
+                    cliente: {
+                        nome: nome,
+                        whatsapp: whatsapp
+                    },
                     itens: cart.map(item => ({
                         nome: item.name,
                         quantidade: item.quantity,
-                        precoTotal: item.totalPrice
+                        precoUnitario: item.basePrice,
+                        precoTotal: item.totalPrice,
+                        bebida: item.bebida,
+                        adicionais: item.adicionais,
+                        observacoes: item.observacoes,
+                        imagem: item.image
                     })),
-                    total: total,
-                    forma_pagamento: formaPagamento,
-                    observacoes: observacoes
+                    total,
+                    endereco: tipoEntrega === 'delivery' ? `${rua}, ${numero}${complemento ? ', ' + complemento : ''}, ${bairro}` : 'Retirada no balcão',
+                    bairro: bairro || 'N/A',
+                    taxaEntrega,
+                    tipoEntrega,
+                    observacoes,
+                    pagamento: { forma: formaPagamento }
                 };
 
-                // Enviar pedido ao backend
+                // Enviar pedido
                 const response = await fetchTenant('/pedidos', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(pedidoApi)
                 });
 
                 const result = await response.json();
 
                 if (result.success) {
-                    console.log('✅ Pedido salvo:', result);
-                    // Criar mensagem para WhatsApp
+                    // Criar mensagem WhatsApp
                     const order = cart.map(item => `${item.name} x${item.quantity}`).join(', ');
                     let message = `Olá! Meu nome é ${nome}. Gostaria de fazer o seguinte pedido: ${order}.`;
-                    
+
                     if (tipoEntrega === 'delivery') {
                         const endereco = `${rua}, ${numero}${complemento ? ', ' + complemento : ''}, ${bairro}`;
                         message += ` Tipo: Delivery. Endereço: ${endereco}. Taxa de entrega: R$${taxaEntrega.toFixed(2).replace('.', ',')}.`;
                     } else {
                         message += ` Tipo: Retirar no balcão.`;
                     }
-                    
+
                     message += ` Subtotal: R$${subtotal.toFixed(2).replace('.', ',')}. Total: R$${total.toFixed(2).replace('.', ',')}.`;
-                    
+
                     if (observacoes) {
                         message += ` Observações: ${observacoes}.`;
                     }
 
-                    message += ` Pagamento: ${formaPagamento === 'pix' ? 'Pix' : formaPagamento === 'debito' ? 'Débito' : 'Crédito'}.`;
-                    
+                    message += ` Pagamento: ${formaPagamento === 'pix' ? 'Pix' : formaPagamento === 'debito' ? 'Débito' : formaPagamento === 'credito' ? 'Crédito' : 'Dinheiro'}.`;
                     message += ` WhatsApp: ${whatsapp}`;
                     message += ` | Pedido #${result.pedido.id}`;
-
-                    // Codificar mensagem para URL
-                    const encodedMessage = encodeURIComponent(message);
-                    const whatsappUrl = `https://wa.me/5563999999999?text=${encodedMessage}`; // Substitua pelo número real
 
                     // Limpar carrinho
                     cart = [];
                     localStorage.setItem('cart', JSON.stringify(cart));
                     localStorage.removeItem('observacoes');
-                    
-                    // Mensagem diferente para PIX
+
+                    // Mensagens de sucesso
                     if (formaPagamento === 'pix') {
                         if (pixDinamico && pixDinamico.copiaECola) {
-                            alert(`✅ Pedido confirmado com sucesso!\n\n💳 Pagamento via PIX (Dinâmico)\n\n📋 Copia e Cola:\n${pixDinamico.copiaECola}\n\nSeu pedido foi registrado e confirmado.\n\nPedido #${result.pedido.id}`);
+                            alert(`✅ Pedido confirmado!\n\n💳 PIX Dinâmico\n\nCopia e Cola: ${pixDinamico.copiaECola}\n\nPedido #${result.pedido.id}`);
                         } else {
-                            alert(`✅ Pedido confirmado com sucesso!\n\n💳 Pagamento via PIX\n\nSeu pedido foi registrado e confirmado. Você será redirecionado para o WhatsApp para confirmação.\n\nPedido #${result.pedido.id}`);
+                            alert(`✅ Pedido confirmado!\n\n💳 Pagamento via PIX\n\nPedido #${result.pedido.id}`);
                         }
                     } else {
-                        alert('✅ Pedido salvo com sucesso! Você será redirecionado para o WhatsApp.');
+                        alert('✅ Pedido salvo com sucesso!');
                     }
-                    
-                    // Redirecionar para WhatsApp
+
+                    // Abrir WhatsApp
+                    const whatsappNumber = siteConfig.companyWhatsapp ? siteConfig.companyWhatsapp.replace(/\D/g, '') : '63999999999';
+                    const encodedMessage = encodeURIComponent(message);
+                    const whatsappUrl = `https://wa.me/55${whatsappNumber}?text=${encodedMessage}`;
                     window.open(whatsappUrl, '_blank');
-                    
-                    // Redirecionar para a página inicial
+
+                    // Redirecionar
                     setTimeout(() => {
                         window.location.href = 'index.html';
                     }, 1000);
+
                 } else {
-                    console.error('❌ Erro do servidor:', result);
-                    alert('❌ Erro ao salvar pedido: ' + (result.message || result.erro || 'Erro desconhecido'));
+                    throw new Error(result.message || 'Erro desconhecido');
                 }
+
             } catch (error) {
-                console.error('❌ Erro ao enviar pedido:', error);
-                alert('❌ Erro ao conectar com o servidor: ' + error.message);
+                console.error('Erro ao enviar pedido:', error);
+                alert('❌ Erro ao processar pedido: ' + error.message);
+            } finally {
+                finalizarBtn.disabled = false;
+                btnText.style.display = 'inline';
+                btnLoading.style.display = 'none';
             }
-        });
+        }
+
+        // Inicialização
+        updateCheckout();
+        updateStepNavigation();
+
+        // Verificar carrinho vazio (removido para teste)
+        // if (cart.length === 0) {
+        //     alert('Carrinho vazio!');
+        //     window.location.href = 'index.html';
+        // }
+
+        // Aplicar estado inicial dos campos de endereço
+        toggleEnderecoFields();
     </script>
 </body>
 </html>

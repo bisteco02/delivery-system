@@ -95,7 +95,7 @@
      </h2>
 
       <!-- Promoções e Combos -->
-      <div class="mx-auto max-w-7xl px-2 mt-10">
+      <div class="mx-auto max-w-7xl px-2 mt-10" id="promocoes-combos-section" style="display:none;">
         <h2 class="text-2xl md:text-3xl font-bold text-center mb-4">Promoções e Combos</h2>
         <p class="text-center text-gray-600 mb-6">Aproveite ofertas especiais e combos prontos para você</p>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="promotions-grid"></div>
@@ -227,7 +227,21 @@
                 <h2 class="text-center font-bold text-2xl" id="custom-item-title">Personalizar Item</h2>
             </div>
 
-            <div class="mb-4">
+            <div class="mb-4" id="bebida-section-combo" style="display: none;">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Refrigerante (opcional)</label>
+                <div class="grid grid-cols-1 gap-2">
+                  <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
+                    <input type="radio" name="bebida" value="" class="mr-3 text-blue-600 focus:ring-blue-500" checked>
+                    <span>Nenhum</span>
+                  </label>
+                  <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
+                    <input type="radio" name="bebida" value="Refrigerante a sua escolha" class="mr-3 text-blue-600 focus:ring-blue-500">
+                    <span>Refrigerante a sua escolha</span>
+                  </label>
+                </div>
+            </div>
+
+            <div class="mb-4" id="bebida-section-burger">
                 <label class="block text-sm font-medium text-gray-700 mb-2">Adicionar Bebida (opcional)</label>
                 <div class="grid grid-cols-1 gap-2">
                   <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
@@ -258,60 +272,6 @@
                     <input type="radio" name="bebida" value="Guaraná Antártica Lata - R$5,00" class="mr-3 text-blue-600 focus:ring-blue-500">
                     <img src="./assets/Guarana Lata.jpg" alt="Guaraná Antártica Lata" class="w-8 h-8 mr-3 rounded">
                     <span>Guaraná Antártica Lata - R$5,00</span>
-                  </label>
-                </div>
-            </div>
-
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Adicionais (opcional)</label>
-                <div class="space-y-2 bg-gray-50 p-3 rounded-md">
-                  <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded">
-                    <input type="checkbox" name="adicionais" value="Burger de gado - R$8,00" class="mr-3 text-blue-600 focus:ring-blue-500">
-                    <span>Burger de gado+ R$ 8,00</span>
-                  </label>
-                  <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded">
-                    <input type="checkbox" name="adicionais" value="Burger de porco - R$8,00" class="mr-3 text-blue-600 focus:ring-blue-500">
-                    <span>Burger de porco+ R$ 8,00</span>
-                  </label>
-                  <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded">
-                    <input type="checkbox" name="adicionais" value="Frango com ervas - R$6,00" class="mr-3 text-blue-600 focus:ring-blue-500">
-                    <span>Frango com ervas+ R$ 6,00</span>
-                  </label>
-                  <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded">
-                    <input type="checkbox" name="adicionais" value="Cebola Crispy - R$4,00" class="mr-3 text-blue-600 focus:ring-blue-500">
-                    <span>Cebola Crispy+ R$ 4,00</span>
-                  </label>
-                  <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded">
-                    <input type="checkbox" name="adicionais" value="Cebola Caramelizada - R$3,50" class="mr-3 text-blue-600 focus:ring-blue-500">
-                    <span>Cebola Caramelizada+ R$ 3,50</span>
-                  </label>
-                  <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded">
-                    <input type="checkbox" name="adicionais" value="Mussarela - R$4,00" class="mr-3 text-blue-600 focus:ring-blue-500">
-                    <span>Musssarela+ R$ 4,00</span>
-                  </label>
-                  <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded">
-                    <input type="checkbox" name="adicionais" value="Cheddar - R$4,00" class="mr-3 text-blue-600 focus:ring-blue-500">
-                    <span>Cheddar+ R$ 4,00</span>
-                  </label>
-                  <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded">
-                    <input type="checkbox" name="adicionais" value="Bacon - R$5,00" class="mr-3 text-blue-600 focus:ring-blue-500">
-                    <span>Bacon+ R$ 5,00</span>
-                  </label>
-                  <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded">
-                    <input type="checkbox" name="adicionais" value="Tomate - R$1,25" class="mr-3 text-blue-600 focus:ring-blue-500">
-                    <span>Tomate+ R$ 1,25</span>
-                  </label>
-                  <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded">
-                    <input type="checkbox" name="adicionais" value="Cebola roxa - R$1,25" class="mr-3 text-blue-600 focus:ring-blue-500">
-                    <span>Cebola roxa+ R$ 1,25</span>
-                  </label>
-                  <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded">
-                    <input type="checkbox" name="adicionais" value="Alface - R$1,25" class="mr-3 text-blue-600 focus:ring-blue-500">
-                    <span>Alface+ R$ 1,25</span>
-                  </label>
-                  <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded">
-                    <input type="checkbox" name="adicionais" value="6 bolinhos de Carne de Sol com requeijao - R$22,00" class="mr-3 text-blue-600 focus:ring-blue-500">
-                    <span>6 bolinhos de Carne de Sol com requeijao+ R$ 22,00</span>
                   </label>
                 </div>
             </div>
@@ -410,10 +370,11 @@
             <h2 class="text-xl font-bold">Promoções</h2>
             <div class="w-6"></div>
           </div>
-          <div class="text-center py-10">
+          <div class="text-center py-10" id="promos-empty-state">
             <i class="fa fa-inbox text-5xl text-gray-400"></i>
             <p class="mt-3 text-gray-600">Nenhuma promoção disponível</p>
           </div>
+          <div id="promos-modal-grid" class="grid grid-cols-1 gap-4" style="display: none;"></div>
         </div>
       </div>
       <!-- FIM MODAL PROMOS -->
@@ -439,6 +400,12 @@
             </div>
             <span class="text-xs font-medium">Carrinho</span>
           </button>
+        </div>
+        <!-- Link discreto para Admin -->
+        <div class="absolute bottom-1 right-2 opacity-20 hover:opacity-100 transition-opacity">
+          <a href="painel-admin.html" class="text-gray-400 text-xs" title="Painel Admin">
+            <i class="fa fa-cog"></i>
+          </a>
         </div>
       </footer>
       <!--Fim Footer Navigation Bar-->
@@ -507,6 +474,7 @@
           if (promosLink && promosModal) {
             promosLink.addEventListener('click', (e) => {
               e.preventDefault();
+              renderPromosModal();
               promosModal.classList.remove('hidden');
               promosModal.style.display = 'block';
             });
@@ -533,7 +501,6 @@
 
           if (closePedidosBtn) {
             closePedidosBtn.addEventListener('click', function() {
-              console.log('Fechando modal pedidos');
               const pedidosModal = document.getElementById('pedidos-modal');
               pedidosModal.style.display = 'none';
               pedidosModal.classList.add('hidden');
@@ -544,7 +511,6 @@
           if (pedidosModalElement) {
             pedidosModalElement.addEventListener('click', function(e) {
               if (e.target === pedidosModalElement) {
-                console.log('Fechando ao clicar fora');
                 pedidosModalElement.style.display = 'none';
                 pedidosModalElement.classList.add('hidden');
               }
@@ -599,7 +565,6 @@
             if (!dados) return;
             aplicarDadosEmpresa(dados);
           } catch (error) {
-            console.warn('⚠️ Não foi possível carregar dados da empresa do servidor');
           }
         }
 
@@ -708,8 +673,6 @@
             const data = await response.json();
             
             if (data.success && data.cardapio && Array.isArray(data.cardapio)) {
-              console.log('✅ Cardápio carregado do servidor');
-              // Reorganizar o cardápio por categoria
               const cardapioPorCategoria = {};
               data.cardapio.forEach(item => {
                 const cat = item.category || 'outros';
@@ -723,7 +686,10 @@
                   imagem: resolveImage(item.image || item.imagem),
                   descricao: item.description || item.descricao || '',
                   ativo: itemAtivo,
-                  category: cat
+                  category: cat,
+                  drinkType: item.drinkType || 'nenhum',
+                  allowAddons: item.allowAddons !== false,
+                  monteEnabled: item.monteEnabled !== false
                 });
               });
               
@@ -733,6 +699,9 @@
               porcoes = cardapioPorCategoria['porcoes'] || porcoes;
               sobremesas = cardapioPorCategoria['sobremesas'] || sobremesas;
               bebidas = cardapioPorCategoria['bebidas'] || bebidas;
+              montePizza = cardapioPorCategoria['monte-pizza'] || montePizza;
+              saboresMonte = cardapioPorCategoria['sabores'] || saboresMonte;
+              bolinhosMonte = cardapioPorCategoria['bolinhos'] || bolinhosMonte;
               
               // Carregar promoções de itens antes de renderizar
               await carregarPromocoesItems();
@@ -747,7 +716,6 @@
               return true;
             }
           } catch (error) {
-            console.warn('⚠️ Não foi possível carregar cardápio do servidor, usando cardápio padrão');
             return false;
           }
         }
@@ -759,16 +727,17 @@
             if (Array.isArray(data)) {
               promotions = data;
               renderPromotions();
+              renderPromosModal();
               return true;
             }
             if (data.success && Array.isArray(data.promotions)) {
               promotions = data.promotions;
               renderPromotions();
+              renderPromosModal();
               return true;
             }
             return false;
           } catch (error) {
-            console.warn('⚠️ Não foi possível carregar promoções do servidor');
             return false;
           }
         }
@@ -780,16 +749,82 @@
         // Carregar dados da empresa (nome, whatsapp, mapa, horário)
         carregarDadosEmpresaPublic();
 
+        // Sincronizar dados da empresa a cada 30 segundos
+        setInterval(carregarDadosEmpresaPublic, 30000);
+
         // Delegação de evento para botões gerados dinamicamente
         document.addEventListener('click', (e) => {
           const btn = e.target.closest('.add-to-cart-btn');
           if (!btn) return;
           const name = btn.getAttribute('data-name');
-          const price = parseFloat(btn.getAttribute('data-price').replace(',', '.'));
+          const price = parseFloat((btn.getAttribute('data-price') || '0').replace(',', '.')) || 0;
           const rawImage = btn.getAttribute('data-image') || '';
           const image = resolveImage(rawImage);
+          // If button has a promo-index, force opening combo modal (safe fallback)
+          const promoIndexImmediate = btn.getAttribute('data-promo-index');
+          if (promoIndexImmediate !== null) {
+            try {
+              const promoLocal = promotions && promotions[Number(promoIndexImmediate)];
+              if (promoLocal) {
+                openComboModal(name, price, image, promoLocal.bebidaType || 'nenhum', promoLocal.allowAdicionais !== false);
+                return;
+              }
+              // fallback generic
+              openComboModal(name, price, image, 'nenhum', true);
+              return;
+            } catch (e) {
+            }
+          }
+
+          // DOM-based detection: if the promo card contains a visible 'COMBO' badge, force modal
+          try {
+            const promoCard = btn.closest('.rounded-lg');
+            const hasComboBadge = promoCard ? Array.from(promoCard.querySelectorAll('span')).some(s => (s.textContent||'').toUpperCase().includes('COMBO')) : false;
+            if (hasComboBadge) {
+              const promoIndexAttrLocal = btn.getAttribute('data-promo-index');
+              if (promoIndexAttrLocal !== null && promotions && promotions.length > Number(promoIndexAttrLocal)) {
+                const promoLocal = promotions[Number(promoIndexAttrLocal)];
+                const isPromoComboLocal = !!(promoLocal && (promoLocal.type === 'combo' || (promoLocal.items && Array.isArray(promoLocal.items) && promoLocal.items.length > 0)));
+                if (isPromoComboLocal) {
+                  openComboModal(name, price, image, promoLocal.bebidaType || 'nenhum', promoLocal.allowAdicionais !== false);
+                  return;
+                }
+              }
+              // fallback: try to find promo by name
+              const promoByName = promotions.find(p => (p.name || p.nome) === name);
+              if (promoByName) {
+                openComboModal(name, price, image, promoByName.bebidaType || 'nenhum', promoByName.allowAdicionais !== false);
+                return;
+              }
+              // final fallback: open generic combo modal
+              openComboModal(name, price, image, 'nenhum', true);
+              return;
+            }
+          } catch (err) {
+          }
 
           // Verifica categoria
+          // Se o botão marcou um índice de promoção, usar esse índice para detectar combos
+          const promoIndexAttr = btn.getAttribute('data-promo-index');
+          if (promoIndexAttr !== null && promotions && promotions.length > Number(promoIndexAttr)) {
+            const promo = promotions[Number(promoIndexAttr)];
+            const isPromoCombo = !!(promo && (promo.type === 'combo' || (promo.items && Array.isArray(promo.items) && promo.items.length > 0)));
+            if (isPromoCombo) {
+              openComboModal(name, price, image, promo.bebidaType || 'nenhum', promo.allowAdicionais !== false);
+              return;
+            }
+          } else {
+            const promoTypeAttr = btn.getAttribute('data-promo-type');
+            if (promoTypeAttr === 'combo' || promoTypeAttr === 'promo') {
+              const promo = promotions.find(p => (p.name || p.nome) === name);
+              const isPromoCombo = !!(promo && (promo.type === 'combo' || (promo.items && Array.isArray(promo.items) && promo.items.length > 0)));
+              if (isPromoCombo) {
+                openComboModal(name, price, image, promo.bebidaType || 'nenhum', promo.allowAdicionais !== false);
+                return;
+              }
+            }
+          }
+
           const isBurger = burguers.some(b => b.nome === name);
           const isPizza = pizzas.some(p => p.nome === name);
           const isMontePizza = montePizza.some(p => p.nome === name);
@@ -799,15 +834,38 @@
           const isPorcao = porcoes.some(p => p.nome === name);
           
           if (isBurger) {
-            openCustomizationModal(name, price, image);
+            // Verificar configurações do item individual
+            const item = burguers.find(b => b.nome === name);
+            const drinkType = item?.drinkType || 'nenhum';
+            const allowAddons = item?.allowAddons !== false;
+            openBurgerModal(name, price, image, drinkType, allowAddons);
           } else if (isPizza) {
             openPizza8Modal(name, price, image);
           } else if (isMontePizza) {
             openMontePizzaModal(name, price, image);
           } else if (isPromotion) {
-            addToCart(name, price, '', [], '', image);
+            const promo = promotions.find(p => (p.name || p.nome) === name);
+            if (promo && promo.type === 'combo') {
+                // Abrir modal dedicado para combos (igual modal de bebidas/personalização)
+                openComboModal(name, price, image, promo.bebidaType || 'nenhum', promo.allowAdicionais !== false);
+              } else {
+                addToCart(name, price, '', [], '', image);
+              }
           } else if (isBebida || isSobremesa || isPorcao) {
-            openSimpleModal(name, price, image);
+            // Verificar configurações do item individual para porções, sobremesas e bebidas
+            let item = null;
+            if (isBebida) item = bebidas.find(b => b.nome === name);
+            else if (isSobremesa) item = sobremesas.find(s => s.nome === name);
+            else if (isPorcao) item = porcoes.find(p => p.nome === name);
+            
+            const drinkType = item?.drinkType || 'nenhum';
+            const allowAddons = item?.allowAddons !== false;
+            
+            if (drinkType !== 'nenhum' || allowAddons) {
+              openSimpleModal(name, price, image);
+            } else {
+              addToCart(name, price, '', [], '', image);
+            }
           } else {
             // Adiciona direto ao carrinho sem personalização
             addToCart(name, price, '', [], '', image);
@@ -828,6 +886,16 @@ function openSimpleModal(name, price, image) {
   const isPorcao = porcoes.some(p => p.nome === name);
   const isSobremesa = sobremesas.some(s => s.nome === name);
   const isBebida = bebidas.some(b => b.nome === name);
+  
+  // Buscar configurações do item
+  let item = null;
+  if (isBebida) item = bebidas.find(b => b.nome === name);
+  else if (isSobremesa) item = sobremesas.find(s => s.nome === name);
+  else if (isPorcao) item = porcoes.find(p => p.nome === name);
+  
+  const drinkType = item?.drinkType || 'nenhum';
+  const allowAddons = item?.allowAddons !== false;
+  
   modal.innerHTML = `
                     <div class="modal-content" style="max-width:480px; width:95vw; min-width:280px; background:white; border-radius:16px; box-shadow:0 8px 32px rgba(0,0,0,0.2); position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); padding:28px 18px;">
                         <div class="text-center mb-4">
@@ -835,7 +903,7 @@ function openSimpleModal(name, price, image) {
                             <h2 class="text-center font-bold text-2xl">Personalizar</h2>
                             <p class="text-center font-bold mb-2">${name}</p>
                         </div>
-                        ${!(isPorcao || isSobremesa || isBebida) ? `
+                        ${!(isPorcao || isSobremesa || isBebida) || (drinkType !== 'nenhum') ? `
                         <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Adicionar Bebida (opcional)</label>
                             <div class="grid grid-cols-1 gap-2">
@@ -843,35 +911,51 @@ function openSimpleModal(name, price, image) {
                                     <input type="radio" name="simple-bebida" value="" class="mr-3 text-blue-600 focus:ring-blue-500" checked>
                                     <span>Nenhuma</span>
                                 </label>
+                                ${drinkType === 'escolha' || drinkType === 'nenhum' ? `
                                 <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
-                                    <input type="radio" name="simple-bebida" value="Coca Cola Zero Lata - R$6,00" class="mr-3 text-blue-600 focus:ring-blue-500">
-                                    <img src="./assets/Coca Zero Lata.png" alt="Coca Cola Zero Lata" class="w-8 h-8 mr-3 rounded">
-                                    <span>Coca Cola Zero Lata - R$6,00</span>
+                                    <input type="radio" name="simple-bebida" value="Refrigerante a sua escolha" class="mr-3 text-blue-600 focus:ring-blue-500">
+                                    <span>Refrigerante a sua escolha</span>
                                 </label>
-                                <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
-                                    <input type="radio" name="simple-bebida" value="Coca Cola 2L - R$14,00" class="mr-3 text-blue-600 focus:ring-blue-500">
-                                    <img src="./assets/Coca 2L.jpg" alt="Coca Cola 2L" class="w-8 h-8 mr-3 rounded">
-                                    <span>Coca Cola 2L - R$14,00</span>
-                                </label>
+                                ` : ''}
+                                ${drinkType === 'coca-lata' || drinkType === 'nenhum' ? `
                                 <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
                                     <input type="radio" name="simple-bebida" value="Coca Cola Lata - R$5,00" class="mr-3 text-blue-600 focus:ring-blue-500">
                                     <img src="./assets/Coca Lata.jpg" alt="Coca Cola Lata" class="w-8 h-8 mr-3 rounded">
                                     <span>Coca Cola Lata - R$5,00</span>
                                 </label>
+                                ` : ''}
+                                ${drinkType === 'coca-zero-lata' || drinkType === 'nenhum' ? `
+                                <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
+                                    <input type="radio" name="simple-bebida" value="Coca Cola Zero Lata - R$6,00" class="mr-3 text-blue-600 focus:ring-blue-500">
+                                    <img src="./assets/Coca Zero Lata.png" alt="Coca Cola Zero Lata" class="w-8 h-8 mr-3 rounded">
+                                    <span>Coca Cola Zero Lata - R$6,00</span>
+                                </label>
+                                ` : ''}
+                                ${drinkType === 'coca-2l' || drinkType === 'nenhum' ? `
+                                <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
+                                    <input type="radio" name="simple-bebida" value="Coca Cola 2L - R$14,00" class="mr-3 text-blue-600 focus:ring-blue-500">
+                                    <img src="./assets/Coca 2L.jpg" alt="Coca Cola 2L" class="w-8 h-8 mr-3 rounded">
+                                    <span>Coca Cola 2L - R$14,00</span>
+                                </label>
+                                ` : ''}
+                                ${drinkType === 'coca-zero-2l' || drinkType === 'nenhum' ? `
                                 <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
                                     <input type="radio" name="simple-bebida" value="Coca Cola Zero 2L - R$15,00" class="mr-3 text-blue-600 focus:ring-blue-500">
                                     <img src="./assets/Coca Zero 2L.png" alt="Coca Cola Zero 2L" class="w-8 h-8 mr-3 rounded">
                                     <span>Coca Cola Zero 2L - R$15,00</span>
                                 </label>
+                                ` : ''}
+                                ${drinkType === 'guarana-lata' || drinkType === 'nenhum' ? `
                                 <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
                                     <input type="radio" name="simple-bebida" value="Guaraná Antártica Lata - R$5,00" class="mr-3 text-blue-600 focus:ring-blue-500">
                                     <img src="./assets/Guarana Lata.jpg" alt="Guaraná Antártica Lata" class="w-8 h-8 mr-3 rounded">
                                     <span>Guaraná Antártica Lata - R$5,00</span>
                                 </label>
+                                ` : ''}
                             </div>
                         </div>
                         ` : ''}
-                        ${!isBebida ? `
+                        ${!isBebida && allowAddons ? `
                         <div class="mb-4">
                           <label for="simple-observacoes" class="block text-sm font-medium text-gray-700">Observações (opcional)</label>
                           <textarea id="simple-observacoes" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500 resize-none" placeholder="Ex: Sem cebola, bem passada, etc."></textarea>
@@ -897,10 +981,10 @@ function openSimpleModal(name, price, image) {
                       // Para bebidas, não há bebida extra nem observações
                       addToCart(name, price, '', [], '', image);
                     } else {
-                      if (!isPorcao && !isSobremesa) {
+                      if (drinkType !== 'nenhum') {
                         bebida = modal.querySelector('input[name="simple-bebida"]:checked').value;
                       }
-                      if (!isBebida) {
+                      if (!isBebida && allowAddons) {
                         observacoes = document.getElementById('simple-observacoes').value;
                       }
                       addToCart(name, price, bebida, [], observacoes, image);
@@ -965,28 +1049,13 @@ function openSimpleModal(name, price, image) {
                     </label>
                   </div>
                 </div>
-                  <div class="mb-4">
+                    <div class="mb-4">
                       <label class="block text-sm font-medium text-gray-700 mb-2">Adicionais (opcional)</label>
-                      <div class="space-y-2 bg-gray-50 p-3 rounded-md">
-                          <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded">
-                              <input type="checkbox" name="pizza8-adicionais" value="Borda de Requeijão - R$12,00" class="mr-3 text-blue-600 focus:ring-blue-500">
-                              <span>Borda de Requeijão - R$12,00</span>
-                          </label>
-                          <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded">
-                              <input type="checkbox" name="pizza8-adicionais" value="6 bolinhos de Carne de Sol com requeijao - R$22,00" class="mr-3 text-blue-600 focus:ring-blue-500">
-                              <span>6 bolinhos de Carne de Sol com requeijão - R$22,00</span>
-                          </label>
-                          <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded">
-                              <input type="checkbox" name="pizza8-adicionais" value="Cebola - R$4,00" class="mr-3 text-blue-600 focus:ring-blue-500">
-                              <span>Cebola - R$4,00</span>
-                          </label>
-                          <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded">
-                              <input type="checkbox" name="pizza8-adicionais" value="Bacon - R$10,00" class="mr-3 text-blue-600 focus:ring-blue-500">
-                              <span>Bacon - R$10,00</span>
-                          </label>
+                      <div class="space-y-2 bg-gray-50 p-3 rounded-md" id="pizza8-adicionais-list">
+                        <p class="text-gray-500 text-sm">Carregando adicionais...</p>
                       </div>
-                  </div>
-                  <div class="mb-4">
+                    </div>
+                    <div class="mb-4">
                       <label for="pizza8-observacoes" class="block text-sm font-medium text-gray-700">Observações (opcional)</label>
                       <textarea id="pizza8-observacoes" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500 resize-none" placeholder="Ex: Sem cebola, bem passada, etc."></textarea>
                   </div>
@@ -996,23 +1065,203 @@ function openSimpleModal(name, price, image) {
                   </div>
               </div>
             `;
+          
+          // Popular adicionais dinamicamente via /api/addons
+          (async () => {
+            try {
+              const resp = await fetchTenant('/addons');
+              const json = await resp.json();
+              const lista = (json && Array.isArray(json.addons)) ? json.addons : (Array.isArray(json) ? json : []);
+              const ativos = lista.filter(a => a.ativo !== false);
+              if (ativos.length === 0) return;
+              
+              // Popular adicionais (não bebidas)
+              try {
+                const adicionaisForModal = ativos.filter(a => {
+                  const cat = (a.category || '').toString().toLowerCase();
+                  return !cat.includes('beb') && !cat.includes('drink');
+                });
+                const adicionaisList = modal.querySelector('#pizza8-adicionais-list');
+                if (adicionaisList && adicionaisForModal.length > 0) {
+                  adicionaisList.innerHTML = adicionaisForModal.map(a => {
+                    const preco = Number(a.price || 0).toFixed(2).replace('.', ',');
+                    const valor = `${a.name} - R$ ${preco}`;
+                    return `
+                      <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded">
+                        <input type="checkbox" name="pizza8-adicionais" value="${valor.replace(/\"/g, '&quot;')}" class="mr-3 text-blue-600 focus:ring-blue-500">
+                        <span>${a.name} - R$ ${preco}</span>
+                      </label>
+                    `;
+                  }).join('');
+                } else if (adicionaisList) {
+                  adicionaisList.innerHTML = '<p class="text-gray-500 text-sm">Nenhum adicional disponível.</p>';
+                }
+              } catch (e) {
+                console.warn('erro ao popular adicionais do pizza8', e);
+              }
+            } catch (err) {
+              console.warn('Erro ao carregar adicionais para pizza8:', err);
+            }
+          })();
+          
           // Fechar modal
           document.getElementById('cancel-pizza8-btn').onclick = () => {
             modal.style.display = 'none';
           };
           // Confirmar e adicionar ao carrinho
           document.getElementById('confirm-pizza8-btn').onclick = () => {
-            const bebida = modal.querySelector('input[name="pizza8-bebida"]:checked').value;
+            const bebida = modal.querySelector('input[name="pizza8-bebida"]:checked')?.value || '';
             const adicionais = Array.from(modal.querySelectorAll('input[name="pizza8-adicionais"]:checked')).map(cb => cb.value);
             const observacoes = document.getElementById('pizza8-observacoes').value;
             addToCart(name, price, bebida, adicionais, observacoes, image);
             modal.style.display = 'none';
             modal.remove();
           };
+
           // Fechar ao clicar fora
           modal.onclick = (e) => {
             if (e.target === modal) modal.style.display = 'none';
           };
+        }
+
+        // Modal de personalização para hambúrgueres (idêntico ao modal de pizza)
+        function openBurgerModal(name, price, image, bebidaType = 'nenhum', allowAdicionais = true) {
+            let modal = document.getElementById('burger-modal');
+            if (!modal) {
+              modal = document.createElement('div');
+              modal.id = 'burger-modal';
+              modal.className = 'modal-overlay';
+              document.body.appendChild(modal);
+            }
+            modal.style.display = 'block';
+            modal.innerHTML = `
+              <div class="modal-content" style="max-width:480px; width:95vw; min-width:280px; background:white; border-radius:16px; box-shadow:0 8px 32px rgba(0,0,0,0.2); position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); padding:28px 18px;">
+                <div class="text-center mb-4">
+                  <img src="${image}" alt="${name}" class="w-24 h-24 rounded-md mx-auto mb-2">
+                  <h2 class="text-center font-bold text-2xl">Personalizar</h2>
+                  <p class="text-center font-bold mb-2">${name}</p>
+                </div>
+                <div class="mb-4">
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Adicionar Bebida (opcional)</label>
+                  <div class="grid grid-cols-1 gap-2">
+                    <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
+                      <input type="radio" name="burger-bebida" value="" class="mr-3 text-blue-600 focus:ring-blue-500" checked>
+                      <span>Nenhuma</span>
+                    </label>
+                    <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
+                      <input type="radio" name="burger-bebida" value="Coca Cola Zero Lata - R$6,00" class="mr-3 text-blue-600 focus:ring-blue-500">
+                      <img src="./assets/Coca Zero Lata.png" alt="Coca Cola Zero Lata" class="w-8 h-8 mr-3 rounded">
+                      <span>Coca Cola Zero Lata - R$6,00</span>
+                    </label>
+                    <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
+                      <input type="radio" name="burger-bebida" value="Coca Cola 2L - R$14,00" class="mr-3 text-blue-600 focus:ring-blue-500">
+                      <img src="./assets/Coca 2L.jpg" alt="Coca Cola 2L" class="w-8 h-8 mr-3 rounded">
+                      <span>Coca Cola 2L - R$14,00</span>
+                    </label>
+                    <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
+                      <input type="radio" name="burger-bebida" value="Coca Cola Lata - R$5,00" class="mr-3 text-blue-600 focus:ring-blue-500">
+                      <img src="./assets/Coca Lata.jpg" alt="Coca Cola Lata" class="w-8 h-8 mr-3 rounded">
+                      <span>Coca Cola Lata - R$5,00</span>
+                    </label>
+                    <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
+                      <input type="radio" name="burger-bebida" value="Coca Cola Zero 2L - R$15,00" class="mr-3 text-blue-600 focus:ring-blue-500">
+                      <img src="./assets/Coca Zero 2L.png" alt="Coca Cola Zero 2L" class="w-8 h-8 mr-3 rounded">
+                      <span>Coca Cola Zero 2L - R$15,00</span>
+                    </label>
+                    <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
+                      <input type="radio" name="burger-bebida" value="Guaraná Antártica Lata - R$5,00" class="mr-3 text-blue-600 focus:ring-blue-500">
+                      <img src="./assets/Guarana Lata.jpg" alt="Guaraná Antártica Lata" class="w-8 h-8 mr-3 rounded">
+                      <span>Guaraná Antártica Lata - R$5,00</span>
+                    </label>
+                  </div>
+                </div>
+                <div class="mb-4">
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Adicionais (opcional)</label>
+                  <div class="space-y-2 bg-gray-50 p-3 rounded-md" id="burger-adicionais-list">
+                    <p class="text-gray-500 text-sm">Carregando adicionais...</p>
+                  </div>
+                </div>
+                <div class="mb-4">
+                      <label for="burger-observacoes" class="block text-sm font-medium text-gray-700">Observações (opcional)</label>
+                      <textarea id="burger-observacoes" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500 resize-none" placeholder="Ex: Sem cebola, bem passada, etc."></textarea>
+                  </div>
+                  <div class="flex items-center justify-between mt-5 w-full gap-4">
+                      <button id="cancel-burger-btn" type="button" class="btn-secondary flex-1">Cancelar</button>
+                      <button id="confirm-burger-btn" type="button" class="btn-primary flex-1">Adicionar ao Carrinho</button>
+                  </div>
+              </div>
+            `;
+
+            // tentar popular dinamicamente a partir de /api/addons (se disponível)
+            (async () => {
+              try {
+                const resp = await fetchTenant('/addons');
+                const json = await resp.json();
+                const lista = (json && Array.isArray(json.addons)) ? json.addons : (Array.isArray(json) ? json : []);
+                const ativos = lista.filter(a => a.ativo !== false);
+                if (ativos.length === 0) return;
+                
+                // Popular adicionais (não bebidas)
+                try {
+                  const adicionaisForModal = ativos.filter(a => {
+                    const cat = (a.category || '').toString().toLowerCase();
+                    return !cat.includes('beb') && !cat.includes('drink');
+                  });
+                  const adicionaisList = document.getElementById('burger-adicionais-list');
+                  if (adicionaisList && adicionaisForModal.length > 0) {
+                    adicionaisList.innerHTML = adicionaisForModal.map(a => {
+                      const preco = Number(a.price || 0).toFixed(2).replace('.', ',');
+                      const valor = `${a.name} - R$ ${preco}`;
+                      return `
+                        <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded">
+                          <input type="checkbox" name="burger-adicionais" value="${valor.replace(/\"/g, '&quot;')}" class="mr-3 text-blue-600 focus:ring-blue-500">
+                          <span>${a.name} - R$ ${preco}</span>
+                        </label>
+                      `;
+                    }).join('');
+                  } else if (adicionaisList) {
+                    adicionaisList.innerHTML = '<p class="text-gray-500 text-sm">Nenhum adicional disponível.</p>';
+                  }
+                } catch (e) {
+                  console.warn('erro ao popular adicionais do burger', e);
+                }
+                
+                // substituir bebidas se existirem
+                try {
+                  const bebidas = ativos.filter(a => (a.category||'').toString().toLowerCase().includes('beb'));
+                  if (bebidas.length > 0) {
+                    const bebidaList = modal.querySelector('.grid.grid-cols-1');
+                    if (bebidaList) {
+                      bebidaList.innerHTML = `<label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border"><input type="radio" name="burger-bebida" value="" class="mr-3 text-blue-600 focus:ring-blue-500" checked><span>Nenhuma</span></label>` + bebidas.map(b => {
+                        const preco = Number(b.price || 0).toFixed(2).replace('.', ',');
+                        const value = `${b.name} - R$${preco}`;
+                        return `
+                          <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
+                            <input type="radio" name="burger-bebida" value="${value.replace(/"/g, '&quot;')}" class="mr-3 text-blue-600 focus:ring-blue-500">
+                            <img src="${(b.image || './assets/default.jpg').replace(/^\/+/, './')}" alt="${b.name}" class="w-8 h-8 mr-3 rounded" onerror="this.src='./assets/default.jpg'">
+                            <span>${b.name} - R$ ${preco}</span>
+                          </label>
+                        `;
+                      }).join('');
+                    }
+                  }
+                } catch (e) {}
+              } catch (err) {
+                // manter lista estática
+              }
+            })();
+
+            // handlers (como no modal de pizza)
+            document.getElementById('cancel-burger-btn').onclick = () => { modal.style.display = 'none'; };
+            document.getElementById('confirm-burger-btn').onclick = () => {
+              const bebida = modal.querySelector('input[name="burger-bebida"]:checked').value;
+              const adicionais = Array.from(modal.querySelectorAll('input[name="burger-adicionais"]:checked')).map(cb => cb.value);
+              const observacoes = document.getElementById('burger-observacoes').value;
+              addToCart(name, price, bebida, adicionais, observacoes, image);
+              modal.style.display = 'none';
+              modal.remove();
+            };
+            modal.onclick = (e) => { if (e.target === modal) modal.style.display = 'none'; };
         }
 
         // Modal de personalização para Monte sua pizza
@@ -1030,7 +1279,7 @@ function openSimpleModal(name, price, image) {
                 <div class="text-center mb-4">
                   <img src="${image}" alt="${name}" class="w-24 h-24 rounded-md mx-auto mb-2">
                   <h2 class="text-center font-bold text-2xl">Monte sua pizza</h2>
-                  <p class="text-center text-sm text-gray-600 mb-2">Escolha seus sabores e adicionais</p>
+                  <p class="text-center text-sm text-gray-600 mb-2">Escolha 2 metades do cardápio de pizzas</p>
                 </div>
                 <div class="mb-4">
                   <label class="block text-sm font-medium text-gray-700 mb-2">Adicionar Bebida (opcional)</label>
@@ -1066,58 +1315,10 @@ function openSimpleModal(name, price, image) {
                     </label>
                   </div>
                 </div>
-                  <div class="mb-4">
-                      <label class="block text-sm font-medium text-gray-700 mb-2">Escolha 2 sabores ou bolinhos</label>
+                    <div class="mb-4">
+                      <label class="block text-sm font-medium text-gray-700 mb-2">Escolha 2 metades</label>
                       <div class="space-y-2 bg-gray-50 p-3 rounded-md">
-                          <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded">
-                              <input type="checkbox" class="monte-sabores mr-3 text-blue-600 focus:ring-blue-500" value="METADE DA PIZZA MIRANDA PRIESTLY(Margherita)+ R$ 22,50">
-                              <span>METADE DA PIZZA MIRANDA PRIESTLY(Margherita)+ R$ 22,50</span>
-                          </label>
-                          <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded">
-                              <input type="checkbox" class="monte-sabores mr-3 text-blue-600 focus:ring-blue-500" value="METADE DA PIZZA NAZARÉ TEDESCO (Calabresa)+ R$ 22,50">
-                              <span>METADE DA PIZZA NAZARÉ TEDESCO (Calabresa)+ R$ 22,50</span>
-                          </label>
-                          <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded">
-                              <input type="checkbox" class="monte-sabores mr-3 text-blue-600 focus:ring-blue-500" value="METADE DA PIZZA DANAERYS TARGERIAN (Frango com requeijao)+ R$ 25,00">
-                              <span>METADE DA PIZZA DANAERYS TARGERIAN (Frango com requeijao)+ R$ 25,00</span>
-                          </label>
-                          <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded">
-                              <input type="checkbox" class="monte-sabores mr-3 text-blue-600 focus:ring-blue-500" value="METADE DA PIZZA CRUELLA (3 Queijos)+ R$ 25,00">
-                              <span>METADE DA PIZZA CRUELLA (3 Queijos)+ R$ 25,00</span>
-                          </label>
-                          <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded">
-                              <input type="checkbox" class="monte-sabores mr-3 text-blue-600 focus:ring-blue-500" value="METADE DA PIZZA AGATHA TRUNCHBULL (Autoral)+ R$ 30,00">
-                              <span>METADE DA PIZZA AGATHA TRUNCHBULL (Autoral)+ R$ 30,00</span>
-                          </label>
-                          <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded">
-                              <input type="checkbox" class="monte-sabores mr-3 text-blue-600 focus:ring-blue-500" value="METADE DA PIZZA PAOLLA BRACHO (portuguesa)+ R$ 27,50">
-                              <span>METADE DA PIZZA PAOLLA BRACHO (portuguesa)+ R$ 27,50</span>
-                          </label>
-                          <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded">
-                              <input type="checkbox" class="monte-sabores mr-3 text-blue-600 focus:ring-blue-500" value="6 bolinhos de Carne de Sol com requeijao+ R$ 22,00">
-                              <span>6 bolinhos de Carne de Sol com requeijão+ R$ 22,00</span>
-                          </label>
-                          <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded">
-                              <input type="checkbox" class="monte-sabores mr-3 text-blue-600 focus:ring-blue-500" value="6 bolinho de frango com requeijao+ R$ 20,00">
-                              <span>6 bolinho de frango com requeijão+ R$ 20,00</span>
-                          </label>
-                      </div>
-                  </div>
-                  <div class="mb-4">
-                      <label class="block text-sm font-medium text-gray-700 mb-2">Outros Adicionais (opcional)</label>
-                      <div class="space-y-2 bg-gray-50 p-3 rounded-md">
-                          <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded">
-                              <input type="checkbox" name="monte-extras" value="Borda de Requeijão+ R$ 12,00" class="mr-3 text-blue-600 focus:ring-blue-500">
-                              <span>Borda de Requeijão+ R$ 12,00</span>
-                          </label>
-                          <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded">
-                              <input type="checkbox" name="monte-extras" value="Cebola+ R$ 4,00" class="mr-3 text-blue-600 focus:ring-blue-500">
-                              <span>Cebola+ R$ 4,00</span>
-                          </label>
-                          <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded">
-                              <input type="checkbox" name="monte-extras" value="Bacon+ R$ 10,00" class="mr-3 text-blue-600 focus:ring-blue-500">
-                              <span>Bacon+ R$ 10,00</span>
-                          </label>
+                          <div id="monte-sabores-list">Carregando sabores...</div>
                       </div>
                   </div>
                   <div class="mb-4">
@@ -1130,20 +1331,59 @@ function openSimpleModal(name, price, image) {
                   </div>
               </div>
             `;
+
+
           // Limitar seleção de sabores a 2
-          const saboresCheckboxes = modal.querySelectorAll('.monte-sabores');
-          saboresCheckboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', function() {
-              const checkedCount = modal.querySelectorAll('.monte-sabores:checked').length;
-              if (checkedCount >= 2) {
-                saboresCheckboxes.forEach(cb => {
-                  if (!cb.checked) cb.disabled = true;
-                });
-              } else {
-                saboresCheckboxes.forEach(cb => cb.disabled = false);
+          // Limitar seleção de sabores a 2 — popular dinamicamente a partir do cardápio/pizzas
+          (function setupMonteSabores() {
+            const container = modal.querySelector('#monte-sabores-list');
+            if (!container) return;
+
+            const renderFromArray = (arr) => {
+              if (!Array.isArray(arr) || arr.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-sm">Nenhum sabor disponível.</p>';
+                return;
               }
-            });
-          });
+              container.innerHTML = arr.map(a => {
+                const nome = a.nome || a.name || a.nome || a;
+                const valor = `1/2 ${nome}`;
+                return `<label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded"><input type="checkbox" class="monte-sabores mr-3 text-blue-600 focus:ring-blue-500" value="${valor.replace(/\"/g,'&quot;')}"> <span>${valor}</span></label>`;
+              }).join('');
+              const saboresCheckboxes = modal.querySelectorAll('.monte-sabores');
+              saboresCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                  const checkedCount = modal.querySelectorAll('.monte-sabores:checked').length;
+                  if (checkedCount >= 2) {
+                    saboresCheckboxes.forEach(cb => { if (!cb.checked) cb.disabled = true; });
+                  } else {
+                    saboresCheckboxes.forEach(cb => cb.disabled = false);
+                  }
+                });
+              });
+            };
+
+            // Usar sabores do cardápio de pizzas
+            (async () => {
+              try {
+                const resp = await fetchTenant('/cardapio');
+                const data = await resp.json();
+                const cardapio = Array.isArray(data.cardapio) ? data.cardapio : (Array.isArray(data) ? data : []);
+                const pizzasList = cardapio.filter(i => {
+                  const cat = (i.category || i.categoria || '').toString().toLowerCase();
+                  const monteOk = i.monteEnabled !== false;
+                  return cat.includes('pizz') && monteOk;
+                });
+                if (pizzasList.length > 0) {
+                  renderFromArray(pizzasList.map(p => ({ nome: p.name || p.nome })));
+                  return;
+                }
+                container.innerHTML = '<p class="text-gray-500 text-sm">Nenhum sabor disponível.</p>';
+              } catch (err) {
+                console.warn('Erro ao carregar sabores do servidor:', err);
+                container.innerHTML = '<p class="text-gray-500 text-sm">Nenhum sabor disponível.</p>';
+              }
+            })();
+          })();
 
           // Fechar modal
           document.getElementById('cancel-monte-btn').onclick = () => {
@@ -1153,28 +1393,16 @@ function openSimpleModal(name, price, image) {
           document.getElementById('confirm-monte-btn').onclick = () => {
             const bebida = modal.querySelector('input[name="monte-bebida"]:checked').value;
             const sabores = Array.from(modal.querySelectorAll('.monte-sabores:checked')).map(cb => cb.value);
-            const extras = Array.from(modal.querySelectorAll('input[name="monte-extras"]:checked')).map(cb => cb.value);
             const observacoes = document.getElementById('monte-observacoes').value;
             
-            // Verificar se pelo menos 1 sabor foi escolhido
-            if (sabores.length === 0) {
-              alert('Por favor, escolha pelo menos 1 sabor ou bolinho.');
+            // Verificar se 2 metades foram escolhidas
+            if (sabores.length !== 2) {
+              alert('Por favor, escolha exatamente 2 metades.');
               return;
             }
-            
-            // Combinar todos os adicionais
-            const adicionais = [...sabores, ...extras];
-            
-            // Calcular preço com base nos sabores e extras escolhidos
-            let totalPrice = 0;
-            adicionais.forEach(adicional => {
-              const priceMatch = adicional.match(/R\$\s*([\d,]+)/);
-              if (priceMatch) {
-                totalPrice += parseFloat(priceMatch[1].replace(',', '.'));
-              }
-            });
-            
-            addToCart('Monte sua pizza', totalPrice, bebida, adicionais, observacoes, image);
+
+            // Preço fixo do item base (não depende dos sabores)
+            addToCart('Monte sua pizza', price, bebida, sabores, observacoes, image);
             modal.style.display = 'none';
             modal.remove();
           };
@@ -1184,18 +1412,185 @@ function openSimpleModal(name, price, image) {
           };
         }
 
-        function openCustomizationModal(name, price, image) {
+        // Modal de personalização para Combos (semelhante ao modal de hambúrguer)
+        function openComboModal(name, price, image, bebidaType = 'nenhum', allowAdicionais = true) {
+            let modal = document.getElementById('combo-modal');
+            if (!modal) {
+              modal = document.createElement('div');
+              modal.id = 'combo-modal';
+              modal.className = 'modal-overlay';
+              document.body.appendChild(modal);
+            }
+            modal.style.display = 'block';
+            modal.innerHTML = `
+              <div class="modal-content" style="max-width:480px; width:95vw; min-width:280px; background:white; border-radius:16px; box-shadow:0 8px 32px rgba(0,0,0,0.2); position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); padding:28px 18px;">
+                <div class="text-center mb-4">
+                  <img src="${image}" alt="${name}" class="w-24 h-24 rounded-md mx-auto mb-2">
+                  <h2 class="text-center font-bold text-2xl">Personalizar Combo</h2>
+                  <p class="text-center font-bold mb-2">${name}</p>
+                </div>
+                <div class="mb-4" id="combo-bebida-section">
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Refrigerante (opcional)</label>
+                  <div class="grid grid-cols-1 gap-2" id="combo-bebida-radios">
+                    <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
+                      <input type="radio" name="combo-bebida" value="" class="mr-3 text-blue-600 focus:ring-blue-500" checked>
+                      <span>Nenhum</span>
+                    </label>
+                  </div>
+                </div>
+                <div class="mb-4">
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Adicionais (opcional)</label>
+                  <div class="space-y-2 bg-gray-50 p-3 rounded-md" id="combo-adicionais-list">
+                    <p class="text-gray-500 text-sm">Carregando adicionais...</p>
+                  </div>
+                </div>
+                <div class="mb-4">
+                  <label for="combo-observacoes" class="block text-sm font-medium text-gray-700">Observações (opcional)</label>
+                  <textarea id="combo-observacoes" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500 resize-none" placeholder="Ex: Sem maionese, bem passada, etc."></textarea>
+                </div>
+                <div class="flex items-center justify-between mt-5 w-full gap-4">
+                  <button id="cancel-combo-btn" type="button" class="btn-secondary flex-1">Cancelar</button>
+                  <button id="confirm-combo-btn" type="button" class="btn-primary flex-1">Adicionar ao Carrinho</button>
+                </div>
+              </div>
+            `;
+
+            // Tentar popular dinamicamente bebidas e adicionais via /api/addons
+            (async () => {
+              try {
+                const resp = await fetchTenant('/addons');
+                const json = await resp.json();
+                const lista = (json && Array.isArray(json.addons)) ? json.addons : (Array.isArray(json) ? json : []);
+                const ativos = lista.filter(a => a.ativo !== false);
+                let adicionaisForModal = ativos.filter(a => {
+                  const cat = (a.category || '').toString().toLowerCase();
+                  return !cat.includes('beb') && !cat.includes('drink');
+                });
+                // popular adicionais
+                try {
+                  const adicionaisList = modal.querySelector('#combo-adicionais-list');
+                  if (adicionaisList) {
+                    adicionaisList.innerHTML = adicionaisForModal.map(a => `<label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded"><input type="checkbox" name="combo-adicionais" value="${(a.name + ' - R$' + Number(a.price||0).toFixed(2)).replace(/\"/g,'&quot;')}" class="mr-3 text-blue-600 focus:ring-blue-500"> <span>${a.name} - R$ ${Number(a.price||0).toFixed(2).replace('.',',')}</span></label>`).join('');
+                  }
+                } catch (e) { console.warn('erro ao popular adicionais do combo', e); }
+                // popular bebidas (continuar usando ativos completos para bebidas)
+                try {
+                  const bebidas = ativos.filter(a => (a.category||'').toString().toLowerCase().includes('beb'));
+                  if (bebidas.length > 0) {
+                    const radiosContainer = modal.querySelector('#combo-bebida-radios');
+                    if (radiosContainer) {
+                      const html = bebidas.map(b => `<label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border"><input type="radio" name="combo-bebida" value="${(b.name + ' - R$' + Number(b.price||0).toFixed(2)).replace(/"/g,'&quot;')}" class="mr-3 text-blue-600 focus:ring-blue-500"><img src="${(b.image||'./assets/default.jpg').replace(/^\/+/, './')}" alt="${b.name}" class="w-8 h-8 mr-3 rounded" onerror="this.src='./assets/default.jpg'"> <span>${b.name} - R$ ${Number(b.price||0).toFixed(2).replace('.',',')}</span></label>`).join('');
+                      radiosContainer.innerHTML = `<label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border"><input type="radio" name="combo-bebida" value="" class="mr-3 text-blue-600 focus:ring-blue-500" checked><span>Nenhum</span></label>` + html;
+                    }
+                  }
+                } catch (e) { console.warn('erro ao popular bebidas do combo', e); }
+              } catch (err) {
+                console.warn('Erro ao carregar adicionais para combo:', err);
+              }
+            })();
+
+            // Hooks de ação
+            const cancelBtn = modal.querySelector('#cancel-combo-btn');
+            const confirmBtn = modal.querySelector('#confirm-combo-btn');
+            if (cancelBtn) cancelBtn.onclick = () => { modal.style.display = 'none'; modal.remove(); };
+            if (confirmBtn) confirmBtn.onclick = () => {
+              const bebida = modal.querySelector('input[name="combo-bebida"]:checked')?.value || '';
+              const adicionais = Array.from(modal.querySelectorAll('input[name="combo-adicionais"]:checked')).map(cb => cb.value);
+              const observacoes = modal.querySelector('#combo-observacoes')?.value || '';
+              addToCart(name, price, bebida, adicionais, observacoes, image);
+              modal.style.display = 'none';
+              modal.remove();
+            };
+
+            modal.onclick = (e) => { if (e.target === modal) { modal.style.display = 'none'; modal.remove(); } };
+        }
+
+        function openCustomizationModal(name, price, image, isCombo = false, bebidaType = 'nenhum', allowAdicionais = true) {
           document.getElementById('custom-item-title').textContent = `Personalizar ${name}`;
           const imageSrc = image || './assets/default.jpg';
           document.getElementById('custom-item-image').src = imageSrc;
           document.getElementById('customization-modal').classList.remove('hidden');
           document.getElementById('customization-modal').style.display = '';
+          
           // Reset fields corretamente
           document.querySelectorAll('#customization-modal input[name="bebida"]').forEach(rb => rb.checked = rb.value === '');
           document.querySelectorAll('#customization-modal input[type="checkbox"]').forEach(cb => cb.checked = false);
           document.getElementById('custom-observacoes').value = '';
+          
+          // Mostrar/esconder seções baseado no tipo e configurações
+          const bebidaComboSection = document.getElementById('bebida-section-combo');
+          const bebidaBurgerSection = document.getElementById('bebida-section-burger');
+          const adicionaisSection = document.getElementById('adicionais-section');
+          
+          if (isCombo) {
+            // Para combos, configurar baseado nas opções salvas
+            bebidaComboSection.style.display = 'none';
+            bebidaBurgerSection.style.display = bebidaType !== 'nenhum' ? 'block' : 'none';
+            adicionaisSection.style.display = allowAdicionais ? 'block' : 'none';
+
+            // Mostrar/esconder seção de adicionais conforme configuração
+            adicionaisSection.style.display = allowAdicionais ? 'block' : 'none';
+
+            // Tentar carregar adicionais do servidor de forma segura
+            if (allowAdicionais) {
+              (async () => {
+                try {
+                  const resp = await fetchTenant('/addons');
+                  const json = await resp.json();
+                  const lista = (json && Array.isArray(json.addons)) ? json.addons : (Array.isArray(json) ? json : []);
+                  renderAddonsIntoContainer(lista);
+                  // também popular as bebidas dinamicamente para o modal de hambúrguer
+                  try { renderBebidasFromAddons(lista); } catch (e) { console.warn('erro ao renderizar bebidas dinâmicas', e); }
+                } catch (err) {
+                  console.warn('Erro ao carregar adicionais públicos (mantendo lista estática):', err);
+                }
+              })();
+            }
+            
+            // Pre-selecionar a bebida baseada no tipo
+            if (bebidaType === 'escolha') {
+              document.querySelector('#customization-modal input[name="bebida"][value="Refrigerante a sua escolha"]').checked = true;
+            } else if (bebidaType !== 'nenhum') {
+              // Mapear os tipos para os valores dos radios
+              const bebidaMap = {
+                'coca-lata': 'Coca Cola Lata - R$5,00',
+                'coca-zero-lata': 'Coca Cola Zero Lata - R$6,00',
+                'coca-2l': 'Coca Cola 2L - R$14,00',
+                'coca-zero-2l': 'Coca Cola Zero 2L - R$15,00',
+                'guarana-lata': 'Guaraná Antártica Lata - R$5,00'
+              };
+              const bebidaValue = bebidaMap[bebidaType];
+              if (bebidaValue) {
+                document.querySelector(`#customization-modal input[name="bebida"][value="${bebidaValue}"]`).checked = true;
+              }
+            }
+          } else {
+            // Para itens individuais (burgers), configurar baseado nas configurações do item
+            bebidaComboSection.style.display = 'none';
+            bebidaBurgerSection.style.display = bebidaType !== 'nenhum' ? 'block' : 'none';
+            adicionaisSection.style.display = allowAdicionais ? 'block' : 'none';
+            
+            // Pre-selecionar a bebida baseada no tipo do item
+            if (bebidaType === 'escolha') {
+              document.querySelector('#customization-modal input[name="bebida"][value="Refrigerante a sua escolha"]').checked = true;
+            } else if (bebidaType !== 'nenhum') {
+              // Mapear os tipos para os valores dos radios
+              const bebidaMap = {
+                'coca-lata': 'Coca Cola Lata - R$5,00',
+                'coca-zero-lata': 'Coca Cola Zero Lata - R$6,00',
+                'coca-2l': 'Coca Cola 2L - R$14,00',
+                'coca-zero-2l': 'Coca Cola Zero 2L - R$15,00',
+                'guarana-lata': 'Guaraná Antártica Lata - R$5,00'
+              };
+              const bebidaValue = bebidaMap[bebidaType];
+              if (bebidaValue) {
+                document.querySelector(`#customization-modal input[name="bebida"][value="${bebidaValue}"]`).checked = true;
+              }
+            }
+          }
+          
           // Store current item
-          window.currentItem = { name, price, image };
+          window.currentItem = { name, price, image, isCombo, bebidaType, allowAdicionais };
         }
         function resolveImage(p) {
           if (!p) return './assets/default.jpg';
@@ -1206,20 +1601,20 @@ function openSimpleModal(name, price, image) {
         // Arrays de cada sessão
         let promotions = [];
         let burguers = [
-          { nome: 'CORINGA', preco: 33.00, descricao: 'Pão de abóbora, 2x burger 150g, 2x queijo mussarela, 2x bacon, 2x cebola caramelizada, molho especial, maionese.', imagem: './assets/Coringa.jpg', ativo: true },
-          { nome: 'DARTH VADER', preco: 33.00, descricao: 'Pão de abóbora, 2x burger 150g, 2x cheddar, 2x bacon, 2x cebola caramelizada, molho barbecue, maionese.', imagem: './assets/darthvader.jpg', ativo: true },
-          { nome: 'GARGAMEL', preco: 24.00, descricao: 'Pão americano, maionese, burger 150g, mussarela, bacon, cebola caramelizada, maionese, molho especial.', imagem: './assets/Gargamel.jpg', ativo: true },
-          { nome: 'LEX LUTHOR', preco: 24.00, descricao: 'Pão americano, barbecue, burger 150g, cheddar, bacon, cebola caramelizada, maionese.', imagem: './assets/Lex Luthor.jpg', ativo: true },
-          { nome: 'MUN-RÁ', preco: 26.00, descricao: 'Pão americano, molho especial, maionese, burger 150g, queijo mussarela, bacon, cebola caramelizada, tomate, alface, cebola roxa.', imagem: './assets/mun-ra.png', ativo: true },
-          { nome: 'RAINHA DE COPAS', preco: 22.00, descricao: 'Pão americano, molho especial, maionese, burger 150g, queijo mussarela, tomate, alface americana, cebola roxa e maionese.', imagem: './assets/rainha-de-copas.png', ativo: true },
-          { nome: 'DE LA CRUZ', preco: 35.00, descricao: 'Pão australiano, 2x carne 150g, 2x queijo mussarela, 2x bacon, 2x cebola caramelizada, molho especial, maionese, tomate, alface e cebola roxa.', imagem: './assets/delacruz.png', ativo: true },
-          { nome: 'THANOS', preco: 35.00, descricao: 'Pão australiano, 2x burger de porco, 2x bacon, 2x mussarela na chapa, 2x cheddar, cebola crispy e molho barbecue.', imagem: './assets/thanos.png', ativo: true },
-          { nome: 'JUGGERNAULT', preco: 31.00, descricao: 'Pão americano, 2x burger 150g, 2x cheddar, cebola crispy, tomate, alface, ketchup e maionese.', imagem: './assets/juggernault.png', ativo: true },
-          { nome: 'MADARA', preco: 26.00, descricao: 'Pão australiano, carne de porco 150g, bacon, queijo mussarela na chapa, cheddar, cebola crispy e molho barbecue.', imagem: './assets/madara.png', ativo: true },
-          { nome: 'ROBOTNIK', preco: 33.00, descricao: 'Pão americano, burger 150g, requeijão, frango com ervas, cebola roxa, tomate e ketchup.', imagem: './assets/robotnik.png', ativo: true },
-          { nome: 'Roger Klotz', preco: 22.00, descricao: 'Pão americano, ketchup, maionese, cheddar, alface, tomate e carne bovina 150g.', imagem: './assets/roger clotz.png', ativo: true },
-          { nome: 'EXTERMINADOR - T800', preco: 36.00, descricao: 'Pão australiano, 3x burger 150g, 3x cheddar e cebola roxa.', imagem: './assets/exterminador.png', ativo: true },
-          { nome: 'Caruso', preco: 25.00, descricao: 'Pão de sementes, burger, chimichurri, 2x mussarela na chapa, tomate, cebola roxa, maionese e ketchup.', imagem: './assets/caruso.png', ativo: true },
+          { nome: 'CORINGA', preco: 33.00, descricao: 'Pão de abóbora, 2x burger 150g, 2x queijo mussarela, 2x bacon, 2x cebola caramelizada, molho especial, maionese.', imagem: './assets/Coringa.jpg', ativo: true, drinkType: 'nenhum', allowAddons: true },
+          { nome: 'DARTH VADER', preco: 33.00, descricao: 'Pão de abóbora, 2x burger 150g, 2x cheddar, 2x bacon, 2x cebola caramelizada, molho barbecue, maionese.', imagem: './assets/darthvader.jpg', ativo: true, drinkType: 'nenhum', allowAddons: true },
+          { nome: 'GARGAMEL', preco: 24.00, descricao: 'Pão americano, maionese, burger 150g, mussarela, bacon, cebola caramelizada, maionese, molho especial.', imagem: './assets/Gargamel.jpg', ativo: true, drinkType: 'nenhum', allowAddons: true },
+          { nome: 'LEX LUTHOR', preco: 24.00, descricao: 'Pão americano, barbecue, burger 150g, cheddar, bacon, cebola caramelizada, maionese.', imagem: './assets/Lex Luthor.jpg', ativo: true, drinkType: 'nenhum', allowAddons: true },
+          { nome: 'MUN-RÁ', preco: 26.00, descricao: 'Pão americano, molho especial, maionese, burger 150g, queijo mussarela, bacon, cebola caramelizada, tomate, alface, cebola roxa.', imagem: './assets/mun-ra.png', ativo: true, drinkType: 'nenhum', allowAddons: true },
+          { nome: 'RAINHA DE COPAS', preco: 22.00, descricao: 'Pão americano, molho especial, maionese, burger 150g, queijo mussarela, tomate, alface americana, cebola roxa e maionese.', imagem: './assets/rainha-de-copas.png', ativo: true, drinkType: 'nenhum', allowAddons: true },
+          { nome: 'DE LA CRUZ', preco: 35.00, descricao: 'Pão australiano, 2x carne 150g, 2x queijo mussarela, 2x bacon, 2x cebola caramelizada, molho especial, maionese, tomate, alface e cebola roxa.', imagem: './assets/delacruz.png', ativo: true, drinkType: 'nenhum', allowAddons: true },
+          { nome: 'THANOS', preco: 35.00, descricao: 'Pão australiano, 2x burger de porco, 2x bacon, 2x mussarela na chapa, 2x cheddar, cebola crispy e molho barbecue.', imagem: './assets/thanos.png', ativo: true, drinkType: 'nenhum', allowAddons: true },
+          { nome: 'JUGGERNAULT', preco: 31.00, descricao: 'Pão americano, 2x burger 150g, 2x cheddar, cebola crispy, tomate, alface, ketchup e maionese.', imagem: './assets/juggernault.png', ativo: true, drinkType: 'nenhum', allowAddons: true },
+          { nome: 'MADARA', preco: 26.00, descricao: 'Pão australiano, carne de porco 150g, bacon, queijo mussarela na chapa, cheddar, cebola crispy e molho barbecue.', imagem: './assets/madara.png', ativo: true, drinkType: 'nenhum', allowAddons: true },
+          { nome: 'ROBOTNIK', preco: 33.00, descricao: 'Pão americano, burger 150g, requeijão, frango com ervas, cebola roxa, tomate e ketchup.', imagem: './assets/robotnik.png', ativo: true, drinkType: 'nenhum', allowAddons: true },
+          { nome: 'Roger Klotz', preco: 22.00, descricao: 'Pão americano, ketchup, maionese, cheddar, alface, tomate e carne bovina 150g.', imagem: './assets/roger clotz.png', ativo: true, drinkType: 'nenhum', allowAddons: true },
+          { nome: 'EXTERMINADOR - T800', preco: 36.00, descricao: 'Pão australiano, 3x burger 150g, 3x cheddar e cebola roxa.', imagem: './assets/exterminador.png', ativo: true, drinkType: 'nenhum', allowAddons: true },
+          { nome: 'Caruso', preco: 25.00, descricao: 'Pão de sementes, burger, chimichurri, 2x mussarela na chapa, tomate, cebola roxa, maionese e ketchup.', imagem: './assets/caruso.png', ativo: true, drinkType: 'nenhum', allowAddons: true },
         ];
         let pizzas = [
           { nome: 'MIRANDA PRIESTLY - (Margherita) - 8 pedaços', preco: 45.00, descricao: 'Massa de longa fermentação, molho de tomate, mussarela, parmesão e tomate.', imagem: './assets/Margherita.png', ativo: true },
@@ -1238,35 +1633,41 @@ function openSimpleModal(name, price, image) {
         let montePizza = [
           { nome: 'ESCOLHA O SABOR', preco: 0.00, descricao: 'Você pode escolher 2 sabores', imagem: './assets/monte sua pizza.png', ativo: true },
         ];
+        let saboresMonte = [];
+        let bolinhosMonte = [];
         let porcoes = [
-          { nome: 'Batata Tradicional', preco: 20.00, descricao: '450g (Temperada com sal)', imagem: './assets/batata tradicional.png', ativo: true },
-          { nome: 'Batata Red Smoked', preco: 20.00, descricao: '450g (com tempero especial)', imagem: './assets/batata red smoked.png', ativo: true },
-          { nome: 'Onion Rings', preco: 22.00, descricao: '300g', imagem: './assets/onion rings.png', ativo: true },
-          { nome: 'Batata Rústica', preco: 22.00, descricao: '350g', imagem: './assets/batata rustica.png', ativo: true },
-          { nome: 'Bolinho de Carne de Sol com Requeijão', preco: 22.00, descricao: '6 bolinho de 45g', imagem: './assets/bolinho de carne de sol.png', ativo: true },
-          { nome: 'Batata Garlic & Onion', preco: 20.00, descricao: '450g (com tempero especial).', imagem: './assets/batata garlic e onion.png', ativo: true },
+          { nome: 'Batata Tradicional', preco: 20.00, descricao: '450g (Temperada com sal)', imagem: './assets/batata tradicional.png', ativo: true, drinkType: 'nenhum', allowAddons: true },
+          { nome: 'Batata Red Smoked', preco: 20.00, descricao: '450g (com tempero especial)', imagem: './assets/batata red smoked.png', ativo: true, drinkType: 'nenhum', allowAddons: true },
+          { nome: 'Onion Rings', preco: 22.00, descricao: '300g', imagem: './assets/onion rings.png', ativo: true, drinkType: 'nenhum', allowAddons: true },
+          { nome: 'Batata Rústica', preco: 22.00, descricao: '350g', imagem: './assets/batata rustica.png', ativo: true, drinkType: 'nenhum', allowAddons: true },
+          { nome: 'Bolinho de Carne de Sol com Requeijão', preco: 22.00, descricao: '6 bolinho de 45g', imagem: './assets/bolinho de carne de sol.png', ativo: true, drinkType: 'nenhum', allowAddons: true },
+          { nome: 'Batata Garlic & Onion', preco: 20.00, descricao: '450g (com tempero especial).', imagem: './assets/batata garlic e onion.png', ativo: true, drinkType: 'nenhum', allowAddons: true },
         ];
         let sobremesas = [
-          { nome: 'Bolo de pote - Ninho trufado', preco: 18.00, descricao: 'Bolo delicioso de leite ninho com chocolate meio amargo.', imagem: './assets/bolo de pote ninho trufaod.png', ativo: true },
-          { nome: 'Bolo de pote - Abacaxi aos 4 leites', preco: 16.00, descricao: 'Pão de ló, abacaxi, leite condensado, creme de leite, leite em pó e leite de coco.', imagem: './assets/bolo de pote abacaxi.png', ativo: true },
+          { nome: 'Bolo de pote - Ninho trufado', preco: 18.00, descricao: 'Bolo delicioso de leite ninho com chocolate meio amargo.', imagem: './assets/bolo de pote ninho trufaod.png', ativo: true, drinkType: 'nenhum', allowAddons: true },
+          { nome: 'Bolo de pote - Abacaxi aos 4 leites', preco: 16.00, descricao: 'Pão de ló, abacaxi, leite condensado, creme de leite, leite em pó e leite de coco.', imagem: './assets/bolo de pote abacaxi.png', ativo: true, drinkType: 'nenhum', allowAddons: true },
         ];
         let bebidas = [
-          { nome: 'Coca Cola Zero Lata', preco: 6.00, descricao: 'Bebida gelada', imagem: './assets/Coca Zero Lata.png', ativo: true },
-          { nome: 'Coca Cola 2L', preco: 14.00, descricao: 'Bebida gelada', imagem: './assets/Coca 2L.jpg', ativo: true },
-          { nome: 'Coca Cola Lata', preco: 5.00, descricao: 'Bebida gelada', imagem: './assets/Coca Lata.jpg', ativo: true },
-          { nome: 'Coca Cola Zero 2L', preco: 15.00, descricao: 'Bebida gelada', imagem: './assets/Coca Zero 2L.png', ativo: true },
-          { nome: 'Guaraná Antártica Lata', preco: 5.00, descricao: 'Bebida gelada', imagem: './assets/Guarana Lata.jpg', ativo: true },
+          { nome: 'Coca Cola Zero Lata', preco: 6.00, descricao: 'Bebida gelada', imagem: './assets/Coca Zero Lata.png', ativo: true, drinkType: 'nenhum', allowAddons: false },
+          { nome: 'Coca Cola 2L', preco: 14.00, descricao: 'Bebida gelada', imagem: './assets/Coca 2L.jpg', ativo: true, drinkType: 'nenhum', allowAddons: false },
+          { nome: 'Coca Cola Lata', preco: 5.00, descricao: 'Bebida gelada', imagem: './assets/Coca Lata.jpg', ativo: true, drinkType: 'nenhum', allowAddons: false },
+          { nome: 'Coca Cola Zero 2L', preco: 15.00, descricao: 'Bebida gelada', imagem: './assets/Coca Zero 2L.png', ativo: true, drinkType: 'nenhum', allowAddons: false },
+          { nome: 'Guaraná Antártica Lata', preco: 5.00, descricao: 'Bebida gelada', imagem: './assets/Guarana Lata.jpg', ativo: true, drinkType: 'nenhum', allowAddons: false },
         ];
 
-        function renderPromotions() {
-          const grid = document.getElementById('promotions-grid');
-          if (!grid) return;
+        function renderPromosModal() {
+          const grid = document.getElementById('promos-modal-grid');
+          const emptyState = document.getElementById('promos-empty-state');
+          if (!grid || !emptyState) return;
           const ativos = (promotions || []).filter(p => p.ativo !== false);
           if (ativos.length === 0) {
-            grid.innerHTML = '<p class="text-gray-500 text-sm">Nenhuma promoção disponível.</p>';
+            emptyState.style.display = 'block';
+            grid.style.display = 'none';
             return;
           }
-          grid.innerHTML = ativos.map(promo => {
+          emptyState.style.display = 'none';
+          grid.style.display = 'block';
+          grid.innerHTML = ativos.map((promo, __promoIndex) => {
             const nome = promo.name || promo.nome || 'Promoção';
             const desc = promo.description || promo.descricao || '';
             const precoOriginal = promo.priceOriginal ?? promo.precoOriginal ?? promo.price ?? promo.preco ?? 0;
@@ -1279,7 +1680,7 @@ function openSimpleModal(name, price, image) {
               <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition flex flex-col">
                 <div class="relative">
                   <img src="${imagem}" alt="${nome}" class="w-full h-32 object-cover" onerror="this.src='./assets/default.jpg'">
-                  ${isCombo ? '<span class="absolute top-2 right-2 bg-orange-500 text-white text-xs px-2 py-1 rounded font-bold">COMBO</span>' : '<span class="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded font-bold">PROMO</span>'}
+                  ${isCombo ? '<span class="absolute top-2 right-2 bg-orange-500 text-white text-xs px-1 py-0.5 sm:px-2 sm:py-1 rounded font-bold">COMBO</span>' : '<span class="absolute top-2 right-2 bg-red-500 text-white text-xs px-1 py-0.5 sm:px-2 sm:py-1 rounded font-bold">PROMO</span>'}
                 </div>
                 <div class="p-3 flex-1 flex flex-col justify-between">
                   <div>
@@ -1292,7 +1693,54 @@ function openSimpleModal(name, price, image) {
                       <span class="line-through text-gray-400">R$${Number(precoOriginal).toFixed(2).replace('.', ',')}</span>
                       <span class="text-green-600 font-bold text-lg">R$${Number(precoPromo).toFixed(2).replace('.', ',')}</span>
                     </div>
-                    <button class="bg-red-500 hover:bg-red-600 px-5 py-2 rounded add-to-cart-btn text-white h-fit transition" data-name="${nome}" data-price="${Number(precoPromo).toFixed(2).replace('.', ',')}" data-image="${imagem}">
+                    <button class="bg-red-500 hover:bg-red-600 px-5 py-2 rounded add-to-cart-btn text-white h-fit transition" data-name="${nome}" data-price="${Number(precoPromo).toFixed(2).replace('.', ',')}" data-image="${imagem}" data-promo-type="${promo.type || 'promo'}" data-promo-index="${__promoIndex}">
+                      <i class="fa fa-cart-plus text-lg"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+
+        function renderPromotions() {
+          const grid = document.getElementById('promotions-grid');
+          const section = document.getElementById('promocoes-combos-section');
+          if (!grid || !section) return;
+          const ativos = (promotions || []).filter(p => p.ativo !== false);
+          if (ativos.length === 0) {
+            section.style.display = 'none';
+            grid.innerHTML = '';
+            return;
+          }
+          section.style.display = 'block';
+          grid.innerHTML = ativos.map((promo, __promoIndex) => {
+            const nome = promo.name || promo.nome || 'Promoção';
+            const desc = promo.description || promo.descricao || '';
+            const precoOriginal = promo.priceOriginal ?? promo.precoOriginal ?? promo.price ?? promo.preco ?? 0;
+            const precoPromo = promo.pricePromo ?? promo.precoPromo ?? promo.price ?? promo.preco ?? 0;
+            const imagem = resolveImage(promo.image || promo.imagem);
+            const isCombo = promo.type === 'combo' && promo.items && Array.isArray(promo.items);
+            const itemsInfo = isCombo ? promo.items.map(i => i.name).join(', ') : '';
+            
+            return `
+              <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition flex flex-col">
+                <div class="relative">
+                  <img src="${imagem}" alt="${nome}" class="w-full h-32 object-cover" onerror="this.src='./assets/default.jpg'">
+                  ${isCombo ? '<span class="absolute top-2 right-2 bg-orange-500 text-white text-xs px-1 py-0.5 sm:px-2 sm:py-1 rounded font-bold">COMBO</span>' : '<span class="absolute top-2 right-2 bg-red-500 text-white text-xs px-1 py-0.5 sm:px-2 sm:py-1 rounded font-bold">PROMO</span>'}
+                </div>
+                <div class="p-3 flex-1 flex flex-col justify-between">
+                  <div>
+                    <h3 class="font-bold text-sm mb-1">${nome}</h3>
+                    ${desc ? `<p class="text-xs text-gray-500 line-clamp-2">${desc}</p>` : ''}
+                    ${isCombo ? `<p class="text-xs text-gray-600 mt-1 font-medium">📦 Inclui: ${itemsInfo}</p>` : ''}
+                  </div>
+                  <div class="flex items-center justify-between mt-2">
+                    <div class="flex flex-col text-sm">
+                      <span class="line-through text-gray-400">R$${Number(precoOriginal).toFixed(2).replace('.', ',')}</span>
+                      <span class="text-green-600 font-bold text-lg">R$${Number(precoPromo).toFixed(2).replace('.', ',')}</span>
+                    </div>
+                    <button class="bg-red-500 hover:bg-red-600 px-5 py-2 rounded ${isCombo ? 'promo-combo-btn' : 'add-to-cart-btn'} text-white h-fit transition" data-name="${nome}" data-price="${Number(precoPromo).toFixed(2).replace('.', ',')}" data-image="${imagem}" data-promo-type="${promo.type || (promo.items && promo.items.length ? 'combo' : 'promo')}" data-promo-index="${__promoIndex}" ${isCombo ? 'onclick=\'event.stopPropagation(); openComboByIndex(' + __promoIndex + ', ' + JSON.stringify(nome) + ', ' + Number(precoPromo).toFixed(2) + ', ' + JSON.stringify(imagem) + ');\'' : ''}>
                       <i class="fa fa-cart-plus text-lg"></i>
                     </button>
                   </div>
@@ -1304,6 +1752,20 @@ function openSimpleModal(name, price, image) {
 
         // Variável global para armazenar promoções por item
         let itemPromoMap = {};
+
+        // Helper to open combo modal by promotions array index (avoids string escaping issues)
+        function openComboByIndex(idx, name, price, image) {
+          try {
+            const promo = promotions && promotions[idx];
+            console.log('DEBUG: openComboByIndex', { idx, promo });
+            const isPromoCombo = !!(promo && (promo.type === 'combo' || (promo.items && Array.isArray(promo.items) && promo.items.length > 0)));
+            if (isPromoCombo) {
+              openComboModal(name, price, image, promo.bebidaType || 'nenhum', promo.allowAdicionais !== false);
+            }
+          } catch (e) {
+            console.warn('Erro em openComboByIndex', e);
+          }
+        }
 
         async function carregarPromocoesItems() {
           try {
@@ -1317,11 +1779,142 @@ function openSimpleModal(name, price, image) {
                 if (key) itemPromoMap[key] = promo;
               }
             });
-            console.log('✅ Promoções de itens carregadas');
           } catch (error) {
-            console.warn('⚠️ Não foi possível carregar promoções de itens');
           }
         }
+
+        // -------------------- ADDONS PUBLICOS (polling seguro) --------------------
+        let __publicAddonsCache = null;
+        async function fetchPublicAddons() {
+          try {
+            const resp = await fetchTenant('/addons');
+            const json = await resp.json();
+            const lista = (json && Array.isArray(json.addons)) ? json.addons : (Array.isArray(json) ? json : []);
+            return lista;
+          } catch (err) {
+            console.warn('Erro ao buscar /api/addons:', err);
+            return null;
+          }
+        }
+
+        function renderAddonsIntoContainer(addons) {
+          const container = document.getElementById('adicionais-list');
+          if (!container) return;
+          if (!Array.isArray(addons) || addons.length === 0) {
+            container.innerHTML = '<p class="text-gray-500 text-sm">Nenhum adicional cadastrado.</p>';
+            return;
+          }
+          // Filtrar apenas adicionais ativos (não bebidas)
+          const ativos = addons.filter(a => {
+            if (a.ativo === false) return false;
+            const cat = (a.category || '').toString().toLowerCase();
+            return !cat.includes('beb') && !cat.includes('drink');
+          });
+          if (!ativos || ativos.length === 0) {
+            container.innerHTML = '<p class="text-gray-500 text-sm">Nenhum adicional ativo.</p>';
+            return;
+          }
+          // Agrupar por categoria e renderizar seções
+          const normalize = (s) => (s || 'geral').toString().toLowerCase().trim();
+          const groups = {};
+          ativos.forEach(a => {
+            let key = normalize(a.category);
+            if (key === 'burgers' || key === 'burger') key = 'burguers';
+            if (!groups[key]) groups[key] = { key, display: a.category || 'geral', items: [] };
+            groups[key].items.push(a);
+          });
+
+          let html = '';
+          Object.values(groups).forEach(g => {
+            const display = g.display.charAt(0).toUpperCase() + g.display.slice(1);
+            html += `<div class="addon-category mb-3"><div class="font-semibold mb-1">${display}</div>`;
+            html += g.items.map(a => {
+              const preco = Number(a.price || 0).toFixed(2).replace('.', ',');
+              const valor = `${a.name} - R$ ${preco}`;
+              return `
+              <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded">
+                <input type="checkbox" name="adicionais" value="${valor.replace(/\"/g, '&quot;')}" class="mr-3 text-blue-600 focus:ring-blue-500">
+                <span>${a.name} - R$ ${preco}</span>
+              </label>
+            `;
+            }).join('');
+            html += '</div>';
+          });
+
+          container.innerHTML = html;
+        }
+
+        // Renderizar bebidas no modal de hambúrguer a partir dos addons (categoria 'bebidas')
+        function renderBebidasFromAddons(addons) {
+          const bebidaBurgerSection = document.getElementById('bebida-section-burger');
+          if (!bebidaBurgerSection) return;
+          const radiosContainer = bebidaBurgerSection.querySelector('.grid') || bebidaBurgerSection;
+          const bebidas = (addons || []).filter(a => (a.category || '').toString().toLowerCase().includes('beb') && a.ativo !== false);
+          if (!bebidas || bebidas.length === 0) {
+            // deixar as opções estáticas originais intactas
+            return;
+          }
+
+          // Substituir por opções dinâmicas
+          const html = bebidas.map(b => {
+            const preco = Number(b.price || 0).toFixed(2).replace('.', ',');
+            const value = `${b.name} - R$${preco}`;
+            return `
+              <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
+                <input type="radio" name="bebida" value="${value.replace(/\"/g, '&quot;')}" class="mr-3 text-blue-600 focus:ring-blue-500">
+                <img src="${(b.image || './assets/default.jpg').replace(/^\/+/, './')}" alt="${b.name}" class="w-8 h-8 mr-3 rounded" onerror="this.src='./assets/default.jpg'">
+                <span>${b.name} - R$ ${preco}</span>
+              </label>
+            `;
+          }).join('');
+
+          // tentar manter opção 'Nenhuma' no topo
+          radiosContainer.innerHTML = `
+            <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
+              <input type="radio" name="bebida" value="" class="mr-3 text-blue-600 focus:ring-blue-500" checked>
+              <span>Nenhuma</span>
+            </label>
+            ${html}
+          `;
+        }
+
+        function startAddonsPolling(intervalMs = 10000) {
+          // primeira carga imediata
+          (async () => {
+            const lista = await fetchPublicAddons();
+            if (Array.isArray(lista)) {
+              __publicAddonsCache = JSON.stringify(lista);
+              renderAddonsIntoContainer(lista);
+              try { renderBebidasFromAddons(lista); } catch (e) { console.warn('erro ao renderizar bebidas no polling inicial', e); }
+            }
+          })();
+
+          return setInterval(async () => {
+            const lista = await fetchPublicAddons();
+            if (!Array.isArray(lista)) return; // erro — manter o que existe
+            const s = JSON.stringify(lista);
+            if (s !== __publicAddonsCache) {
+              __publicAddonsCache = s;
+              renderAddonsIntoContainer(lista);
+              try { renderBebidasFromAddons(lista); } catch (e) { }
+            }
+          }, intervalMs);
+        }
+
+        // Escuta alterações vindas de outras abas (admin) para sincronizar imediatamente
+        window.addEventListener('storage', async (e) => {
+          if (e.key === 'addons-updated') {
+            try {
+              const lista = await fetchPublicAddons();
+              if (Array.isArray(lista)) {
+                __publicAddonsCache = JSON.stringify(lista);
+                renderAddonsIntoContainer(lista);
+                try { renderBebidasFromAddons(lista); } catch (err) { }
+              }
+            } catch (err) {
+            }
+          }
+        });
 
         function renderCategoria(arr, gridId) {
           const ativos = (arr || []).filter(i => i.ativo !== false);
@@ -1390,10 +1983,10 @@ function openSimpleModal(name, price, image) {
           });
         });
         
-        // Função para carregar e renderizar categorias dinamicamente
+        // Função para carregar e renderizar categorias dinamicamente (com ordem do painel)
         async function carregarCategoriasDinamicas() {
           try {
-            const response = await fetchTenant('/categories-merged');
+            const response = await fetchTenant('/custom-categories');
             const data = await response.json();
             const categorias = data.categories || data;
             const slugify = (str = '') => str.toString().toLowerCase().normalize('NFD').replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-');
@@ -1406,38 +1999,50 @@ function openSimpleModal(name, price, image) {
               { key: 'bebidas', nome: 'Bebidas', emoji: '🥤' }
             ];
 
-            // Normaliza categorias vindas do backend e deduplica por slug
             const catMap = new Map();
             baseCats.forEach(cat => catMap.set(cat.key, cat));
 
-            if (categorias) {
-              const entries = Array.isArray(categorias)
-                ? categorias.map(cat => [slugify(cat.key || cat.slug || cat.nome || cat), cat])
-                : Object.entries(categorias).map(([key, cat]) => [slugify(key || cat?.key || cat?.slug || cat?.nome || key), cat]);
-
-              entries.forEach(([slug, cat]) => {
+            const order = [];
+            if (Array.isArray(categorias)) {
+              categorias.forEach(cat => {
+                const slug = slugify(cat.key || cat.slug || cat.nome || cat);
                 if (!slug) return;
                 const nome = (cat && (cat.nome || cat.name || cat.label)) || slug.replace(/-/g, ' ');
                 const emoji = cat?.emoji || cat?.icon || '📦';
                 catMap.set(slug, { key: slug, nome, emoji });
+                if (!order.includes(slug)) order.push(slug);
               });
             }
+
+            baseCats.forEach(cat => {
+              if (!order.includes(cat.key)) order.push(cat.key);
+            });
 
             const container = document.querySelector('.flex.flex-wrap.gap-2.justify-center');
             if (!container) return;
 
-            // Monta HTML limpo, sem duplicatas
             let html = `<button class="category-filter-btn active px-4 py-2 rounded-lg font-semibold transition duration-200 bg-red-500 text-white flex items-center gap-2" data-category="all">
               <i class="fa fa-th"></i> Todos
             </button>`;
 
-            catMap.forEach(cat => {
+            order.forEach(key => {
+              const cat = catMap.get(key);
+              if (!cat) return;
               html += `<button class="category-filter-btn px-4 py-2 rounded-lg font-semibold transition duration-200 bg-gray-300 hover:bg-red-500 hover:text-white flex items-center gap-2" data-category="${cat.key}">
                 <span>${cat.emoji}</span> ${cat.nome}
               </button>`;
             });
 
             container.innerHTML = html;
+
+            // Reordenar as seções de categorias conforme a ordem do painel
+            const sectionsContainer = document.querySelector('.category-section')?.parentElement;
+            if (sectionsContainer) {
+              order.forEach(key => {
+                const section = sectionsContainer.querySelector(`.category-section[data-category="${key}"]`);
+                if (section) sectionsContainer.appendChild(section);
+              });
+            }
 
             // Re-adicionar event listeners
             document.querySelectorAll('.category-filter-btn').forEach(button => {
@@ -1467,6 +2072,9 @@ function openSimpleModal(name, price, image) {
         document.addEventListener('DOMContentLoaded', async () => {
           await carregarCategoriasDinamicas();
           await carregarPromocoesDoServidor();
+
+          // Iniciar polling de adicionais públicos (atualiza o modal automaticamente)
+          startAddonsPolling(8000);
           
           // Tentar carregar do servidor primeiro
           const carregouDoServidor = await carregarCardapioDoServidor();
@@ -1495,17 +2103,13 @@ function openSimpleModal(name, price, image) {
           if (checkoutBtn) {
             checkoutBtn.addEventListener('click', (e) => {
               e.preventDefault();
-              console.log('Checkout button clicked, cart:', cart);
               if (cart.length === 0) {
                 alert('Seu carrinho está vazio. Adicione itens antes de finalizar o pedido.');
                 return;
               }
               const observacoes = document.getElementById('cart-observacoes').value;
-              // Save cart and observations to localStorage
               localStorage.setItem('cart', JSON.stringify(cart));
               localStorage.setItem('observacoes', observacoes);
-              console.log('Redirecting to checkout...');
-              // Redirect to checkout page
               window.location.href = 'checkout.html';
             });
           }
@@ -1519,8 +2123,23 @@ function openSimpleModal(name, price, image) {
 
           // Customization modal - confirm
           document.getElementById('confirm-custom-btn').addEventListener('click', () => {
-            const bebida = document.querySelector('#customization-modal input[name="bebida"]:checked').value;
-            const adicionais = Array.from(document.querySelectorAll('#customization-modal input[type="checkbox"]:checked')).map(cb => cb.value);
+            let bebida = '';
+            let adicionais = [];
+            
+            if (window.currentItem.isCombo) {
+              // Para combos, verificar configurações
+              if (window.currentItem.bebidaType !== 'nenhum') {
+                bebida = document.querySelector('#customization-modal input[name="bebida"]:checked')?.value || '';
+              }
+              if (window.currentItem.allowAdicionais) {
+                adicionais = Array.from(document.querySelectorAll('#customization-modal input[type="checkbox"]:checked')).map(cb => cb.value);
+              }
+            } else {
+              // Para burgers, coletar tudo
+              bebida = document.querySelector('#customization-modal input[name="bebida"]:checked')?.value || '';
+              adicionais = Array.from(document.querySelectorAll('#customization-modal input[type="checkbox"]:checked')).map(cb => cb.value);
+            }
+            
             const observacoes = document.getElementById('custom-observacoes').value;
             addToCart(window.currentItem.name, window.currentItem.price, bebida, adicionais, observacoes, window.currentItem.image);
             const modal = document.getElementById('customization-modal');
@@ -1567,10 +2186,9 @@ function openSimpleModal(name, price, image) {
         let addLock = false;
 
         function addToCart(name, price, bebida, adicionais, observacoes, image) {
-          if (addLock) return; // já adicionando
+          if (addLock) return;
           addLock = true;
           setTimeout(() => { addLock = false; }, 250);
-          console.log('Adicionando item:', name);
           const fullName = bebida ? `${name} + ${bebida}` : name;
           const extraPrice = (bebida ? parseFloat(bebida.split(' - R$')[1].replace(',', '.')) : 0) +
                              adicionais.reduce((sum, add) => sum + parseFloat(add.split(' - R$')[1].replace(',', '.')), 0);
@@ -1593,7 +2211,6 @@ function openSimpleModal(name, price, image) {
           } else {
             cart.push(itemDetails);
           }
-          console.log('Carrinho atual:', cart);
           localStorage.setItem('cart', JSON.stringify(cart));
           updateCartCount();
           updateCartModal();
@@ -1621,6 +2238,31 @@ function openSimpleModal(name, price, image) {
           });
         }
 
+        // Delegated handler specifically for promo combo buttons (prevents direct addToCart)
+        document.addEventListener('click', (e) => {
+          const comboBtn = e.target.closest('.promo-combo-btn');
+          if (!comboBtn) return;
+          e.preventDefault();
+          e.stopPropagation();
+          const name = comboBtn.getAttribute('data-name');
+          const price = parseFloat(comboBtn.getAttribute('data-price').replace(',', '.'));
+          const rawImage = comboBtn.getAttribute('data-image') || '';
+          const image = resolveImage(rawImage);
+          const promoIndex = comboBtn.getAttribute('data-promo-index');
+          if (promoIndex !== null && promotions && promotions.length > Number(promoIndex)) {
+            const promo = promotions[Number(promoIndex)];
+            openComboModal(name, price, image, promo?.bebidaType || 'nenhum', promo?.allowAdicionais !== false);
+            return;
+          }
+          // fallback: find by name
+          const promo = promotions.find(p => (p.name || p.nome) === name);
+          if (promo) {
+            openComboModal(name, price, image, promo.bebidaType || 'nenhum', promo.allowAdicionais !== false);
+            return;
+          }
+          openComboModal(name, price, image, 'nenhum', true);
+        });
+
         // Close modal
         if (closeModalBtn) {
           closeModalBtn.addEventListener('click', (e) => {
@@ -1628,33 +2270,6 @@ function openSimpleModal(name, price, image) {
             modal.classList.add('hidden');
           });
         }
-
-        // Customization modal - cancel
-        document.getElementById('cancel-custom-btn').addEventListener('click', () => {
-          const modal = document.getElementById('customization-modal');
-          modal.classList.add('hidden');
-          modal.style.display = 'none';
-        });
-
-        // Customization modal - confirm
-        document.getElementById('confirm-custom-btn').addEventListener('click', () => {
-          const bebida = document.querySelector('#customization-modal input[name="bebida"]:checked').value;
-          const adicionais = Array.from(document.querySelectorAll('#customization-modal input[type="checkbox"]:checked')).map(cb => cb.value);
-          const observacoes = document.getElementById('custom-observacoes').value;
-          addToCart(window.currentItem.name, window.currentItem.price, bebida, adicionais, observacoes, window.currentItem.image);
-          const modal = document.getElementById('customization-modal');
-          modal.classList.add('hidden');
-          modal.style.display = 'none';
-        });
-
-        // Close customization modal when clicking outside
-        document.getElementById('customization-modal').addEventListener('click', (e) => {
-          if (e.target.id === 'customization-modal') {
-            const modal = document.getElementById('customization-modal');
-            modal.classList.add('hidden');
-            modal.style.display = 'none';
-          }
-        });
 
         function updateCartModal() {
           cartItems.innerHTML = '';
@@ -1731,21 +2346,12 @@ function openSimpleModal(name, price, image) {
 
         // MODAL DE PEDIDOS - dentro do DOMContentLoaded
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('🔍 DOMContentLoaded - Modal Pedidos carregado');
             
             const whatsappInput = document.getElementById('pedido-whatsapp');
             const pedidosForm = document.getElementById('pedidos-form');
             const pedidosLink = document.getElementById('pedidos-link');
             const pedidosModal = document.getElementById('pedidos-modal');
 
-            console.log('Elementos encontrados:', {
-                whatsappInput: !!whatsappInput,
-                pedidosForm: !!pedidosForm,
-                pedidosLink: !!pedidosLink,
-                pedidosModal: !!pedidosModal
-            });
-
-            // Máscara WhatsApp
             if (whatsappInput) {
                 whatsappInput.addEventListener('input', function(e) {
                     let value = e.target.value.replace(/\D/g, '');
@@ -1875,17 +2481,12 @@ function openSimpleModal(name, price, image) {
 
         // Verificar se já tem cliente logado ao abrir modal
         if (pedidosLink) {
-            console.log('✅ Listener adicionado ao link de pedidos');
             pedidosLink.addEventListener('click', function(e) {
                 e.preventDefault();
-                console.log('🔔 Click em Pedidos detectado!');
                 
                 const whatsappSalvo = localStorage.getItem('cliente_whatsapp');
                 const nomeSalvo = localStorage.getItem('cliente_nome');
 
-                console.log('Dados salvos:', { whatsappSalvo, nomeSalvo });
-
-                // Resetar modal ao abrir
                 document.getElementById('pedidos-form').style.display = 'block';
                 document.getElementById('pedidos-lista').style.display = 'none';
                 document.getElementById('pedidos-titulo').textContent = 'Identifique-se';
@@ -1893,9 +2494,6 @@ function openSimpleModal(name, price, image) {
                 pedidosModal.style.display = 'block';
                 pedidosModal.classList.remove('hidden');
 
-                console.log('✅ Modal deve estar visível agora');
-
-                // Se já tiver dados salvos, apenas preencher (busca será feita ao clicar em Avançar)
                 if (whatsappSalvo && nomeSalvo) {
                   document.getElementById('pedido-whatsapp').value = whatsappSalvo;
                   document.getElementById('pedido-nome').value = nomeSalvo;
