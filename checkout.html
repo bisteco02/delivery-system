@@ -867,7 +867,6 @@
                         <!-- Form Steps -->
                         <form id="checkout-form" class="form-section">
                             <!-- Step 1: Tipo de Entrega -->
-                            ...existing code...
                         </form>
 
                         <!-- Promoções e Combos -->
@@ -1142,11 +1141,14 @@
 
         // Atualizar checkout
         function updateCheckout() {
+            console.log('updateCheckout chamada, cart:', cart);
             const checkoutItems = document.getElementById('checkout-items');
             const checkoutTotal = document.getElementById('checkout-total');
             const subtotalEl = document.getElementById('subtotal');
             const taxaRow = document.getElementById('taxa-row');
 
+            console.log('Elementos DOM:', {checkoutItems, checkoutTotal, subtotalEl, taxaRow});
+            
             checkoutItems.innerHTML = '';
             let subtotal = 0;
 
@@ -1199,6 +1201,12 @@
             }
 
             const total = subtotal + taxaEntrega;
+
+            console.log('Valores finais:', {subtotal, taxaEntrega, total});
+            console.log('Atualizando elementos...', {
+                subtotalEl: subtotalEl?.tagName,
+                checkoutTotal: checkoutTotal?.tagName
+            });
 
             subtotalEl.textContent = `R$${subtotal.toFixed(2).replace('.', ',')}`;
             document.getElementById('taxa-entrega').textContent = `R$${taxaEntrega.toFixed(2).replace('.', ',')}`;
