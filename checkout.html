@@ -1448,6 +1448,8 @@
         document.querySelectorAll('input[name="forma_pagamento"]').forEach(radio => {
             radio.addEventListener('change', () => {
                 const pixInfo = document.getElementById('pix-info');
+                if (!pixInfo) return;
+                
                 if (radio.value === 'pix' && radio.checked) {
                     if (!siteConfig.pixCodigo) {
                         alert('PIX não configurado pelo estabelecimento. Escolha outra forma de pagamento.');
