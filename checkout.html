@@ -1354,7 +1354,8 @@
             nextStep();
         });
 
-        document.getElementById('prevStep4').addEventListener('click', prevStep);
+        const prevStep4Btn = document.getElementById('prevStep4');
+        if (prevStep4Btn) prevStep4Btn.addEventListener('click', prevStep);
 
         // Máscara para WhatsApp
         document.getElementById('whatsapp').addEventListener('input', (e) => {
@@ -1407,9 +1408,13 @@
         }
 
         function atualizarQrPix(codigo) {
-            document.getElementById('pix-codigo').value = codigo;
-            const encoded = encodeURIComponent(codigo);
-            document.getElementById('pix-qr').src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encoded}`;
+            const pixCodigo = document.getElementById('pix-codigo');
+            if (pixCodigo) pixCodigo.value = codigo;
+            const pixQr = document.getElementById('pix-qr');
+            if (pixQr) {
+                const encoded = encodeURIComponent(codigo);
+                pixQr.src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encoded}`;
+            }
         }
 
         function limparTimerPix() {
