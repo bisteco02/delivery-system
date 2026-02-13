@@ -1464,11 +1464,17 @@
             });
         });
 
-        document.getElementById('pix-copy-btn').addEventListener('click', () => {
-            navigator.clipboard.writeText(document.getElementById('pix-codigo').value).then(() => {
-                alert('Código Pix copiado!');
+        const pixCopyBtn = document.getElementById('pix-copy-btn');
+        if (pixCopyBtn) {
+            pixCopyBtn.addEventListener('click', () => {
+                const pixCodigo = document.getElementById('pix-codigo');
+                if (pixCodigo) {
+                    navigator.clipboard.writeText(pixCodigo.value).then(() => {
+                        alert('Código Pix copiado!');
+                    });
+                }
             });
-        });
+        }
 
         // Modal de confirmação
         const confirmModal = document.getElementById('confirmModal');
