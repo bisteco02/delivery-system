@@ -1141,14 +1141,12 @@
 
         // Atualizar checkout
         function updateCheckout() {
-            console.log('updateCheckout chamada, cart:', cart);
             const checkoutItems = document.getElementById('checkout-items');
-            const checkoutTotal = document.getElementById('checkout-total');
-            const subtotalEl = document.getElementById('subtotal');
-            const taxaRow = document.getElementById('taxa-row');
+            const subtotalEls = document.querySelectorAll('#subtotal');
+            const checkoutTotalEls = document.querySelectorAll('#checkout-total');
+            const taxaEntregaEls = document.querySelectorAll('#taxa-entrega');
+            const taxaRows = document.querySelectorAll('#taxa-row');
 
-            console.log('Elementos DOM:', {checkoutItems, checkoutTotal, subtotalEl, taxaRow});
-            
             checkoutItems.innerHTML = '';
             let subtotal = 0;
 
@@ -1194,23 +1192,23 @@
             if (tipoEntrega === 'delivery') {
                 const bairro = document.getElementById('bairro')?.value;
                 taxaEntrega = (bairrosTaxas[bairro] || siteConfig.deliveryFee || 5.00);
-                taxaRow.style.display = 'block';
+                taxaRows.forEach(row => { row.style.display = 'block'; });
             } else {
                 taxaEntrega = 0;
-                taxaRow.style.display = 'none';
+                taxaRows.forEach(row => { row.style.display = 'none'; });
             }
 
             const total = subtotal + taxaEntrega;
 
-            console.log('Valores finais:', {subtotal, taxaEntrega, total});
-            console.log('Atualizando elementos...', {
-                subtotalEl: subtotalEl?.tagName,
-                checkoutTotal: checkoutTotal?.tagName
+            subtotalEls.forEach(el => {
+                el.textContent = `R$${subtotal.toFixed(2).replace('.', ',')}`;
             });
-
-            subtotalEl.textContent = `R$${subtotal.toFixed(2).replace('.', ',')}`;
-            document.getElementById('taxa-entrega').textContent = `R$${taxaEntrega.toFixed(2).replace('.', ',')}`;
-            checkoutTotal.textContent = `R$${total.toFixed(2).replace('.', ',')}`;
+            taxaEntregaEls.forEach(el => {
+                el.textContent = `R$${taxaEntrega.toFixed(2).replace('.', ',')}`;
+            });
+            checkoutTotalEls.forEach(el => {
+                el.textContent = `R$${total.toFixed(2).replace('.', ',')}`;
+            });
         }
 
         // Popular bairros
