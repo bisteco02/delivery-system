@@ -3,6 +3,8 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const fs = require('fs').promises;
+const fsSync = require('fs');
+const https = require('https');
 const path = require('path');
 const multer = require('multer');
 const { Client, LocalAuth } = require('whatsapp-web.js');
@@ -17,6 +19,10 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 const WHATSAPP_API_KEY = process.env.WHATSAPP_API_KEY || 'padoca-local-2026';
 
+const DOMAIN = process.env.DOMAIN || 'padocadodede.com';
+const HTTPS_CERT_DIR = `/etc/letsencrypt/live/${DOMAIN}`;
+const HTTPS_ENABLED = process.env.NODE_ENV === 'production' && fsSync.existsSync(HTTPS_CERT_DIR);
+
 app.use(session({
   secret: process.env.SESSION_SECRET || 'padoca-secret-key-2026',
   resave: false,
@@ -25,7 +31,7 @@ app.use(session({
   cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 }
 }));
 
-if (process.env.NODE_ENV === 'production') {
+if (HTTPS_ENABLED) {
   app.use(forceHttps);
 }
 
@@ -1049,6 +1055,9 @@ async function iniciarServidor() {
       console.log(`🚀 Servidor rodando na porta ${PORT}`);
       console.log(`📍 URL: http://localhost:${PORT}`);
       console.log(`🌐 Rede: http://127.0.0.1:${PORT}`);
+      if (HTTPS_ENABLED) {
+        console.log(`🔒 HTTPS: https://${DOMAIN}`);
+      }
       console.log(`\n📄 Site: http://localhost:${PORT}/index.html`);
       console.log(`⚙️  Painel Admin: http://localhost:${PORT}/painel-admin.html`);
       console.log(`📱 WhatsApp QR: http://localhost:${PORT}/whatsapp/qr`);
@@ -1071,6 +1080,17 @@ async function iniciarServidor() {
       //   }
       // }, 2000); // Delay maior para garantir que o servidor esteja totalmente pronto
     });
+
+    if (HTTPS_ENABLED) {
+      const httpsOptions = {
+        key: fsSync.readFileSync(`${HTTPS_CERT_DIR}/privkey.pem`),
+        cert: fsSync.readFileSync(`${HTTPS_CERT_DIR}/fullchain.pem`)
+      };
+
+      https.createServer(httpsOptions, app).listen(443, '0.0.0.0', () => {
+        console.log(`✅ HTTPS ativo em https://${DOMAIN}`);
+      });
+    }
   } catch (error) {
     console.error('❌ Erro ao iniciar servidor:', error);
     process.exit(1);
