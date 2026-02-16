@@ -621,6 +621,108 @@
             }
         }
 
+        @media (max-width: 768px) {
+            .checkout-container {
+                padding: 12px;
+            }
+
+            .logo {
+                font-size: 2.2rem;
+            }
+
+            .subtitle {
+                font-size: 1rem;
+            }
+
+            .steps {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            .step {
+                flex: 1 1 45%;
+                font-size: 0.8rem;
+            }
+
+            .form-section {
+                padding: 20px;
+                border-radius: 16px;
+            }
+
+            .step-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .step-icon {
+                margin-right: 0;
+            }
+
+            .payment-methods {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .nav-buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .order-summary {
+                position: static;
+                padding: 18px;
+                border-radius: 16px;
+            }
+
+            .order-item {
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .item-image {
+                width: 44px;
+                height: 44px;
+                margin-right: 0;
+            }
+
+            .summary-total {
+                padding: 16px;
+            }
+
+            .modal-content {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .logo {
+                font-size: 1.9rem;
+            }
+
+            .step-title {
+                font-size: 1.2rem;
+            }
+
+            .payment-methods {
+                grid-template-columns: 1fr;
+            }
+
+            .payment-label {
+                padding: 16px;
+            }
+
+            .summary-title {
+                font-size: 1.1rem;
+            }
+
+            .total-row.total {
+                font-size: 1.05rem;
+            }
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .checkout-container {
