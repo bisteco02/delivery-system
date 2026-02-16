@@ -12,7 +12,6 @@ const QRCode = require('qrcode');
 const session = require('express-session');
 const SQLiteStore = require('connect-sqlite3')(session);
 const bcrypt = require('bcryptjs');
-const forceHttps = require('express-force-https');
 const selfsigned = require('selfsigned');
 
 const app = express();
@@ -32,7 +31,13 @@ app.use(session({
 }));
 
 if (HTTPS_ENABLED) {
-  app.use(forceHttps);
+  app.use((req, res, next) => {
+    const isSecure = req.secure || req.headers['x-forwarded-proto'] === 'https';
+    if (!isSecure) {
+      return res.redirect(301, `https://${req.headers.host}${req.originalUrl}`);
+    }
+    next();
+  });
 }
 
 // Upload de imagens
