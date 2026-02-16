@@ -180,9 +180,9 @@
       <!--FIM MENU-->
 
       <!--MODAL CART-->
-      <div class="modal-overlay hidden" id="cart-modal" style="display: none; z-index:9999; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5);">
+      <div class="modal-overlay hidden" id="cart-modal" style="display: none;">
         
-        <div class="modal-content" style="max-width:500px; width:90vw; background:white; border-radius:16px; box-shadow:0 8px 32px rgba(0,0,0,0.2); position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); padding:32px 24px;">
+        <div class="modal-content">
             <div class="flex items-center justify-between mb-4 border-b pb-2">
                 <h2 class="text-center font-bold text-2xl flex items-center gap-2">
                     <i class="fa fa-shopping-cart text-red-500"></i>
@@ -517,7 +517,6 @@
             });
           }
 
-          // Máscara WhatsApp
           const whatsappInput = document.getElementById('pedido-whatsapp');
           if (whatsappInput) {
             whatsappInput.addEventListener('input', function(e) {
@@ -534,13 +533,9 @@
             });
           }
 
-          // Carregar cardápio do servidor
           carregarCardapioDoServidor();
           await carregarPromocoesItems();
-
-          // Submit do formulário
         });
-        // Removido: variáveis globais já são inicializadas dentro do DOMContentLoaded
 
         const TENANT = (() => {
           const pathParts = window.location.pathname.split('/').filter(Boolean);
@@ -556,12 +551,11 @@
           headers: { ...(options.headers || {}), ...tenantHeaders }
         });
 
-        // Atualiza dados de contato com base no que o admin salvou
         async function carregarDadosEmpresaPublic() {
           try {
             const resp = await fetchTenant('/company-data');
             const json = await resp.json();
-            const dados = json.companyData || json; // aceita os dois formatos
+            const dados = json.companyData || json;
             if (!dados) return;
             aplicarDadosEmpresa(dados);
           } catch (error) {
@@ -703,10 +697,8 @@
               saboresMonte = cardapioPorCategoria['sabores'] || saboresMonte;
               bolinhosMonte = cardapioPorCategoria['bolinhos'] || bolinhosMonte;
               
-              // Carregar promoções de itens antes de renderizar
               await carregarPromocoesItems();
               
-              // Re-renderizar com base no que veio do backend (ou fallback local)
               renderCategoria(burguers, 'burguers-grid');
               renderCategoria(pizzas, 'pizzas-grid');
               renderCategoria(montePizza, 'monte-pizza-grid');
@@ -742,17 +734,13 @@
           }
         }
 
-        // Sincronizar cardápio a cada 30 segundos
         setInterval(carregarCardapioDoServidor, 30000);
         setInterval(carregarPromocoesItems, 30000);
 
-        // Carregar dados da empresa (nome, whatsapp, mapa, horário)
         carregarDadosEmpresaPublic();
 
-        // Sincronizar dados da empresa a cada 30 segundos
         setInterval(carregarDadosEmpresaPublic, 30000);
 
-        // Delegação de evento para botões gerados dinamicamente
         document.addEventListener('click', (e) => {
           const btn = e.target.closest('.add-to-cart-btn');
           if (!btn) return;
