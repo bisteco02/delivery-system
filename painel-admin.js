@@ -974,6 +974,43 @@ function copiarTexto(texto, tipo = 'texto') {
     });
 }
 
+// ==================== MERCADO PAGO - ASSINATURA ====================
+
+async function iniciarAssinatura() {
+    const billingEmail = document.getElementById('billing-email').value.trim();
+    
+    if (!billingEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(billingEmail)) {
+        mostrarNotificacao('erro', 'Por favor, preencha um email válido para continuar');
+        return;
+    }
+
+    try {
+        const btn = event.target;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Processando...';
+
+        const response = await fetch('/api/criar-assinatura', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: billingEmail })
+        });
+
+        const data = await response.json();
+
+        if (data.success && data.init_point) {
+            // Redirecionar para página de pagamento do Mercado Pago
+            window.location.href = data.init_point;
+        } else {
+            throw new Error(data.error || 'Erro ao criar assinatura');
+        }
+    } catch (error) {
+        console.error('❌ Erro:', error);
+        mostrarNotificacao('erro', 'Erro ao processar assinatura: ' + error.message);
+        event.target.disabled = false;
+        event.target.innerHTML = '💳 Assinar por R$ 200/mês';
+    }
+}
+
 function abrirModalConfirmacao() {
     const cardNumber = document.getElementById('card-number').value.trim();
     const cardExpiry = document.getElementById('card-expiry').value.trim();

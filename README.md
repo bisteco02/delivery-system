@@ -2,9 +2,9 @@
 
 Sistema completo de delivery com painel administrativo e integração WhatsApp.
 
-## 🚀 Deploy na Umbler
+## 🚀 Deploy no Hostinger VPS
 
-**Veja o guia completo:** [DEPLOY.md](DEPLOY.md)
+**Veja o guia completo:** [DEPLOY-HOSTINGER-VPS.md](DEPLOY-HOSTINGER-VPS.md)
 
 ## 💻 Rodar Localmente
 

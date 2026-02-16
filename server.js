@@ -13,6 +13,7 @@ const session = require('express-session');
 const SQLiteStore = require('connect-sqlite3')(session);
 const bcrypt = require('bcryptjs');
 const selfsigned = require('selfsigned');
+const { MercadoPagoConfig, PreApprovalPlan, PreApproval, Payment } = require('mercadopago');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -73,6 +74,11 @@ const upload = multer({
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Inicializar Mercado Pago
+const mpClient = new MercadoPagoConfig({ 
+  accessToken: process.env.MP_ACCESS_TOKEN 
+});
 
 // Admin
 const ADMIN_USUARIO = process.env.ADMIN_USER || 'admin';
@@ -1040,6 +1046,81 @@ app.post('/whatsapp/disconnect', (req, res) => {
       qrCodeData = null;
     }
     res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ==================== MERCADO PAGO - ASSINATURA ====================
+
+// Criar link de assinatura
+app.post('/api/criar-assinatura', async (req, res) => {
+  try {
+    const preApproval = new PreApproval(mpClient);
+    
+    const preApprovalData = {
+      reason: 'Assinatura Painel Admin - Delivery System',
+      auto_recurring: {
+        frequency: 1,
+        frequency_type: 'months',
+        transaction_amount: parseFloat(process.env.MP_PLAN_PRICE || 200),
+        currency_id: 'BRL'
+      },
+      back_url: `https://${DOMAIN}/painel-admin.html?payment=success`,
+      payer_email: req.body.email
+    };
+
+    const result = await preApproval.create({ body: preApprovalData });
+    
+    res.json({ 
+      success: true, 
+      init_point: result.init_point,
+      id: result.id
+    });
+  } catch (error) {
+    console.error('❌ Erro ao criar assinatura:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Webhook para notificações do Mercado Pago
+app.post('/api/mercadopago/webhook', async (req, res) => {
+  try {
+    const { type, data } = req.body;
+    
+    console.log('📬 Webhook Mercado Pago:', type, data);
+    
+    if (type === 'payment') {
+      const payment = new Payment(mpClient);
+      const paymentInfo = await payment.get({ id: data.id });
+      
+      console.log('💳 Pagamento:', paymentInfo);
+      
+      // Aqui você pode salvar o status do pagamento em um arquivo/banco
+      // Por enquanto apenas log
+      if (paymentInfo.status === 'approved') {
+        console.log('✅ Pagamento aprovado!');
+      }
+    }
+    
+    res.sendStatus(200);
+  } catch (error) {
+    console.error('❌ Erro no webhook:', error);
+    res.sendStatus(500);
+  }
+});
+
+// Verificar status de assinatura
+app.get('/api/verificar-assinatura', async (req, res) => {
+  try {
+    // Por enquanto retorna sempre ativo
+    // Futuramente verificar no Mercado Pago
+    res.json({ 
+      active: true,
+      planName: 'Plano Pro',
+      price: process.env.MP_PLAN_PRICE || 200,
+      nextBilling: '21 de março de 2026'
+    });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
