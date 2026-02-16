@@ -221,7 +221,7 @@
       <!--MODAL CUSTOMIZATION-->
       <div class="modal-overlay hidden" id="customization-modal" style="display: none;">
         
-        <div class="modal-content" style="max-width:480px; width:95vw; min-width:280px; background:white; border-radius:16px; box-shadow:0 8px 32px rgba(0,0,0,0.2); position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); padding:28px 18px;">
+        <div class="modal-content modal-narrow modal-scroll">
             <div class="text-center mb-4">
                 <img id="custom-item-image" src="" alt="Item" class="w-24 h-24 rounded-md mx-auto mb-2">
                 <h2 class="text-center font-bold text-2xl" id="custom-item-title">Personalizar Item</h2>
@@ -296,9 +296,9 @@
 
 
       <!--MODAL PEDIDOS-->
-      <div class="modal-overlay hidden" id="pedidos-modal" style="display: none; z-index:9999; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); overflow-y: auto;">
+      <div class="modal-overlay hidden" id="pedidos-modal" style="display: none;">
         
-        <div class="modal-content" id="pedidos-modal-content" style="max-width:600px; width:90vw; background:white; border-radius:16px; box-shadow:0 8px 32px rgba(0,0,0,0.2); margin:20px auto; padding:32px 24px;">
+        <div class="modal-content modal-wide modal-scroll" id="pedidos-modal-content">
             <div class="flex items-center justify-between mb-6">
                 <button id="close-pedidos-btn" class="text-gray-500 hover:text-gray-700">
                     <i class="fa fa-arrow-left text-xl"></i>
@@ -361,8 +361,8 @@
       <!-- FIM MODAL PEDIDOS-->
 
       <!-- MODAL PROMOS -->
-      <div class="modal-overlay hidden" id="promos-modal" style="display: none; z-index:9999; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); overflow-y: auto;">
-        <div class="modal-content" style="max-width:600px; width:90vw; background:white; border-radius:16px; box-shadow:0 8px 32px rgba(0,0,0,0.2); margin:20px auto; padding:32px 24px;">
+      <div class="modal-overlay hidden" id="promos-modal" style="display: none;">
+        <div class="modal-content modal-wide modal-scroll">
           <div class="flex items-center justify-between mb-6">
             <button id="close-promos-btn" class="text-gray-500 hover:text-gray-700">
               <i class="fa fa-arrow-left text-xl"></i>
@@ -879,7 +879,7 @@ function openSimpleModal(name, price, image) {
   const allowAddons = item?.allowAddons !== false;
   
   modal.innerHTML = `
-                    <div class="modal-content" style="max-width:480px; width:95vw; min-width:280px; background:white; border-radius:16px; box-shadow:0 8px 32px rgba(0,0,0,0.2); position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); padding:28px 18px;">
+                    <div class="modal-content modal-narrow modal-scroll">
                         <div class="text-center mb-4">
                             <img src="${image}" alt="${name}" class="w-24 h-24 rounded-md mx-auto mb-2">
                             <h2 class="text-center font-bold text-2xl">Personalizar</h2>
@@ -991,7 +991,7 @@ function openSimpleModal(name, price, image) {
             }
             modal.style.display = 'block';
             modal.innerHTML = `
-              <div class="modal-content" style="max-width:480px; width:95vw; min-width:280px; background:white; border-radius:16px; box-shadow:0 8px 32px rgba(0,0,0,0.2); position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); padding:28px 18px;">
+              <div class="modal-content modal-narrow modal-scroll">
                 <div class="text-center mb-4">
                   <img src="${image}" alt="${name}" class="w-24 h-24 rounded-md mx-auto mb-2">
                   <h2 class="text-center font-bold text-2xl">Personalizar</h2>
@@ -1117,7 +1117,7 @@ function openSimpleModal(name, price, image) {
             }
             modal.style.display = 'block';
             modal.innerHTML = `
-              <div class="modal-content" style="max-width:480px; width:95vw; min-width:280px; background:white; border-radius:16px; box-shadow:0 8px 32px rgba(0,0,0,0.2); position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); padding:28px 18px;">
+              <div class="modal-content modal-narrow modal-scroll">
                 <div class="text-center mb-4">
                   <img src="${image}" alt="${name}" class="w-24 h-24 rounded-md mx-auto mb-2">
                   <h2 class="text-center font-bold text-2xl">Personalizar</h2>
@@ -1257,7 +1257,7 @@ function openSimpleModal(name, price, image) {
             }
             modal.style.display = 'block';
             modal.innerHTML = `
-              <div class="modal-content" style="max-width:480px; width:95vw; min-width:280px; background:white; border-radius:16px; box-shadow:0 8px 32px rgba(0,0,0,0.2); position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); padding:28px 18px; max-height:90vh; overflow-y:auto;">
+              <div class="modal-content modal-narrow modal-scroll">
                 <div class="text-center mb-4">
                   <img src="${image}" alt="${name}" class="w-24 h-24 rounded-md mx-auto mb-2">
                   <h2 class="text-center font-bold text-2xl">Monte sua pizza</h2>
@@ -1405,7 +1405,7 @@ function openSimpleModal(name, price, image) {
             }
             modal.style.display = 'block';
             modal.innerHTML = `
-              <div class="modal-content" style="max-width:480px; width:95vw; min-width:280px; background:white; border-radius:16px; box-shadow:0 8px 32px rgba(0,0,0,0.2); position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); padding:28px 18px;">
+              <div class="modal-content modal-narrow modal-scroll">
                 <div class="text-center mb-4">
                   <img src="${image}" alt="${name}" class="w-24 h-24 rounded-md mx-auto mb-2">
                   <h2 class="text-center font-bold text-2xl">Personalizar Combo</h2>
@@ -2269,10 +2269,10 @@ function openSimpleModal(name, price, image) {
             }
             
             const itemElement = document.createElement('div');
-            itemElement.classList.add('bg-gray-50', 'rounded-lg', 'p-4', 'mb-4', 'flex', 'items-center', 'gap-4');
+            itemElement.classList.add('bg-gray-50', 'rounded-lg', 'p-4', 'mb-4', 'flex', 'items-center', 'gap-4', 'cart-item');
             itemElement.innerHTML = `
-              <img src="${imageSrc}" alt="${item.name}" class="w-16 h-16 rounded-md object-cover">
-              <div class="flex-1">
+              <img src="${imageSrc}" alt="${item.name}" class="w-16 h-16 rounded-md object-cover cart-item-image">
+              <div class="flex-1 cart-item-info">
                 <p class="font-bold text-lg">${item.name.split(' + ')[0]}</p>
                 ${item.bebida ? `<p class="text-sm">Bebida: ${item.bebida}</p>` : ''}
                 ${item.adicionais.length > 0 ? `<p class="text-sm">Adicionais: ${item.adicionais.join(', ')}</p>` : ''}
@@ -2280,7 +2280,7 @@ function openSimpleModal(name, price, image) {
                 <p class="text-sm text-gray-600">Preço base: R$${item.basePrice.toFixed(2).replace('.', ',')}</p>
                 <p class="text-sm font-medium">Subtotal: R$${item.totalPrice.toFixed(2).replace('.', ',')}</p>
               </div>
-              <div class="flex items-center gap-2">
+              <div class="flex items-center gap-2 cart-item-actions">
                 <button class="decrease-btn bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-full transition duration-200" data-name="${item.name}" data-obs="${item.observacoes}">-</button>
                 <span class="font-bold text-lg">${item.quantity}</span>
                 <button class="increase-btn bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-full transition duration-200" data-name="${item.name}" data-obs="${item.observacoes}">+</button>
