@@ -1,8 +1,4 @@
-/**
- * Servidor de Delivery
- * Backend: Site + Painel Admin + API WhatsApp
- */
-
+// Servidor da Padoca - Backend completo
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
@@ -21,23 +17,19 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 const WHATSAPP_API_KEY = process.env.WHATSAPP_API_KEY || 'padoca-local-2026';
 
-// Configurar sessões
 app.use(session({
   secret: process.env.SESSION_SECRET || 'padoca-secret-key-2026',
   resave: false,
   saveUninitialized: false,
   store: new SQLiteStore(),
-  cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 } // 24 horas
+  cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 }
 }));
 
-// Forçar HTTPS em produção
 if (process.env.NODE_ENV === 'production') {
   app.use(forceHttps);
 }
 
-// ==================== CONFIGURAÇÕES ====================
-
-// Configurar multer para upload de imagens
+// Upload de imagens
 const uploadsDir = path.join(__dirname, 'uploads');
 
 const storage = multer.diskStorage({
@@ -54,7 +46,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({
   storage: storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+  limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     const allowedTypes = /jpeg|jpg|png|gif|webp/;
     const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
@@ -67,12 +59,11 @@ const upload = multer({
   }
 });
 
-// Middleware
 app.use(cors());
 app.use(express.json());
-app.use(express.urlencoded({ extended: true })); // Para forms
+app.use(express.urlencoded({ extended: true }));
 
-// Configurações do Admin
+// Admin
 const ADMIN_USUARIO = process.env.ADMIN_USER || 'admin';
 const ADMIN_SENHA_HASH = bcrypt.hashSync(process.env.ADMIN_PASS || 'admin123', 10);
 const ADMIN_DOMAIN = process.env.ADMIN_DOMAIN || '';
@@ -84,34 +75,26 @@ app.use((req, res, next) => {
   if (!isAdminRequest) return next();
 
   const host = (req.headers.host || '').split(':')[0];
-  // Permitido se o Host corresponder ao domínio configurado
   if (ADMIN_DOMAIN && host === ADMIN_DOMAIN) return next();
-
-  // Verificar sessão de login
   if (req.session.adminLoggedIn) return next();
 
-  // Token de bypass via header ou query
   const token = req.headers['x-admin-token'] || req.query.admin_token;
   if (ADMIN_BYPASS_TOKEN && token === ADMIN_BYPASS_TOKEN) return next();
 
-  // Redirecionar para login
   if (req.path === '/painel-admin.html') {
     return res.redirect('/login');
   }
   return res.status(403).send('Acesso restrito. Faça login em /login.');
 });
 
-app.use(express.static('.')); // Servir arquivos estáticos
-app.use('/uploads', express.static(uploadsDir)); // Servir uploads
+app.use(express.static('.'));
+app.use('/uploads', express.static(uploadsDir));
 
-// Rota para favicon (evitar erro 404)
 app.get('/favicon.ico', (req, res) => {
   res.status(204).end();
 });
 
-// ==================== AUTENTICAÇÃO ADMIN ====================
-
-// Rota GET /login
+// Login e autenticação
 app.get('/login', (req, res) => {
   if (req.session.adminLoggedIn) return res.redirect('/painel-admin.html');
   res.send(`
@@ -145,7 +128,6 @@ app.get('/login', (req, res) => {
   `);
 });
 
-// Rota POST /login
 app.post('/login', (req, res) => {
   const { usuario, senha } = req.body;
   if (usuario === ADMIN_USUARIO && bcrypt.compareSync(senha, ADMIN_SENHA_HASH)) {
@@ -175,7 +157,6 @@ app.post('/login', (req, res) => {
   `);
 });
 
-// Rota /logout
 app.get('/logout', (req, res) => {
   req.session.destroy((err) => {
     if (err) console.error('Erro ao fazer logout:', err);
@@ -183,8 +164,7 @@ app.get('/logout', (req, res) => {
   });
 });
 
-// ==================== WHATSAPP ====================
-
+// WhatsApp
 let whatsappClient = null;
 let qrCodeData = null;
 let isWhatsAppConnected = false;
@@ -207,10 +187,10 @@ async function inicializarWhatsApp() {
           '--disable-accelerated-2d-canvas',
           '--no-first-run',
           '--no-zygote',
-          '--single-process', // Pode ajudar em alguns casos
+          '--single-process',
           '--disable-gpu'
         ],
-        timeout: 60000 // Timeout de 60 segundos para inicialização
+        timeout: 60000
       }
     });
 
@@ -398,7 +378,7 @@ async function salvarItemPromotions(promotions) {
   await fs.writeFile(ITEM_PROMOTIONS_FILE, JSON.stringify(promotions, null, 2));
 }
 
-// ========== ADDONS (ADICIONAIS) ==========
+// Ler/salvar adicionais
 async function lerAddons() {
   try {
     const data = await fs.readFile(ADDONS_FILE, 'utf8');
@@ -412,9 +392,7 @@ async function salvarAddons(addons) {
   await fs.writeFile(ADDONS_FILE, JSON.stringify(addons || [], null, 2));
 }
 
-
-// ==================== UTILIDADES ====================
-
+// Utilidades
 const normalizarWhatsapp = (valor = '') => (valor || '').replace(/\D/g, '');
 
 const horarios = {
@@ -438,8 +416,7 @@ function expedienteFechado(agora = new Date()) {
   return horaAtual > horaFechamento;
 }
 
-// ==================== ROTAS - LOGIN ====================
-
+// API - Login
 app.post('/api/login', (req, res) => {
   const { usuario, senha } = req.body;
 
@@ -457,8 +434,7 @@ app.post('/api/login', (req, res) => {
   }
 });
 
-// ==================== ROTAS - PEDIDOS ====================
-
+// API - Pedidos
 app.post('/api/pedidos', async (req, res) => {
   try {
     const { cliente, itens, total, endereco, bairro, taxaEntrega, tipoEntrega, observacoes, pagamento } = req.body;
@@ -1066,7 +1042,7 @@ async function iniciarServidor() {
     console.log('✅ Arquivos inicializados');
 
     // Servidor HTTP
-    app.listen(PORT, 'localhost', () => {
+    app.listen(PORT, '0.0.0.0', () => {
       console.log('\n🍞 ========================================');
       console.log('   PADOCA ONLINE - Servidor Único');
       console.log('========================================');
