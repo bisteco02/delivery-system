@@ -8,6 +8,15 @@ let somAtivo = false;
 let autoConfirmar = false;
 let ultimoPedidoIds = new Set();
 let primeiraVez = true;
+const AUTO_REFRESH_MS = 30000;
+
+const MINIMIZED_KEY = 'adminMinimizedPedidos';
+const getMinimizedSet = () => {
+    try { return new Set(JSON.parse(localStorage.getItem(MINIMIZED_KEY) || '[]')); } catch { return new Set(); }
+};
+const saveMinimizedSet = (set) => {
+    try { localStorage.setItem(MINIMIZED_KEY, JSON.stringify(Array.from(set))); } catch {}
+};
 
 let adminPrefs = (() => {
     try { return JSON.parse(localStorage.getItem('adminPrefs') || '{}'); } catch { return {}; }
@@ -38,7 +47,6 @@ const fetchTenant = (path, options = {}) => fetch(`${API_BASE}${path}`, {
     headers: { ...(options.headers || {}), ...tenantHeaders }
 });
 
-// Helper para ler JSON seguro — em caso de retorno HTML/erro, inclui o texto no erro
 async function parseJSONResponse(response) {
     const text = await response.text();
     try {
@@ -57,7 +65,6 @@ function ajustarLinksTenant() {
     if (back) back.href = 'index.html';
 }
 
-// Funções do Modal de Confirmação de Filtro
 function abrirModalFiltro(tipo, dados) {
     const modal = document.getElementById('modal-filtro-confirmacao');
     const header = document.getElementById('modal-filtro-header');
@@ -95,7 +102,6 @@ document.addEventListener('click', (e) => {
     }
 });
 
-// Modal Genérico de Notificação
 function mostrarModal(tipo, titulo, mensagem) {
     const modal = document.getElementById('modal-notificacao');
     const header = document.getElementById('modal-notif-header');
@@ -104,7 +110,6 @@ function mostrarModal(tipo, titulo, mensagem) {
     const mensagemEl = document.getElementById('modal-notif-mensagem');
     const btn = document.getElementById('modal-notif-btn');
     
-    // Configurar estilo baseado no tipo
     if (tipo === 'sucesso') {
         header.className = 'bg-gradient-to-r from-green-600 to-green-700 p-6 text-white';
         icon.className = 'fa fa-check-circle text-3xl';
@@ -146,7 +151,6 @@ document.addEventListener('click', (e) => {
     }
 });
 
-// Auto-refresh helpers
 function iniciarAutoRefresh() {
     if (autoRefreshInterval) clearInterval(autoRefreshInterval);
     autoRefreshInterval = setInterval(() => {
@@ -155,7 +159,7 @@ function iniciarAutoRefresh() {
         if (visivel) {
             carregarPedidos();
         }
-    }, 8000);
+    }, AUTO_REFRESH_MS);
 }
 
 function pararAutoRefresh() {
@@ -165,17 +169,14 @@ function pararAutoRefresh() {
     }
 }
 
-// Variáveis globais do modal de edição
 let editingItemIndex = null;
 let editingPromotionIndex = null;
 let confirmationCallback = null;
-let promotionMode = 'manual'; // 'manual' ou 'combo'
-let selectedComboItems = []; // itens selecionados para combo
-let comboFilterCategory = 'todos'; // categoria filtrada
-let customCategories = []; // categorias customizadas pelo usuário
+let promotionMode = 'manual';
+let selectedComboItems = [];
+let comboFilterCategory = 'todos';
+let customCategories = [];
 
-
-// Cardápio completo (mesmos dados do index.html)
 let promotions = [];
 
 let menu = [
@@ -229,7 +230,6 @@ let menu = [
     {name: "Guaraná Antártica Lata", category: "bebidas", price: 5.00, image: "./assets/Guarana Lata.jpg", description: "", ativo: true}
 ];
 
-// Som de notificação
 const audioNovo = new Audio('/assets/fart-with-reverb.mp3');
 
 const tabTitles = {
@@ -245,7 +245,6 @@ const tabTitles = {
 };
 function setTab(tabId, addon = null, index = -1) {
     document.querySelectorAll('.tab-section').forEach(sec => sec.classList.add('hidden'));
-    // Mostrar a seção da aba selecionada
     const target = document.getElementById(tabId);
     if (target) target.classList.remove('hidden');
 
@@ -854,6 +853,17 @@ function renderizarPedidos() {
             </div>
         `;
     }).join('');
+
+    const minimized = getMinimizedSet();
+    pedidosFiltrados.forEach(pedido => {
+        const detalhes = document.getElementById(`pedido-detalhes-${pedido.id}`);
+        const btn = document.getElementById(`pedido-toggle-${pedido.id}`);
+        if (!detalhes || !btn) return;
+        if (minimized.has(String(pedido.id))) {
+            detalhes.classList.add('hidden');
+            btn.innerHTML = '<i class="fa fa-plus"></i> Expandir';
+        }
+    });
 }
 
 function togglePedidoDetalhes(pedidoId) {
@@ -864,9 +874,15 @@ function togglePedidoDetalhes(pedidoId) {
     if (isHidden) {
         detalhes.classList.remove('hidden');
         btn.innerHTML = '<i class="fa fa-minus"></i> Minimizar';
+        const minimized = getMinimizedSet();
+        minimized.delete(String(pedidoId));
+        saveMinimizedSet(minimized);
     } else {
         detalhes.classList.add('hidden');
         btn.innerHTML = '<i class="fa fa-plus"></i> Expandir';
+        const minimized = getMinimizedSet();
+        minimized.add(String(pedidoId));
+        saveMinimizedSet(minimized);
     }
 }
 
@@ -875,6 +891,12 @@ function minimizarTodosPedidos() {
     document.querySelectorAll('[id^="pedido-toggle-"]').forEach(btn => {
         btn.innerHTML = '<i class="fa fa-plus"></i> Expandir';
     });
+    const minimized = new Set();
+    document.querySelectorAll('[id^="pedido-detalhes-"]').forEach(el => {
+        const id = el.id.replace('pedido-detalhes-', '');
+        minimized.add(String(id));
+    });
+    saveMinimizedSet(minimized);
 }
 
 function expandirTodosPedidos() {
@@ -882,6 +904,7 @@ function expandirTodosPedidos() {
     document.querySelectorAll('[id^="pedido-toggle-"]').forEach(btn => {
         btn.innerHTML = '<i class="fa fa-minus"></i> Minimizar';
     });
+    saveMinimizedSet(new Set());
 }
 
 function getStatusClass(status) {
@@ -2823,10 +2846,10 @@ document.addEventListener('DOMContentLoaded', async function() {
         localStorage.setItem('autoRefresh', isChecked ? 'true' : 'false');
         if (isChecked) {
             console.log('🔄 Auto-refresh HABILITADO');
-            autoRefreshInterval = setInterval(carregarPedidos, 15000);
+            iniciarAutoRefresh();
         } else {
             console.log('✅ Auto-refresh desabilitado');
-            clearInterval(autoRefreshInterval);
+            pararAutoRefresh();
         }
     });
 
