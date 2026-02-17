@@ -1048,54 +1048,118 @@ app.post('/whatsapp/disconnect', (req, res) => {
 
 // ==================== MERCADO PAGO - ASSINATURA ====================
 
-// Criar link de assinatura
+// Criar preferência de assinatura no Mercado Pago
 app.post('/api/criar-assinatura', async (req, res) => {
   try {
     const { email, cardNumber, cardExpiry, cardCvv, cardHolder } = req.body;
+    const accessToken = process.env.MP_ACCESS_TOKEN;
     
     if (!email || !cardNumber || !cardExpiry || !cardCvv || !cardHolder) {
       return res.status(400).json({ success: false, error: 'Dados incompletos' });
     }
-
-    console.log('💳 Processando assinatura de:', email);
     
-    // Aqui você salvaria os dados em um banco de dados
-    // Por enquanto, simulamos o processamento
-    const subscriptionId = `SUB_${Date.now()}`;
-    const subscriptionData = {
-      id: subscriptionId,
-      email,
-      cardHolder,
-      amount: 200,
-      currency: 'BRL',
-      status: 'active',
-      createdAt: new Date().toISOString(),
-      nextBilling: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
-    };
-    
-    // Salvar em arquivo temporário (em produção seria banco de dados)
-    try {
-      const subscriptionsFile = path.join(__dirname, 'subscriptions.json');
-      let subscriptions = [];
-      
-      if (fsSync.existsSync(subscriptionsFile)) {
-        const data = fsSync.readFileSync(subscriptionsFile, 'utf-8');
-        subscriptions = JSON.parse(data || '[]');
-      }
-      
-      subscriptions.push(subscriptionData);
-      fsSync.writeFileSync(subscriptionsFile, JSON.stringify(subscriptions, null, 2));
-      
-      console.log('✅ Assinatura registrada:', subscriptionId);
-    } catch (err) {
-      console.error('⚠️  Erro ao salvar assinatura:', err.message);
+    if (!accessToken) {
+      return res.status(500).json({ success: false, error: 'Credenciais Mercado Pago não configuradas' });
     }
+
+    console.log('💳 Criando preferência recorrente para:', email);
     
-    res.json({ 
-      success: true, 
-      message: 'Assinatura processada com sucesso',
-      subscriptionId: subscriptionId
+    // Criar preferência recorrente (assinatura mensal)
+    const preferenceData = {
+      items: [
+        {
+          id: 'plan_pro',
+          title: 'Plano Pro - Padoca Delivery',
+          description: 'Assinatura mensal do painel administrativo',
+          quantity: 1,
+          unit_price: parseFloat(process.env.MP_PLAN_PRICE || 200),
+          currency_id: 'BRL'
+        }
+      ],
+      payer: {
+        name: cardHolder,
+        email: email
+      },
+      back_urls: {
+        success: `https://${DOMAIN}/painel-admin.html?payment=success`,
+        failure: `https://${DOMAIN}/painel-admin.html?payment=failure`,
+        pending: `https://${DOMAIN}/painel-admin.html?payment=pending`
+      },
+      auto_return: 'approved'
+    };
+
+    // Fazer chamada HTTP para API do Mercado Pago
+    const https = require('https');
+    const url = new URL('https://api.mercadopago.com/checkout/preferences');
+    
+    const postData = JSON.stringify(preferenceData);
+    
+    const options = {
+      hostname: 'api.mercadopago.com',
+      path: '/checkout/preferences',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Length': postData.length,
+        'Authorization': `Bearer ${accessToken}`
+      }
+    };
+
+    const httpReq = https.request(options, (httpRes) => {
+      let data = '';
+
+      httpRes.on('data', (chunk) => {
+        data += chunk;
+      });
+
+      httpRes.on('end', () => {
+        try {
+          const result = JSON.parse(data);
+          
+          if (result.id) {
+            console.log('✅ Preferência criada:', result.id);
+            
+            // Salvar dados da assinatura
+            const subscriptionsFile = path.join(__dirname, 'subscriptions.json');
+            let subscriptions = [];
+            
+            if (fsSync.existsSync(subscriptionsFile)) {
+              const fileData = fsSync.readFileSync(subscriptionsFile, 'utf-8');
+              subscriptions = JSON.parse(fileData || '[]');
+            }
+            
+            subscriptions.push({
+              id: result.id,
+              email,
+              cardHolder,
+              amount: 200,
+              status: 'pending',
+              createdAt: new Date().toISOString()
+            });
+            
+            fsSync.writeFileSync(subscriptionsFile, JSON.stringify(subscriptions, null, 2));
+            
+            res.json({ 
+              success: true,
+              init_point: result.init_point
+            });
+          } else {
+            throw new Error(result.message || 'Erro ao criar preferência');
+          }
+        } catch (err) {
+          console.error('❌ Erro ao processar resposta:', err.message);
+          res.status(500).json({ success: false, error: err.message });
+        }
+      });
     });
+
+    httpReq.on('error', (error) => {
+      console.error('❌ Erro na requisição:', error.message);
+      res.status(500).json({ success: false, error: error.message });
+    });
+
+    httpReq.write(postData);
+    httpReq.end();
     
   } catch (error) {
     console.error('❌ Erro ao criar assinatura:', error.message);

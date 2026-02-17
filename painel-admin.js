@@ -997,7 +997,7 @@ async function iniciarAssinatura() {
     try {
         const btn = event.target;
         btn.disabled = true;
-        btn.textContent = '⏳ Processando...';
+        btn.textContent = '⏳ Redirecionando...';
 
         // Enviar dados para servidor
         const response = await fetch('/api/criar-assinatura', {
@@ -1009,22 +1009,15 @@ async function iniciarAssinatura() {
                 cardExpiry: cardExpiry,
                 cardCvv: cardCvv,
                 cardHolder: cardHolder
-            }),
-            timeout: 30000
+            })
         });
-
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
 
         const data = await response.json();
 
-        if (data.success) {
-            alert('✅ Assinatura ativada com sucesso!\n\nSua cobrança mensal de R$ 200,00 foi processada.\nVocê receberá um recibo por email.');
-            // Recarregar página ou limpar formulário
-            document.getElementById('payment-form').reset();
-            btn.disabled = false;
-            btn.textContent = '💳 Assinar por R$ 200/mês';
+        if (data.success && data.init_point) {
+            // Redirecionar para Mercado Pago para pagar de verdade
+            console.log('🔗 Redirecionando para:', data.init_point);
+            window.location.href = data.init_point;
         } else {
             throw new Error(data.error || 'Erro ao processar assinatura');
         }
