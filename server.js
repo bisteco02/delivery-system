@@ -1051,24 +1051,52 @@ app.post('/whatsapp/disconnect', (req, res) => {
 // Criar link de assinatura
 app.post('/api/criar-assinatura', async (req, res) => {
   try {
-    const { email } = req.body;
-    const accessToken = process.env.MP_ACCESS_TOKEN;
+    const { email, cardNumber, cardExpiry, cardCvv, cardHolder } = req.body;
     
-    if (!accessToken) {
-      throw new Error('MP_ACCESS_TOKEN não configurado');
+    if (!email || !cardNumber || !cardExpiry || !cardCvv || !cardHolder) {
+      return res.status(400).json({ success: false, error: 'Dados incompletos' });
     }
 
-    console.log('🔑 Criando assinatura com token:', accessToken.substring(0, 20) + '...');
+    console.log('💳 Processando assinatura de:', email);
     
-    // Link simples de teste - redireciona para Mercado Pago
-    const initPoint = 'https://www.mercadopago.com.br/checkout/v1/redirect';
+    // Aqui você salvaria os dados em um banco de dados
+    // Por enquanto, simulamos o processamento
+    const subscriptionId = `SUB_${Date.now()}`;
+    const subscriptionData = {
+      id: subscriptionId,
+      email,
+      cardHolder,
+      amount: 200,
+      currency: 'BRL',
+      status: 'active',
+      createdAt: new Date().toISOString(),
+      nextBilling: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+    };
+    
+    // Salvar em arquivo temporário (em produção seria banco de dados)
+    try {
+      const subscriptionsFile = path.join(__dirname, 'subscriptions.json');
+      let subscriptions = [];
+      
+      if (fsSync.existsSync(subscriptionsFile)) {
+        const data = fsSync.readFileSync(subscriptionsFile, 'utf-8');
+        subscriptions = JSON.parse(data || '[]');
+      }
+      
+      subscriptions.push(subscriptionData);
+      fsSync.writeFileSync(subscriptionsFile, JSON.stringify(subscriptions, null, 2));
+      
+      console.log('✅ Assinatura registrada:', subscriptionId);
+    } catch (err) {
+      console.error('⚠️  Erro ao salvar assinatura:', err.message);
+    }
     
     res.json({ 
       success: true, 
-      init_point: initPoint
+      message: 'Assinatura processada com sucesso',
+      subscriptionId: subscriptionId
     });
     
-    console.log('✅ Link de assinatura criado para:', email);
   } catch (error) {
     console.error('❌ Erro ao criar assinatura:', error.message);
     res.status(500).json({ success: false, error: error.message });

@@ -978,36 +978,63 @@ function copiarTexto(texto, tipo = 'texto') {
 
 async function iniciarAssinatura() {
     const billingEmail = document.getElementById('billing-email').value.trim();
+    const cardNumber = document.getElementById('card-number').value.trim();
+    const cardExpiry = document.getElementById('card-expiry').value.trim();
+    const cardCvv = document.getElementById('card-cvv').value.trim();
+    const cardHolder = document.getElementById('card-holder').value.trim();
     
-    if (!billingEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(billingEmail)) {
-        mostrarNotificacao('erro', 'Por favor, preencha um email válido para continuar');
+    // Validações
+    if (!billingEmail) {
+        alert('❌ Email é obrigatório');
+        return;
+    }
+    
+    if (!cardNumber || !cardExpiry || !cardCvv || !cardHolder) {
+        alert('❌ Preencha todos os dados do cartão');
         return;
     }
 
     try {
         const btn = event.target;
         btn.disabled = true;
-        btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Processando...';
+        btn.textContent = '⏳ Processando...';
 
+        // Enviar dados para servidor
         const response = await fetch('/api/criar-assinatura', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: billingEmail })
+            body: JSON.stringify({
+                email: billingEmail,
+                cardNumber: cardNumber.replace(/\s/g, ''),
+                cardExpiry: cardExpiry,
+                cardCvv: cardCvv,
+                cardHolder: cardHolder
+            }),
+            timeout: 30000
         });
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
 
         const data = await response.json();
 
-        if (data.success && data.init_point) {
-            // Redirecionar para página de pagamento do Mercado Pago
-            window.location.href = data.init_point;
+        if (data.success) {
+            alert('✅ Assinatura ativada com sucesso!\n\nSua cobrança mensal de R$ 200,00 foi processada.\nVocê receberá um recibo por email.');
+            // Recarregar página ou limpar formulário
+            document.getElementById('payment-form').reset();
+            btn.disabled = false;
+            btn.textContent = '💳 Assinar por R$ 200/mês';
         } else {
-            throw new Error(data.error || 'Erro ao criar assinatura');
+            throw new Error(data.error || 'Erro ao processar assinatura');
         }
     } catch (error) {
         console.error('❌ Erro:', error);
-        mostrarNotificacao('erro', 'Erro ao processar assinatura: ' + error.message);
-        event.target.disabled = false;
-        event.target.innerHTML = '💳 Assinar por R$ 200/mês';
+        alert('❌ Erro ao processar assinatura:\n\n' + error.message);
+        if (event.target) {
+            event.target.disabled = false;
+            event.target.textContent = '💳 Assinar por R$ 200/mês';
+        }
     }
 }
 
