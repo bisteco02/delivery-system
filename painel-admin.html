@@ -252,37 +252,82 @@
 
         <!-- Meu plano -->
         <section id="tab-categorias" class="tab-section hidden">
-            <div class="max-w-2xl mx-auto">
-                <!-- Plano Contratado -->
-                <div class="bg-white p-6 rounded shadow mb-6">
-                    <h2 class="text-2xl font-bold mb-4">Meu Plano</h2>
-                    <div class="border-2 border-blue-500 rounded-lg p-6 relative bg-blue-50">
-                        <div class="absolute top-0 right-0 bg-blue-500 text-white px-3 py-1 rounded-bl-lg text-xs font-bold">PLANO ATIVO</div>
-                        <h3 class="font-bold text-2xl mb-2">Plano Pro</h3>
-                        <p class="text-3xl font-bold text-green-600 mb-4">R$ 200<span class="text-lg">/mês</span></p>
-                        
-                        <div class="mb-6 space-y-3">
-                            <p class="text-gray-700"><strong>Período:</strong> 21 de janeiro a 21 de fevereiro de 2026</p>
-                            <p class="text-gray-700"><strong>Próxima cobrança:</strong> 21 de fevereiro de 2026</p>
-                            <p class="text-gray-700"><strong>Status:</strong> <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold">Ativo</span></p>
+            <div class="max-w-4xl mx-auto">
+                
+                <!-- Status do Plano -->
+                <div id="plan-status-active" class="bg-white p-6 rounded-lg shadow-lg mb-6 border-l-4 border-green-500 hidden">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <h2 class="text-3xl font-bold text-green-700 mb-2">✅ Plano Ativo</h2>
+                            <p class="text-gray-600">Seu painel administrativo está funcionando normalmente</p>
                         </div>
+                        <span class="bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-bold">ATIVO</span>
+                    </div>
+                </div>
 
-                        <div class="border-t pt-4">
-                            <h4 class="font-bold text-lg mb-3">Inclusos no plano:</h4>
-                            <ul class="text-gray-700 space-y-2">
-                                <li class="flex items-center gap-2"><span class="text-green-600">✅</span> Produtos ilimitados</li>
-                                <li class="flex items-center gap-2"><span class="text-green-600">✅</span> Pedidos sem limite</li>
-                                <li class="flex items-center gap-2"><span class="text-green-600">✅</span> Relatórios de vendas</li>
-                                <li class="flex items-center gap-2"><span class="text-green-600">✅</span> Gerenciamento de clientes</li>
-                                <li class="flex items-center gap-2"><span class="text-green-600">✅</span> Suporte técnico</li>
-                            </ul>
+                <div id="plan-status-inactive" class="bg-white p-6 rounded-lg shadow-lg mb-6 border-l-4 border-red-500">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <h2 class="text-3xl font-bold text-red-700 mb-2">⚠️ Plano Inativo</h2>
+                            <p class="text-gray-600">Ative sua assinatura para usar todas as funcionalidades</p>
+                        </div>
+                        <span class="bg-red-100 text-red-800 px-4 py-2 rounded-full text-sm font-bold">INATIVO</span>
+                    </div>
+                </div>
+
+                <!-- Plano Contratado -->
+                <div class="bg-white p-8 rounded-lg shadow-lg mb-6">
+                    <h3 class="text-2xl font-bold mb-6">📋 Detalhes do Plano</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-lg">
+                            <p class="text-sm text-gray-600 mb-2">Plano</p>
+                            <p class="text-2xl font-bold text-blue-700">Pro</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-lg">
+                            <p class="text-sm text-gray-600 mb-2">Valor Mensal</p>
+                            <p class="text-2xl font-bold text-green-700">R$ 200</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-lg">
+                            <p class="text-sm text-gray-600 mb-2">Próxima Cobrança</p>
+                            <p id="next-billing" class="text-lg font-bold text-purple-700">--</p>
+                        </div>
+                    </div>
+
+                    <div class="border-t pt-6">
+                        <h4 class="font-bold text-lg mb-4">✨ Inclusos no seu plano:</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="flex items-center gap-3">
+                                <span class="text-green-600 text-xl">✅</span>
+                                <span class="text-gray-700">Produtos ilimitados</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <span class="text-green-600 text-xl">✅</span>
+                                <span class="text-gray-700">Pedidos sem limite</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <span class="text-green-600 text-xl">✅</span>
+                                <span class="text-gray-700">Relatórios de vendas</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <span class="text-green-600 text-xl">✅</span>
+                                <span class="text-gray-700">Gerenciamento de clientes</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <span class="text-green-600 text-xl">✅</span>
+                                <span class="text-gray-700">Suporte técnico 24/7</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <span class="text-green-600 text-xl">✅</span>
+                                <span class="text-gray-700">Atualizações automáticas</span>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Dados de Pagamento -->
-                <div class="bg-white p-6 rounded shadow">
-                    <h3 class="text-2xl font-bold mb-4">💳 Dados de Cobrança</h3>
+                <div class="bg-white p-8 rounded-lg shadow-lg">
+                    <h3 class="text-2xl font-bold mb-6">💳 Dados de Cobrança</h3>
                     
                     <form id="payment-form" class="space-y-4">
                         <div>
@@ -313,15 +358,21 @@
 
                         <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-gray-700">
                             <p class="mb-2"><strong>🔒 Segurança:</strong> Seus dados de cartão são criptografados e protegidos pelo Mercado Pago.</p>
-                            <p><strong>📄 Recibos:</strong> Você receberá um recibo em seu email a cada cobrança.</p>
+                            <p class="mb-2"><strong>📄 Recibos:</strong> Você receberá um recibo em seu email a cada cobrança.</p>
                             <p><strong>💰 Valor:</strong> R$ 200,00 cobrado mensalmente de forma automática.</p>
                         </div>
 
-                        <button type="button" onclick="iniciarAssinatura()" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-lg transition flex items-center justify-center gap-2">
-                            💳 Assinar por R$ 200/mês
-                        </button>
+                        <div class="flex gap-4">
+                            <button type="button" onclick="iniciarAssinatura()" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-lg transition flex items-center justify-center gap-2">
+                                <i class="fa fa-credit-card"></i> Ativar Plano
+                            </button>
+                            <button type="button" id="btn-cancelar-plano" onclick="cancelarPlano()" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-3 rounded-lg transition flex items-center justify-center gap-2 hidden">
+                                <i class="fa fa-times"></i> Cancelar Plano
+                            </button>
+                        </div>
                     </form>
                 </div>
+
             </div>
         </section>
 

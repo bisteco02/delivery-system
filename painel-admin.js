@@ -976,6 +976,56 @@ function copiarTexto(texto, tipo = 'texto') {
 
 // ==================== MERCADO PAGO - ASSINATURA ====================
 
+// Verificar status do plano ao carregar
+async function verificarStatusPlano() {
+    try {
+        const subscriptions = localStorage.getItem('userSubscription');
+        if (subscriptions) {
+            const sub = JSON.parse(subscriptions);
+            
+            // Mostrar plano ativo
+            document.getElementById('plan-status-active').classList.remove('hidden');
+            document.getElementById('plan-status-inactive').classList.add('hidden');
+            document.getElementById('btn-cancelar-plano').classList.remove('hidden');
+            
+            // Atualizar próxima cobrança
+            const nextBilling = new Date(sub.nextBilling);
+            document.getElementById('next-billing').textContent = nextBilling.toLocaleDateString('pt-BR');
+            
+            // Desabilitar inputs
+            document.getElementById('card-number').disabled = true;
+            document.getElementById('card-expiry').disabled = true;
+            document.getElementById('card-cvv').disabled = true;
+            document.getElementById('card-holder').disabled = true;
+            document.getElementById('billing-email').disabled = true;
+            
+            // Preencher dados
+            document.getElementById('card-holder').value = sub.cardHolder || '';
+            document.getElementById('billing-email').value = sub.email || '';
+            
+        } else {
+            // Mostrar plano inativo
+            document.getElementById('plan-status-inactive').classList.remove('hidden');
+            document.getElementById('plan-status-active').classList.add('hidden');
+            document.getElementById('btn-cancelar-plano').classList.add('hidden');
+            
+            // Habilitar inputs
+            document.getElementById('card-number').disabled = false;
+            document.getElementById('card-expiry').disabled = false;
+            document.getElementById('card-cvv').disabled = false;
+            document.getElementById('card-holder').disabled = false;
+            document.getElementById('billing-email').disabled = false;
+        }
+    } catch (error) {
+        console.error('Erro ao verificar plano:', error);
+    }
+}
+
+// Executar ao carregar página
+document.addEventListener('DOMContentLoaded', () => {
+    verificarStatusPlano();
+});
+
 async function iniciarAssinatura() {
     const billingEmail = document.getElementById('billing-email').value.trim();
     const cardNumber = document.getElementById('card-number').value.trim();
@@ -1015,7 +1065,17 @@ async function iniciarAssinatura() {
         const data = await response.json();
 
         if (data.success && data.init_point) {
-            // Redirecionar para Mercado Pago para pagar de verdade
+            // Salvar info localmente
+            localStorage.setItem('userSubscription', JSON.stringify({
+                email: billingEmail,
+                cardHolder: cardHolder,
+                amount: 200,
+                status: 'active',
+                createdAt: new Date().toISOString(),
+                nextBilling: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+            }));
+            
+            // Redirecionar para Mercado Pago
             console.log('🔗 Redirecionando para:', data.init_point);
             window.location.href = data.init_point;
         } else {
@@ -1026,8 +1086,16 @@ async function iniciarAssinatura() {
         alert('❌ Erro ao processar assinatura:\n\n' + error.message);
         if (event.target) {
             event.target.disabled = false;
-            event.target.textContent = '💳 Assinar por R$ 200/mês';
+            event.target.textContent = '💳 Ativar Plano';
         }
+    }
+}
+
+function cancelarPlano() {
+    if (confirm('⚠️ Tem certeza que deseja CANCELAR sua assinatura?\n\nVocê perderá acesso ao painel administrativo.')) {
+        localStorage.removeItem('userSubscription');
+        alert('✅ Assinatura cancelada com sucesso!');
+        location.reload();
     }
 }
 
