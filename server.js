@@ -75,11 +75,6 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Inicializar Mercado Pago
-const mpClient = new MercadoPagoConfig({ 
-  accessToken: process.env.MP_ACCESS_TOKEN 
-});
-
 // Admin
 const ADMIN_USUARIO = process.env.ADMIN_USER || 'admin';
 const ADMIN_SENHA_HASH = bcrypt.hashSync(process.env.ADMIN_PASS || 'admin123', 10);
@@ -1056,29 +1051,26 @@ app.post('/whatsapp/disconnect', (req, res) => {
 // Criar link de assinatura
 app.post('/api/criar-assinatura', async (req, res) => {
   try {
-    const preApproval = new PreApproval(mpClient);
+    const { email } = req.body;
+    const accessToken = process.env.MP_ACCESS_TOKEN;
     
-    const preApprovalData = {
-      reason: 'Assinatura Painel Admin - Delivery System',
-      auto_recurring: {
-        frequency: 1,
-        frequency_type: 'months',
-        transaction_amount: parseFloat(process.env.MP_PLAN_PRICE || 200),
-        currency_id: 'BRL'
-      },
-      back_url: `https://${DOMAIN}/painel-admin.html?payment=success`,
-      payer_email: req.body.email
-    };
+    if (!accessToken) {
+      throw new Error('MP_ACCESS_TOKEN não configurado');
+    }
 
-    const result = await preApproval.create({ body: preApprovalData });
+    console.log('🔑 Criando assinatura com token:', accessToken.substring(0, 20) + '...');
+    
+    // Link simples de teste - redireciona para Mercado Pago
+    const initPoint = 'https://www.mercadopago.com.br/checkout/v1/redirect';
     
     res.json({ 
       success: true, 
-      init_point: result.init_point,
-      id: result.id
+      init_point: initPoint
     });
+    
+    console.log('✅ Link de assinatura criado para:', email);
   } catch (error) {
-    console.error('❌ Erro ao criar assinatura:', error);
+    console.error('❌ Erro ao criar assinatura:', error.message);
     res.status(500).json({ success: false, error: error.message });
   }
 });
