@@ -1086,27 +1086,26 @@ app.post('/api/criar-assinatura', async (req, res) => {
 // Webhook para notificações do Mercado Pago
 app.post('/api/mercadopago/webhook', async (req, res) => {
   try {
-    const { type, data } = req.body;
+    const { type, data, action } = req.body;
     
-    console.log('📬 Webhook Mercado Pago:', type, data);
+    console.log('📬 Webhook Mercado Pago recebido:', { type, action, dataId: data?.id });
     
-    if (type === 'payment') {
-      const payment = new Payment(mpClient);
-      const paymentInfo = await payment.get({ id: data.id });
-      
-      console.log('💳 Pagamento:', paymentInfo);
-      
-      // Aqui você pode salvar o status do pagamento em um arquivo/banco
-      // Por enquanto apenas log
-      if (paymentInfo.status === 'approved') {
-        console.log('✅ Pagamento aprovado!');
-      }
+    // Processar notificação
+    if (type === 'payment' && data?.id) {
+      console.log(`✅ Pagamento notificado: ${data.id}`);
+      // Aqui você pode salvar no banco ou arquivo
+    } else if (type === 'plan' && data?.id) {
+      console.log(`📋 Plano notificado: ${data.id}`);
+    } else if (type === 'subscription' && data?.id) {
+      console.log(`🔄 Assinatura notificada: ${data.id}`);
     }
     
+    // Sempre responder com 200 OK
     res.sendStatus(200);
   } catch (error) {
-    console.error('❌ Erro no webhook:', error);
-    res.sendStatus(500);
+    console.error('❌ Erro ao processar webhook:', error.message);
+    // Mesmo com erro, responder com 200 para evitar retry infinito
+    res.sendStatus(200);
   }
 });
 
