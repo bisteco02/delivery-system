@@ -1084,6 +1084,14 @@ app.post('/api/criar-assinatura', async (req, res) => {
 });
 
 // Webhook para notificações do Mercado Pago
+app.get('/api/mercadopago/webhook', (req, res) => {
+  res.json({ 
+    status: 200, 
+    message: 'Webhook Mercado Pago - Aguardando notificações (use POST)',
+    ready: true 
+  });
+});
+
 app.post('/api/mercadopago/webhook', async (req, res) => {
   try {
     const { type, data, action } = req.body;
