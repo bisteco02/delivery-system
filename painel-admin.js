@@ -1075,11 +1075,6 @@ async function verificarStatusPlano() {
     }
 }
 
-// Executar ao carregar página
-document.addEventListener('DOMContentLoaded', () => {
-    verificarStatusPlano();
-});
-
 async function iniciarAssinatura() {
     const billingEmail = document.getElementById('billing-email').value.trim();
     const cardNumber = document.getElementById('card-number').value.trim();
