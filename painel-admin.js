@@ -976,6 +976,60 @@ function copiarTexto(texto, tipo = 'texto') {
 
 // ==================== MERCADO PAGO - ASSINATURA ====================
 
+// Máscara para validade (MM/AA)
+document.addEventListener('DOMContentLoaded', () => {
+    verificarStatusPlano();
+    
+    // Máscara de validade
+    const cardExpiryInput = document.getElementById('card-expiry');
+    if (cardExpiryInput) {
+        cardExpiryInput.addEventListener('keydown', (e) => {
+            const value = e.target.value;
+            
+            // Permitir deleção normal
+            if (e.key === 'Backspace' || e.key === 'Delete') {
+                return;
+            }
+        });
+        
+        cardExpiryInput.addEventListener('input', (e) => {
+            let value = e.target.value.replace(/\D/g, '');
+            
+            if (value.length >= 2) {
+                value = value.slice(0, 2) + '/' + value.slice(2, 4);
+            }
+            
+            e.target.value = value;
+        });
+    }
+    
+    // Máscara de número do cartão
+    const cardNumberInput = document.getElementById('card-number');
+    if (cardNumberInput) {
+        cardNumberInput.addEventListener('input', (e) => {
+            let value = e.target.value.replace(/\D/g, '');
+            let formattedValue = '';
+            
+            for (let i = 0; i < value.length; i++) {
+                if (i > 0 && i % 4 === 0) {
+                    formattedValue += ' ';
+                }
+                formattedValue += value[i];
+            }
+            
+            e.target.value = formattedValue;
+        });
+    }
+    
+    // Máscara de CVV (apenas números)
+    const cardCvvInput = document.getElementById('card-cvv');
+    if (cardCvvInput) {
+        cardCvvInput.addEventListener('input', (e) => {
+            e.target.value = e.target.value.replace(/\D/g, '');
+        });
+    }
+});
+
 // Verificar status do plano ao carregar
 async function verificarStatusPlano() {
     try {
