@@ -477,7 +477,17 @@ async function inicializarWhatsApp() {
     whatsappClient.on('disconnected', () => {
       isWhatsAppConnected = false;
       connectionStatus = 'disconnected';
-      console.log('⚠️  WhatsApp desconectado');
+      console.log('⚠️  WhatsApp desconectado - Tentando reconectar em 10 segundos...');
+      
+      // Tentar reconectar após 10 segundos
+      setTimeout(() => {
+        console.log('🔄 Tentando reconectar WhatsApp...');
+        try {
+          whatsappClient.initialize();
+        } catch (error) {
+          console.error('Erro ao reconectar:', error);
+        }
+      }, 10000);
     });
 
     await Promise.race([

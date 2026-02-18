@@ -3702,7 +3702,9 @@ document.addEventListener('DOMContentLoaded', async function() {
 
 // ==================== WHATSAPP ====================
 
-async function carregarStatusWhatsApp() {
+let whatsappCheckInterval = null;
+
+async function verificarStatusWhatsApp() {
     try {
         const response = await fetch('/whatsapp/status');
         const data = await response.json();
@@ -3710,36 +3712,59 @@ async function carregarStatusWhatsApp() {
         const statusText = document.getElementById('status-text');
         const connectedNumber = document.getElementById('connected-number');
         const companyNumber = document.getElementById('company-number');
+        const lastSync = document.getElementById('last-sync');
         const qrSection = document.getElementById('qr-section');
         const connectedSection = document.getElementById('connected-section');
+        const errorSection = document.getElementById('error-section');
+        const statusBadge = document.getElementById('whatsapp-status-badge');
+        
+        // Atualizar hora de sincronização
+        const now = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        lastSync.textContent = now;
         
         if (data.connected) {
-            statusText.textContent = 'Conectado';
-            statusText.className = 'text-green-600 font-semibold';
+            statusText.innerHTML = '<span class="text-green-600">🟢 Conectado</span>';
             connectedNumber.textContent = data.number || '-';
+            statusBadge.innerHTML = '<i class="fas fa-circle mr-2" style="color: #22c55e; animation: pulse 2s infinite;"></i> Conectado';
+            statusBadge.className = 'px-4 py-2 rounded-full font-semibold text-white bg-green-500';
+            
             connectedSection.classList.remove('hidden');
             qrSection.classList.add('hidden');
-        } else if (data.qr) {
-            statusText.textContent = 'Aguardando conexão';
-            statusText.className = 'text-yellow-600 font-semibold';
+            errorSection.classList.add('hidden');
+            
+            sucesso('WhatsApp conectado com sucesso!');
+        } else if (data.status === 'qr_ready') {
+            statusText.innerHTML = '<span class="text-yellow-600">🟡 Aguardando Conexão</span>';
             connectedNumber.textContent = '-';
+            statusBadge.innerHTML = '<i class="fas fa-circle mr-2" style="color: #eab308; animation: pulse 2s infinite;"></i> Aguardando QR';
+            statusBadge.className = 'px-4 py-2 rounded-full font-semibold text-white bg-yellow-500';
+            
             qrSection.classList.remove('hidden');
             connectedSection.classList.add('hidden');
+            errorSection.classList.add('hidden');
             
-            // Gerar QR code
-            const qrContainer = document.getElementById('qr-code');
-            qrContainer.innerHTML = '';
-            new QRCode(qrContainer, {
-                text: data.qr,
-                width: 256,
-                height: 256
-            });
+            // Gerar QR code se tiver dados
+            if (data.qr) {
+                const qrContainer = document.getElementById('qr-code');
+                qrContainer.innerHTML = '';
+                new QRCode(qrContainer, {
+                    text: data.qr,
+                    width: 300,
+                    height: 300,
+                    colorDark: '#000000',
+                    colorLight: '#ffffff',
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+            }
         } else {
-            statusText.textContent = 'Desconectado';
-            statusText.className = 'text-red-600 font-semibold';
+            statusText.innerHTML = '<span class="text-red-600">🔴 Desconectado</span>';
             connectedNumber.textContent = '-';
+            statusBadge.innerHTML = '<i class="fas fa-circle mr-2" style="color: #ef4444; animation: pulse 2s infinite;"></i> Desconectado';
+            statusBadge.className = 'px-4 py-2 rounded-full font-semibold text-white bg-red-500';
+            
             qrSection.classList.add('hidden');
             connectedSection.classList.add('hidden');
+            errorSection.classList.add('hidden');
         }
         
         // Carregar número da empresa
@@ -3751,8 +3776,29 @@ async function carregarStatusWhatsApp() {
         }
         
     } catch (error) {
-        console.error('Erro ao carregar status WhatsApp:', error);
-        document.getElementById('status-text').textContent = 'Erro ao verificar';
+        console.error('Erro ao verificar status WhatsApp:', error);
+        document.getElementById('status-text').innerHTML = '<span class="text-red-600">Erro ao verificar</span>';
+        document.getElementById('error-section').classList.remove('hidden');
+        document.getElementById('error-message').textContent = 'Falha na comunicação com o servidor: ' + error.message;
+    }
+}
+
+// Iniciar nova conexão
+async function iniciarNovaConexao() {
+    try {
+        erro('Recarregando página para reiniciar...');
+        setTimeout(() => location.reload(), 1500);
+    } catch (error) {
+        console.error('Erro:', error);
+    }
+}
+
+async function carregarStatusWhatsApp() {
+    await verificarStatusWhatsApp();
+    
+    // Iniciar verificação automática a cada 10 segundos
+    if (!whatsappCheckInterval) {
+        whatsappCheckInterval = setInterval(verificarStatusWhatsApp, 10000);
     }
 }
 
@@ -3778,10 +3824,13 @@ document.getElementById('disconnect-whatsapp')?.addEventListener('click', async 
     if (confirmou) {
         try {
             await fetch('/whatsapp/disconnect', { method: 'POST' });
-            mostrarConfirmacao('✅ Sucesso', 'WhatsApp desconectado!');
-            carregarStatusWhatsApp();
+            sucesso('WhatsApp desconectado! Recarregando...');
+            setTimeout(() => {
+                if (whatsappCheckInterval) clearInterval(whatsappCheckInterval);
+                verificarStatusWhatsApp();
+            }, 1500);
         } catch (error) {
-            mostrarConfirmacao('❌ Erro', 'Erro ao desconectar WhatsApp');
+            erro('Erro ao desconectar WhatsApp: ' + error.message);
         }
     }
 });
