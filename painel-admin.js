@@ -2845,6 +2845,23 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Limpar auto-refresh para evitar reloads acidentais
     localStorage.removeItem('autoRefresh');
 
+    // Verificar se há parâmetro de aba na URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const tabParam = urlParams.get('tab');
+    if (tabParam) {
+      // Remover parâmetro da URL para não ficar feio
+      window.history.replaceState({}, document.title, window.location.pathname);
+      
+      // Abrir a aba solicitada
+      setTimeout(() => {
+        const tabBtn = document.querySelector(`[data-tab="tab-${tabParam}"]`);
+        if (tabBtn) {
+          tabBtn.click();
+          console.log(`✅ Abrindo aba: ${tabParam}`);
+        }
+      }, 500);
+    }
+
     // Carregar pedidos logo ao iniciar (para relatórios funcionarem sem depender da aba Ver pedidos)
     console.log('🚀 Carregando pedidos iniciais...');
     try {

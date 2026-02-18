@@ -401,6 +401,18 @@ app.get('/logout', (req, res) => {
   });
 });
 
+// ==================== ATALHOS DE ACESSO RÁPIDO ====================
+
+app.get('/painel', (req, res) => {
+  if (!req.session.adminLoggedIn) return res.redirect('/login');
+  res.redirect('/painel-admin.html');
+});
+
+app.get('/whatsapp', (req, res) => {
+  if (!req.session.adminLoggedIn) return res.redirect('/login');
+  res.redirect('/painel-admin.html?tab=whatsapp');
+});
+
 // WhatsApp
 let whatsappClient = null;
 let qrCodeData = null;
