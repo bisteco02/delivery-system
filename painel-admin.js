@@ -66,17 +66,26 @@ function ajustarLinksTenant() {
 }
 
 // Função de Logout
-function fazerLogout() {
+async function fazerLogout() {
     if (confirm('Tem certeza que deseja sair?')) {
-        // Limpar localStorage
-        localStorage.removeItem('userSubscription');
-        localStorage.removeItem('companyData');
-        localStorage.removeItem('adminPrefs');
-        localStorage.removeItem('abaPainelAtiva');
-        localStorage.removeItem('statusOverride');
-        
-        // Redirecionar para página de login
-        window.location.href = '/login';
+        try {
+            // Limpar localStorage
+            localStorage.removeItem('userSubscription');
+            localStorage.removeItem('companyData');
+            localStorage.removeItem('adminPrefs');
+            localStorage.removeItem('abaPainelAtiva');
+            localStorage.removeItem('statusOverride');
+            
+            // Chamar endpoint de logout do servidor para destruir sessão
+            const response = await fetch('/logout');
+            
+            // Redirecionar para página de login
+            window.location.href = '/login';
+        } catch (error) {
+            console.error('Erro ao fazer logout:', error);
+            // Mesmo em caso de erro, tenta redirecionar
+            window.location.href = '/login';
+        }
     }
 }
 
