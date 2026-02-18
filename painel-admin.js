@@ -65,6 +65,21 @@ function ajustarLinksTenant() {
     if (back) back.href = 'index.html';
 }
 
+// Função de Logout
+function fazerLogout() {
+    if (confirm('Tem certeza que deseja sair?')) {
+        // Limpar localStorage
+        localStorage.removeItem('userSubscription');
+        localStorage.removeItem('companyData');
+        localStorage.removeItem('adminPrefs');
+        localStorage.removeItem('abaPainelAtiva');
+        localStorage.removeItem('statusOverride');
+        
+        // Redirecionar para login ou página inicial
+        window.location.href = 'index.html';
+    }
+}
+
 function abrirModalFiltro(tipo, dados) {
     const modal = document.getElementById('modal-filtro-confirmacao');
     const header = document.getElementById('modal-filtro-header');
@@ -498,12 +513,9 @@ async function carregarPedidos() {
     }
 }
 
-// Liga eventos de UI (refresh, auto, som) após funções principais
+// Liga eventos de UI (auto, som) após funções principais
 (function inicializarControlesAdmin() {
     ajustarLinksTenant();
-
-    const refreshBtn = document.getElementById('refresh-btn');
-    if (refreshBtn) refreshBtn.addEventListener('click', () => carregarPedidos());
 
     const toggleAuto = document.getElementById('toggle-auto-refresh');
     const toggleSomEl = document.getElementById('toggle-som');
@@ -2912,8 +2924,6 @@ document.addEventListener('DOMContentLoaded', async function() {
     if (abaSalva) {
         setTab(abaSalva);
     }
-
-    document.getElementById('refresh-btn').addEventListener('click', carregarPedidos);
 
     // Botão de limpar/resetar filtro nos relatórios
     const btnResetarDatas = document.getElementById('btn-resetar-datas');
