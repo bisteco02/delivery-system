@@ -1053,20 +1053,7 @@ function aplicarMascaras() {
             }
             e.target.value = formatado;
             
-            // Feedback visual de validação
-            if (valor.length >= 13) {
-                const isValid = validarLuhn(valor);
-                if (isValid) {
-                    e.target.classList.remove('border-red-500', 'ring-red-100');
-                    e.target.classList.add('border-green-500', 'ring-green-100');
-                } else {
-                    e.target.classList.remove('border-green-500', 'ring-green-100');
-                    e.target.classList.add('border-red-500', 'ring-red-100');
-                }
-            } else {
-                e.target.classList.remove('border-green-500', 'ring-green-100', 'border-red-500', 'ring-red-100');
-                e.target.classList.add('border-gray-200');
-            }
+
         });
     }
     
@@ -1076,14 +1063,7 @@ function aplicarMascaras() {
         cardCvv.addEventListener('input', function(e) {
             e.target.value = e.target.value.replace(/\D/g, '').substring(0, 4);
             
-            // Feedback visual de validação
-            if (e.target.value.length >= 3) {
-                e.target.classList.remove('border-gray-200');
-                e.target.classList.add('border-green-500', 'ring-green-100');
-            } else {
-                e.target.classList.remove('border-green-500', 'ring-green-100');
-                e.target.classList.add('border-gray-200');
-            }
+
         });
     }
     }
@@ -1211,7 +1191,6 @@ async function iniciarAssinatura() {
     try {
         const btn = event.target;
         btn.disabled = true;
-        const originalText = btn.innerHTML;
         btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Processando...';
 
         // Enviar dados para servidor
@@ -1251,7 +1230,7 @@ async function iniciarAssinatura() {
         alert('❌ Erro ao processar assinatura:\n\n' + error.message);
         if (event.target) {
             event.target.disabled = false;
-            event.target.innerHTML = '<i class="fa fa-check-circle"></i> <span>Ativar Plano Mensalmente</span>';
+            event.target.innerHTML = '<i class="fa fa-check"></i> Ativar Plano';
         }
     }
 }
