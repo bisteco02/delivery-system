@@ -99,6 +99,20 @@ app.use((req, res, next) => {
   return res.status(403).send('Acesso restrito. Faça login em /login.');
 });
 
+// ==================== ATALHOS DE ACESSO RÁPIDO ====================
+
+app.get('/painel', (req, res) => {
+  if (!req.session.adminLoggedIn) return res.redirect('/login');
+  res.redirect('/painel-admin.html');
+});
+
+app.get('/whatsapp', (req, res) => {
+  if (!req.session.adminLoggedIn) return res.redirect('/login');
+  res.redirect('/painel-admin.html?tab=whatsapp');
+});
+
+// ==================== ARQUIVOS ESTÁTICOS ====================
+
 app.use(express.static('.'));
 app.use('/uploads', express.static(uploadsDir));
 
@@ -399,18 +413,6 @@ app.get('/logout', (req, res) => {
     if (err) console.error('Erro ao fazer logout:', err);
     res.redirect('/login');
   });
-});
-
-// ==================== ATALHOS DE ACESSO RÁPIDO ====================
-
-app.get('/painel', (req, res) => {
-  if (!req.session.adminLoggedIn) return res.redirect('/login');
-  res.redirect('/painel-admin.html');
-});
-
-app.get('/whatsapp', (req, res) => {
-  if (!req.session.adminLoggedIn) return res.redirect('/login');
-  res.redirect('/painel-admin.html?tab=whatsapp');
 });
 
 // WhatsApp
