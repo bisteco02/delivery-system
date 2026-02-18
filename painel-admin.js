@@ -1051,7 +1051,6 @@ function aplicarMascaras() {
         });
     }
 }
-}
 
 // Verificar status do plano ao carregar
 async function verificarStatusPlano() {
