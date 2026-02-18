@@ -1490,21 +1490,21 @@ async function iniciarServidor() {
       console.log(`🔑 API Key WhatsApp: ${WHATSAPP_API_KEY}`);
       console.log('========================================\n');
 
-      // Inicializar WhatsApp em background (desabilitado localmente - ativar na hospedagem)
-      // setTimeout(async () => {
-      //   try {
-      //     console.log('⏳ Tentando inicializar WhatsApp...');
-      //     await inicializarWhatsApp();
-      //     console.log('✅ WhatsApp inicializado com sucesso');
-      //   } catch (err) {
-      //     console.error('❌ Falha crítica no WhatsApp, continuando sem ele:', err.message);
-      //     // Resetar variáveis para evitar estado inconsistente
-      //     whatsappClient = null;
-      //     qrCodeData = null;
-      //     isWhatsAppConnected = false;
-      //     connectionStatus = 'error';
-      //   }
-      // }, 2000); // Delay maior para garantir que o servidor esteja totalmente pronto
+      // Inicializar WhatsApp em background
+      setTimeout(async () => {
+        try {
+          console.log('⏳ Tentando inicializar WhatsApp...');
+          await inicializarWhatsApp();
+          console.log('✅ WhatsApp inicializado com sucesso');
+        } catch (err) {
+          console.error('❌ Falha crítica no WhatsApp, continuando sem ele:', err.message);
+          // Resetar variáveis para evitar estado inconsistente
+          whatsappClient = null;
+          qrCodeData = null;
+          isWhatsAppConnected = false;
+          connectionStatus = 'error';
+        }
+      }, 2000); // Delay maior para garantir que o servidor esteja totalmente pronto
     });
 
     if (HTTPS_ENABLED) {
