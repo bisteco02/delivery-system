@@ -67,7 +67,8 @@ function ajustarLinksTenant() {
 
 // Função de Logout
 async function fazerLogout() {
-    if (confirm('Tem certeza que deseja sair?')) {
+    const confirmou = await confirmar('Tem certeza que deseja sair?', 'Logout');
+    if (confirmou) {
         try {
             // Limpar localStorage
             localStorage.removeItem('userSubscription');
@@ -1837,7 +1838,8 @@ function editarItemPromo(itemName) {
 }
 
 async function deletarItemPromo(itemName) {
-    if (!confirm(`Deseja remover o desconto de "${itemName}"?`)) return;
+    const confirmou = await confirmar(`Deseja remover o desconto de "${itemName}"?`, 'Remover Desconto');
+    if (!confirmou) return;
 
     try {
         const response = await fetchTenant(`/item-promotions/${encodeURIComponent(itemName)}`, {
@@ -3772,7 +3774,8 @@ document.addEventListener('click', (e) => {
 
 // Desconectar WhatsApp
 document.getElementById('disconnect-whatsapp')?.addEventListener('click', async () => {
-    if (confirm('Tem certeza que deseja desconectar o WhatsApp?')) {
+    const confirmou = await confirmar('Tem certeza que deseja desconectar o WhatsApp?', 'Desconectar WhatsApp');
+    if (confirmou) {
         try {
             await fetch('/whatsapp/disconnect', { method: 'POST' });
             mostrarConfirmacao('✅ Sucesso', 'WhatsApp desconectado!');
@@ -4217,7 +4220,8 @@ async function deletarAddon(index) {
     const addon = addons[index];
     if (!addon) return;
     
-    if (!confirm(`Tem certeza que deseja deletar o adicional "${addon.name}"?`)) {
+    const confirmou = await confirmar(`Tem certeza que deseja deletar o adicional "${addon.name}"?`, 'Deletar Adicional');
+    if (!confirmou) {
         return;
     }
     
