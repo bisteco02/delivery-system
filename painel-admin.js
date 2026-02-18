@@ -976,17 +976,68 @@ function copiarTexto(texto, tipo = 'texto') {
 
 // ==================== MERCADO PAGO - ASSINATURA ====================
 
+// Algoritmo de Luhn para validar número do cartão
+function validarLuhn(numero) {
+    numero = numero.replace(/\D/g, '');
+    if (numero.length < 13 || numero.length > 19) return false;
+    
+    let soma = 0;
+    let alternar = false;
+    
+    for (let i = numero.length - 1; i >= 0; i--) {
+        let n = parseInt(numero.charAt(i), 10);
+        
+        if (alternar) {
+            n *= 2;
+            if (n > 9) n -= 9;
+        }
+        
+        soma += n;
+        alternar = !alternar;
+    }
+    
+    return (soma % 10) === 0;
+}
+
 // Aplicar máscaras aos campos
 function aplicarMascaras() {
-    // Máscara de validade (MM/AA)
+    // Máscara de validade (MM/AA) - CORRIGIDA para permitir apagar
     const cardExpiry = document.getElementById('card-expiry');
     if (cardExpiry) {
+        cardExpiry.addEventListener('keydown', function(e) {
+            // Permitir backspace, delete, tab, etc
+            const allowedKeys = ['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'ArrowLeft', 'ArrowRight'];
+            if (allowedKeys.includes(e.key)) {
+                return;
+            }
+        });
+        
         cardExpiry.addEventListener('input', function(e) {
             let valor = e.target.value.replace(/\D/g, '');
-            if (valor.length >= 2) {
-                valor = valor.substring(0, 2) + '/' + valor.substring(2, 4);
+            
+            // Limitar a 4 dígitos (MM/AA)
+            valor = valor.substring(0, 4);
+            
+            let formatado = '';
+            if (valor.length >= 1) {
+                // Validar mês (01-12)
+                let mes = valor.substring(0, 2);
+                if (mes.length === 2) {
+                    const mesNum = parseInt(mes);
+                    if (mesNum > 12) {
+                        mes = '12';
+                    } else if (mesNum === 0) {
+                        mes = '01';
+                    }
+                }
+                formatado = mes;
             }
-            e.target.value = valor;
+            
+            if (valor.length >= 3) {
+                formatado += '/' + valor.substring(2, 4);
+            }
+            
+            e.target.value = formatado;
         });
     }
     
@@ -1001,6 +1052,21 @@ function aplicarMascaras() {
                 formatado += valor[i];
             }
             e.target.value = formatado;
+            
+            // Feedback visual de validação
+            if (valor.length >= 13) {
+                const isValid = validarLuhn(valor);
+                if (isValid) {
+                    e.target.classList.remove('border-red-500', 'ring-red-100');
+                    e.target.classList.add('border-green-500', 'ring-green-100');
+                } else {
+                    e.target.classList.remove('border-green-500', 'ring-green-100');
+                    e.target.classList.add('border-red-500', 'ring-red-100');
+                }
+            } else {
+                e.target.classList.remove('border-green-500', 'ring-green-100', 'border-red-500', 'ring-red-100');
+                e.target.classList.add('border-gray-200');
+            }
         });
     }
     
@@ -1009,7 +1075,17 @@ function aplicarMascaras() {
     if (cardCvv) {
         cardCvv.addEventListener('input', function(e) {
             e.target.value = e.target.value.replace(/\D/g, '').substring(0, 4);
+            
+            // Feedback visual de validação
+            if (e.target.value.length >= 3) {
+                e.target.classList.remove('border-gray-200');
+                e.target.classList.add('border-green-500', 'ring-green-100');
+            } else {
+                e.target.classList.remove('border-green-500', 'ring-green-100');
+                e.target.classList.add('border-gray-200');
+            }
         });
+    }
     }
 }
 
@@ -1071,26 +1147,72 @@ if (document.readyState === 'loading') {
 
 async function iniciarAssinatura() {
     const billingEmail = document.getElementById('billing-email').value.trim();
-    const cardNumber = document.getElementById('card-number').value.trim();
+    const cardNumber = document.getElementById('card-number').value.trim().replace(/\s/g, '');
     const cardExpiry = document.getElementById('card-expiry').value.trim();
     const cardCvv = document.getElementById('card-cvv').value.trim();
-    const cardHolder = document.getElementById('card-holder').value.trim();
+    const cardHolder = document.getElementById('card-holder').value.trim().toUpperCase();
     
     // Validações
     if (!billingEmail) {
         alert('❌ Email é obrigatório');
+        document.getElementById('billing-email').focus();
         return;
     }
     
-    if (!cardNumber || !cardExpiry || !cardCvv || !cardHolder) {
-        alert('❌ Preencha todos os dados do cartão');
+    if (!cardNumber || cardNumber.length < 13) {
+        alert('❌ Número do cartão inválido (mínimo 13 dígitos)');
+        document.getElementById('card-number').focus();
+        return;
+    }
+    
+    // Validar com algoritmo de Luhn
+    if (!validarLuhn(cardNumber)) {
+        alert('❌ Número do cartão inválido. Verifique os dígitos.');
+        document.getElementById('card-number').focus();
+        return;
+    }
+    
+    if (!cardExpiry || cardExpiry.length !== 5 || !cardExpiry.includes('/')) {
+        alert('❌ Validade inválida (formato: MM/AA)');
+        document.getElementById('card-expiry').focus();
+        return;
+    }
+    
+    // Validar se a data não está expirada
+    const [mes, ano] = cardExpiry.split('/');
+    const mesNum = parseInt(mes);
+    const anoNum = parseInt('20' + ano);
+    if (mesNum < 1 || mesNum > 12) {
+        alert('❌ Mês inválido (01-12)');
+        document.getElementById('card-expiry').focus();
+        return;
+    }
+    
+    const agora = new Date();
+    const dataCartao = new Date(anoNum, mesNum - 1);
+    if (dataCartao < agora) {
+        alert('❌ Cartão expirado. Por favor, atualize.');
+        document.getElementById('card-expiry').focus();
+        return;
+    }
+    
+    if (!cardCvv || cardCvv.length < 3 || cardCvv.length > 4) {
+        alert('❌ CVV inválido (3-4 dígitos)');
+        document.getElementById('card-cvv').focus();
+        return;
+    }
+    
+    if (!cardHolder || cardHolder.length < 3) {
+        alert('❌ Nome do titular inválido');
+        document.getElementById('card-holder').focus();
         return;
     }
 
     try {
         const btn = event.target;
         btn.disabled = true;
-        btn.textContent = '⏳ Redirecionando...';
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Processando...';
 
         // Enviar dados para servidor
         const response = await fetch('/api/criar-assinatura', {
@@ -1098,7 +1220,7 @@ async function iniciarAssinatura() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 email: billingEmail,
-                cardNumber: cardNumber.replace(/\s/g, ''),
+                cardNumber: cardNumber,
                 cardExpiry: cardExpiry,
                 cardCvv: cardCvv,
                 cardHolder: cardHolder
@@ -1129,7 +1251,7 @@ async function iniciarAssinatura() {
         alert('❌ Erro ao processar assinatura:\n\n' + error.message);
         if (event.target) {
             event.target.disabled = false;
-            event.target.textContent = '💳 Ativar Plano';
+            event.target.innerHTML = '<i class="fa fa-check-circle"></i> <span>Ativar Plano Mensalmente</span>';
         }
     }
 }
