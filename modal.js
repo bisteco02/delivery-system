@@ -1,7 +1,7 @@
 // Sistema de Modal Moderno
-const criarModal = () => {
+const criarModalModerno = () => {
   const modal = document.createElement('div');
-  modal.id = 'modal-sistema';
+  modal.id = 'modal-sistema-moderno';
   modal.style.cssText = `
     position: fixed;
     top: 0;
@@ -42,28 +42,28 @@ const criarModal = () => {
   return modal;
 };
 
-const obterModal = () => {
-  let modal = document.getElementById('modal-sistema');
+const obterModalModerno = () => {
+  let modal = document.getElementById('modal-sistema-moderno');
   if (!modal) {
-    modal = criarModal();
+    modal = criarModalModerno();
   }
   return modal;
 };
 
-const fecharModal = () => {
-  const modal = obterModal();
+const fecharModalModerno = () => {
+  const modal = obterModalModerno();
   modal.style.display = 'none';
 };
 
-const mostrarModal = (config) => {
+const mostrarModalModerno = (config) => {
   const {
     titulo = 'Informação',
     mensagem = '',
     tipo = 'info', // 'success', 'error', 'warning', 'info'
-    botoes = [{ texto: 'OK', acao: fecharModal, tipo: 'primario' }]
+    botoes = [{ texto: 'OK', acao: fecharModalModerno, tipo: 'primario' }]
   } = config;
 
-  const modal = obterModal();
+  const modal = obterModalModerno();
   const iconElement = modal.querySelector('#modal-icon');
   const tituloElement = modal.querySelector('#modal-titulo');
   const mensagemElement = modal.querySelector('#modal-mensagem');
@@ -126,7 +126,7 @@ const mostrarModal = (config) => {
       }
     };
     btn.onclick = () => {
-      fecharModal();
+      fecharModalModerno();
       if (botao.acao) botao.acao();
     };
     botoesContainer.appendChild(btn);
@@ -137,45 +137,45 @@ const mostrarModal = (config) => {
 
 // Funções de conveniência
 const alerta = (mensagem) => {
-  mostrarModal({
+  mostrarModalModerno({
     titulo: 'Informação',
     mensagem,
     tipo: 'info',
-    botoes: [{ texto: 'OK', acao: fecharModal, tipo: 'primario' }]
+    botoes: [{ texto: 'OK', acao: fecharModalModerno, tipo: 'primario' }]
   });
 };
 
 const sucesso = (mensagem) => {
-  mostrarModal({
+  mostrarModalModerno({
     titulo: '✅ Sucesso',
     mensagem,
     tipo: 'success',
-    botoes: [{ texto: 'OK', acao: fecharModal, tipo: 'primario' }]
+    botoes: [{ texto: 'OK', acao: fecharModalModerno, tipo: 'primario' }]
   });
 };
 
 const erro = (mensagem) => {
-  mostrarModal({
+  mostrarModalModerno({
     titulo: '❌ Erro',
     mensagem,
     tipo: 'error',
-    botoes: [{ texto: 'OK', acao: fecharModal, tipo: 'primario' }]
+    botoes: [{ texto: 'OK', acao: fecharModalModerno, tipo: 'primario' }]
   });
 };
 
 const aviso = (mensagem) => {
-  mostrarModal({
+  mostrarModalModerno({
     titulo: '⚠️ Atenção',
     mensagem,
     tipo: 'warning',
-    botoes: [{ texto: 'OK', acao: fecharModal, tipo: 'primario' }]
+    botoes: [{ texto: 'OK', acao: fecharModalModerno, tipo: 'primario' }]
   });
 };
 
 // Confirmação com retorno de Promise
 const confirmar = (mensagem, titulo = 'Confirmação') => {
   return new Promise((resolve) => {
-    mostrarModal({
+    mostrarModalModerno({
       titulo,
       mensagem,
       tipo: 'info',
