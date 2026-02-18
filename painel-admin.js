@@ -1158,26 +1158,26 @@ async function iniciarAssinatura() {
     
     // Validações
     if (!billingEmail) {
-        alert('❌ Email é obrigatório');
+        erro('Email é obrigatório');
         document.getElementById('billing-email').focus();
         return;
     }
     
     if (!cardNumber || cardNumber.length < 13) {
-        alert('❌ Número do cartão inválido (mínimo 13 dígitos)');
+        erro('Número do cartão inválido (mínimo 13 dígitos)');
         document.getElementById('card-number').focus();
         return;
     }
     
     // Validar com algoritmo de Luhn
     if (!validarLuhn(cardNumber)) {
-        alert('❌ Número do cartão inválido. Verifique os dígitos.');
+        erro('Número do cartão inválido. Verifique os dígitos.');
         document.getElementById('card-number').focus();
         return;
     }
     
     if (!cardExpiry || cardExpiry.length !== 5 || !cardExpiry.includes('/')) {
-        alert('❌ Validade inválida (formato: MM/AA)');
+        erro('Validade inválida (formato: MM/AA)');
         document.getElementById('card-expiry').focus();
         return;
     }
@@ -1187,7 +1187,7 @@ async function iniciarAssinatura() {
     const mesNum = parseInt(mes);
     const anoNum = parseInt('20' + ano);
     if (mesNum < 1 || mesNum > 12) {
-        alert('❌ Mês inválido (01-12)');
+        erro('Mês inválido (01-12)');
         document.getElementById('card-expiry').focus();
         return;
     }
@@ -1195,19 +1195,19 @@ async function iniciarAssinatura() {
     const agora = new Date();
     const dataCartao = new Date(anoNum, mesNum - 1);
     if (dataCartao < agora) {
-        alert('❌ Cartão expirado. Por favor, atualize.');
+        erro('Cartão expirado. Por favor, atualize.');
         document.getElementById('card-expiry').focus();
         return;
     }
     
     if (!cardCvv || cardCvv.length < 3 || cardCvv.length > 4) {
-        alert('❌ CVV inválido (3-4 dígitos)');
+        erro('CVV inválido (3-4 dígitos)');
         document.getElementById('card-cvv').focus();
         return;
     }
     
     if (!cardHolder || cardHolder.length < 3) {
-        alert('❌ Nome do titular inválido');
+        erro('Nome do titular inválido');
         document.getElementById('card-holder').focus();
         return;
     }
@@ -1251,7 +1251,7 @@ async function iniciarAssinatura() {
         }
     } catch (error) {
         console.error('❌ Erro:', error);
-        alert('❌ Erro ao processar assinatura:\n\n' + error.message);
+        erro('Erro ao processar assinatura:\n\n' + error.message);
         if (event.target) {
             event.target.disabled = false;
             event.target.innerHTML = '<i class="fa fa-check"></i> Ativar Plano';
@@ -1260,11 +1260,13 @@ async function iniciarAssinatura() {
 }
 
 function cancelarPlano() {
-    if (confirm('⚠️ Tem certeza que deseja CANCELAR sua assinatura?\n\nVocê perderá acesso ao painel administrativo.')) {
-        localStorage.removeItem('userSubscription');
-        alert('✅ Assinatura cancelada com sucesso!');
-        location.reload();
-    }
+    confirmar('Tem certeza que deseja CANCELAR sua assinatura?\n\nVocê perderá acesso ao painel administrativo.', 'Cancelar Assinatura').then(confirmado => {
+        if (confirmado) {
+            localStorage.removeItem('userSubscription');
+            sucesso('Assinatura cancelada com sucesso!');
+            setTimeout(() => location.reload(), 1500);
+        }
+    });
 }
 
 function abrirModalConfirmacao() {

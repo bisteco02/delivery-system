@@ -13,6 +13,7 @@
     <link href="/styles/style.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
     <title>Padoca do Dedé</title>
+    <script src="/modal.js"></script>
     <script>
       const horarios = {
         0: { nome: 'Domingo', abertura: '18:30', fechamento: '23:00' },
@@ -1380,7 +1381,7 @@ function openSimpleModal(name, price, image) {
             
             // Verificar se 2 metades foram escolhidas
             if (sabores.length !== 2) {
-              alert('Por favor, escolha exatamente 2 metades.');
+              aviso('Por favor, escolha exatamente 2 metades.');
               return;
             }
 
@@ -2087,7 +2088,7 @@ function openSimpleModal(name, price, image) {
             checkoutBtn.addEventListener('click', (e) => {
               e.preventDefault();
               if (cart.length === 0) {
-                alert('Seu carrinho está vazio. Adicione itens antes de finalizar o pedido.');
+                alerta('Seu carrinho está vazio. Adicione itens antes de finalizar o pedido.');
                 return;
               }
               const observacoes = document.getElementById('cart-observacoes').value;
@@ -2359,7 +2360,7 @@ function openSimpleModal(name, price, image) {
                 const nome = document.getElementById('pedido-nome').value;
 
                 if (!whatsapp || !nome) {
-                    alert('Preencha todos os campos');
+                    aviso('Preencha todos os campos');
                     return;
                 }
 
@@ -2394,11 +2395,11 @@ function openSimpleModal(name, price, image) {
                         document.getElementById('pedidos-vazio').style.display = 'block';
                     }
                 } else {
-                    alert('Erro ao buscar pedidos');
+                    erro('Erro ao buscar pedidos');
                 }
             } catch (error) {
                 console.error('Erro:', error);
-                alert('Erro ao conectar com o servidor. Verifique se o backend está rodando.');
+                erro('Erro ao conectar com o servidor. Verifique se o backend está rodando.');
             }
         }
 

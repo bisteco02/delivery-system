@@ -10,6 +10,7 @@
     <link href="/styles/output.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
     <title>Finalizar Pedido - Padoca do Dedé</title>
+    <script src="/modal.js"></script>
     <style>
         :root {
             --primary: #ff6b6b;
@@ -1381,7 +1382,7 @@
         document.getElementById('nextStep1').addEventListener('click', () => {
             const tipoEntrega = document.querySelector('input[name="tipo_entrega"]:checked');
             if (!tipoEntrega) {
-                alert('Por favor, selecione o tipo de entrega.');
+                aviso('Por favor, selecione o tipo de entrega.');
                 return;
             }
             nextStep();
@@ -1394,13 +1395,13 @@
             const whatsapp = document.getElementById('whatsapp').value.trim();
 
             if (!nome) {
-                alert('Por favor, informe seu nome.');
+                aviso('Por favor, informe seu nome.');
                 document.getElementById('nome').focus();
                 return;
             }
 
             if (!whatsapp) {
-                alert('Por favor, informe seu WhatsApp.');
+                aviso('Por favor, informe seu WhatsApp.');
                 document.getElementById('whatsapp').focus();
                 return;
             }
@@ -1419,19 +1420,19 @@
                 const numero = document.getElementById('numero').value.trim();
 
                 if (!bairro) {
-                    alert('Por favor, selecione o bairro.');
+                    aviso('Por favor, selecione o bairro.');
                     document.getElementById('bairro').focus();
                     return;
                 }
 
                 if (!rua) {
-                    alert('Por favor, informe a rua.');
+                    aviso('Por favor, informe a rua.');
                     document.getElementById('rua').focus();
                     return;
                 }
 
                 if (!numero) {
-                    alert('Por favor, informe o número.');
+                    aviso('Por favor, informe o número.');
                     document.getElementById('numero').focus();
                     return;
                 }
@@ -1538,7 +1539,7 @@
                 
                 if (radio.value === 'pix' && radio.checked) {
                     if (!siteConfig.pixCodigo) {
-                        alert('PIX não configurado pelo estabelecimento. Escolha outra forma de pagamento.');
+                        aviso('PIX não configurado pelo estabelecimento. Escolha outra forma de pagamento.');
                         radio.checked = false;
                         pixInfo.classList.remove('show');
                         return;
@@ -1558,7 +1559,7 @@
                 const pixCodigo = document.getElementById('pix-codigo');
                 if (pixCodigo) {
                     navigator.clipboard.writeText(pixCodigo.value).then(() => {
-                        alert('Código Pix copiado!');
+                        sucesso('Código Pix copiado!');
                     });
                 }
             });
@@ -1623,7 +1624,7 @@
 
             const formaPagamento = document.querySelector('input[name="forma_pagamento"]:checked')?.value;
             if (!formaPagamento) {
-                alert('Por favor, selecione uma forma de pagamento.');
+                aviso('Por favor, selecione uma forma de pagamento.');
                 return;
             }
 
@@ -1773,12 +1774,12 @@
                     // Mensagens de sucesso
                     if (formaPagamento === 'pix') {
                         if (pixDinamico && pixDinamico.copiaECola) {
-                            alert(`✅ Pedido confirmado!\n\n💳 PIX Dinâmico\n\nCopia e Cola: ${pixDinamico.copiaECola}\n\nPedido #${result.pedido.id}`);
+                            sucesso(`PIX Dinâmico\n\nCopia e Cola: ${pixDinamico.copiaECola}\n\nPedido #${result.pedido.id}`);
                         } else {
-                            alert(`✅ Pedido confirmado!\n\n💳 Pagamento via PIX\n\nPedido #${result.pedido.id}`);
+                            sucesso(`Pagamento via PIX\n\nPedido #${result.pedido.id}`);
                         }
                     } else {
-                        alert('✅ Pedido salvo com sucesso!');
+                        sucesso('Pedido salvo com sucesso!');
                     }
 
                     // Abrir WhatsApp
@@ -1798,7 +1799,7 @@
 
             } catch (error) {
                 console.error('Erro ao enviar pedido:', error);
-                alert('❌ Erro ao processar pedido: ' + error.message);
+                erro('Erro ao processar pedido: ' + error.message);
             } finally {
                 finalizarBtn.disabled = false;
                 btnText.style.display = 'inline';
