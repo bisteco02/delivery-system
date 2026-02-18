@@ -1270,14 +1270,33 @@ app.post('/whatsapp/send', autenticarWhatsAppAPI, async (req, res) => {
   }
 });
 
-// Status do WhatsApp
-app.get('/whatsapp/status', (req, res) => {
-  res.json({
-    connected: isWhatsAppConnected,
-    qr: qrCodeData,
-    number: whatsappClient?.info?.wid?.user || null,
-    status: connectionStatus
-  });
+// Status do WhatsApp (inicializa sob demanda)
+app.get('/whatsapp/status', async (req, res) => {
+  try {
+    // Inicializar WhatsApp se ainda não foi inicializado
+    if (!whatsappClient && connectionStatus === 'initializing') {
+      console.log('🔄 Iniciando WhatsApp sob demanda...');
+      // Não aguardar a inicialização completa para não travar a requisição
+      inicializarWhatsApp().catch(err => {
+        console.error('❌ Erro ao inicializar WhatsApp:', err.message);
+        connectionStatus = 'error';
+      });
+    }
+    
+    res.json({
+      connected: isWhatsAppConnected,
+      qr: qrCodeData,
+      number: whatsappClient?.info?.wid?.user || null,
+      status: connectionStatus
+    });
+  } catch (error) {
+    res.json({
+      connected: false,
+      qr: null,
+      number: null,
+      status: 'error'
+    });
+  }
 });
 
 // Desconectar WhatsApp
@@ -1490,21 +1509,8 @@ async function iniciarServidor() {
       console.log(`🔑 API Key WhatsApp: ${WHATSAPP_API_KEY}`);
       console.log('========================================\n');
 
-      // Inicializar WhatsApp em background
-      setTimeout(async () => {
-        try {
-          console.log('⏳ Tentando inicializar WhatsApp...');
-          await inicializarWhatsApp();
-          console.log('✅ WhatsApp inicializado com sucesso');
-        } catch (err) {
-          console.error('❌ Falha crítica no WhatsApp, continuando sem ele:', err.message);
-          // Resetar variáveis para evitar estado inconsistente
-          whatsappClient = null;
-          qrCodeData = null;
-          isWhatsAppConnected = false;
-          connectionStatus = 'error';
-        }
-      }, 2000); // Delay maior para garantir que o servidor esteja totalmente pronto
+      // WhatsApp será inicializado sob demanda quando acessar /whatsapp/status pela primeira vez
+      console.log('📱 WhatsApp: Modo sob demanda (será inicializado ao acessar a aba)');
     });
 
     if (HTTPS_ENABLED) {
