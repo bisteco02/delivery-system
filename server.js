@@ -114,26 +114,163 @@ app.get('/login', (req, res) => {
     <html lang="pt-br">
     <head>
       <meta charset="UTF-8">
-      <title>Login - Painel Admin</title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Login - Painel Admin Padoca</title>
+      <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
       <style>
-        body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f4f4f4; margin: 0; }
-        .container { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 0 20px rgba(0,0,0,0.1); width: 300px; text-align: center; }
-        h2 { color: #333; margin-bottom: 20px; }
-        input { display: block; margin: 10px auto; padding: 10px; width: 100%; border: 1px solid #ddd; border-radius: 4px; }
-        button { background: #28a745; color: white; padding: 10px; border: none; width: 100%; border-radius: 4px; cursor: pointer; margin-top: 10px; }
-        button:hover { background: #218838; }
-        .error { color: red; margin-top: 10px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+          font-family: 'Poppins', sans-serif; 
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          display: flex; 
+          justify-content: center; 
+          align-items: center; 
+          height: 100vh;
+          min-height: 100vh;
+        }
+        .login-container {
+          background: white;
+          border-radius: 12px;
+          box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+          width: 100%;
+          max-width: 400px;
+          padding: 50px 40px;
+          animation: slideUp 0.5s ease-out;
+        }
+        @keyframes slideUp {
+          from { opacity: 0; transform: translateY(30px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .logo-section {
+          text-align: center;
+          margin-bottom: 30px;
+        }
+        .logo {
+          font-size: 50px;
+          margin-bottom: 15px;
+          display: block;
+        }
+        h1 {
+          color: #333;
+          font-size: 24px;
+          font-weight: 700;
+          margin-bottom: 8px;
+        }
+        .subtitle {
+          color: #666;
+          font-size: 14px;
+          font-weight: 400;
+        }
+        .form-group {
+          margin-bottom: 20px;
+        }
+        label {
+          display: block;
+          color: #333;
+          font-weight: 500;
+          margin-bottom: 8px;
+          font-size: 14px;
+        }
+        input {
+          width: 100%;
+          padding: 12px 15px;
+          border: 2px solid #e0e0e0;
+          border-radius: 8px;
+          font-family: 'Poppins', sans-serif;
+          font-size: 14px;
+          transition: all 0.3s ease;
+        }
+        input:focus {
+          outline: none;
+          border-color: #667eea;
+          box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        input::placeholder {
+          color: #999;
+        }
+        .remember-forgot {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 20px;
+          font-size: 13px;
+        }
+        .remember-forgot a {
+          color: #667eea;
+          text-decoration: none;
+          transition: color 0.3s;
+        }
+        .remember-forgot a:hover {
+          color: #764ba2;
+        }
+        button {
+          width: 100%;
+          padding: 14px;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+          border: none;
+          border-radius: 8px;
+          font-weight: 600;
+          font-size: 15px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          font-family: 'Poppins', sans-serif;
+        }
+        button:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+        button:active {
+          transform: translateY(0);
+        }
+        .info-box {
+          background: #f0f4ff;
+          border-left: 4px solid #667eea;
+          padding: 12px 15px;
+          border-radius: 6px;
+          margin-top: 20px;
+          font-size: 12px;
+          color: #555;
+        }
+        .info-box strong {
+          color: #333;
+        }
       </style>
     </head>
     <body>
-      <div class="container">
-        <h2>🍞 Login no Painel Admin</h2>
+      <div class="login-container">
+        <div class="logo-section">
+          <span class="logo">🍞</span>
+          <h1>Padoca Delivery</h1>
+          <p class="subtitle">Painel Administrativo</p>
+        </div>
+        
         <form action="/login" method="POST">
-          <input type="text" name="usuario" placeholder="Usuário" required>
-          <input type="password" name="senha" placeholder="Senha" required>
-          <button type="submit">Entrar</button>
+          <div class="form-group">
+            <label for="usuario"><i class="fas fa-user" style="margin-right: 8px;"></i>Usuário</label>
+            <input type="text" id="usuario" name="usuario" placeholder="Digite seu usuário" required autofocus>
+          </div>
+          
+          <div class="form-group">
+            <label for="senha"><i class="fas fa-lock" style="margin-right: 8px;"></i>Senha</label>
+            <input type="password" id="senha" name="senha" placeholder="Digite sua senha" required>
+          </div>
+          
+          <div class="remember-forgot">
+            <label style="margin: 0;">
+              <input type="checkbox" style="width: auto; margin-right: 5px;"> Lembrar-me
+            </label>
+          </div>
+          
+          <button type="submit">
+            <i class="fas fa-sign-in-alt" style="margin-right: 8px;"></i>Acessar Painel
+          </button>
         </form>
-        <p>Configure as credenciais no arquivo .env</p>
+        
+        <div class="info-box">
+          <strong>💡 Aviso:</strong> Configure as credenciais de acesso no arquivo <code>.env</code>
+        </div>
       </div>
     </body>
     </html>
@@ -151,18 +288,106 @@ app.post('/login', (req, res) => {
     <html lang="pt-br">
     <head>
       <meta charset="UTF-8">
-      <title>Erro - Login</title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Erro de Login - Padoca Delivery</title>
+      <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
       <style>
-        body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f4f4f4; margin: 0; }
-        .container { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 0 20px rgba(0,0,0,0.1); width: 300px; text-align: center; }
-        h2 { color: #dc3545; }
-        a { color: #007bff; text-decoration: none; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+          font-family: 'Poppins', sans-serif; 
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          display: flex; 
+          justify-content: center; 
+          align-items: center; 
+          height: 100vh;
+          min-height: 100vh;
+        }
+        .error-container {
+          background: white;
+          border-radius: 12px;
+          box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+          width: 100%;
+          max-width: 400px;
+          padding: 50px 40px;
+          text-align: center;
+          animation: slideUp 0.5s ease-out;
+        }
+        @keyframes slideUp {
+          from { opacity: 0; transform: translateY(30px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .error-icon {
+          font-size: 60px;
+          color: #dc3545;
+          margin-bottom: 20px;
+          display: block;
+        }
+        h1 {
+          color: #dc3545;
+          font-size: 24px;
+          font-weight: 700;
+          margin-bottom: 10px;
+        }
+        .error-message {
+          color: #666;
+          font-size: 14px;
+          margin-bottom: 30px;
+          line-height: 1.6;
+        }
+        .button-group {
+          display: flex;
+          gap: 10px;
+        }
+        a, button {
+          flex: 1;
+          padding: 12px;
+          border-radius: 8px;
+          text-decoration: none;
+          font-weight: 600;
+          font-size: 14px;
+          transition: all 0.3s ease;
+          border: none;
+          cursor: pointer;
+          font-family: 'Poppins', sans-serif;
+        }
+        .btn-retry {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+        }
+        .btn-retry:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+        .hint-box {
+          background: #fff3cd;
+          border-left: 4px solid #ffc107;
+          padding: 12px 15px;
+          border-radius: 6px;
+          margin-top: 20px;
+          font-size: 12px;
+          color: #856404;
+        }
       </style>
     </head>
     <body>
-      <div class="container">
-        <h2>Credenciais inválidas</h2>
-        <p><a href="/login">Tentar novamente</a></p>
+      <div class="error-container">
+        <i class="fas fa-exclamation-circle error-icon"></i>
+        <h1>Acesso Negado</h1>
+        <p class="error-message">
+          ❌ Usuário ou senha incorretos.<br>
+          Por favor, verifique suas credenciais e tente novamente.
+        </p>
+        
+        <div class="button-group">
+          <a href="/login" class="btn-retry">
+            <i class="fas fa-arrow-left"></i> Voltar
+          </a>
+        </div>
+        
+        <div class="hint-box">
+          <strong>💡 Dica:</strong> As credenciais estão configuradas no arquivo <code>.env</code>
+        </div>
       </div>
     </body>
     </html>
