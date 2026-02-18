@@ -1001,26 +1001,28 @@ function validarLuhn(numero) {
 
 // Aplicar máscaras aos campos
 function aplicarMascaras() {
-    // Máscara de validade (MM/AA) - CORRIGIDA para permitir apagar
+    // Máscara de número do cartão (0000 0000 0000 0000)
+    const cardNumber = document.getElementById('card-number');
+    if (cardNumber) {
+        cardNumber.addEventListener('input', function(e) {
+            let valor = e.target.value.replace(/\D/g, '').substring(0, 16);
+            let formatado = '';
+            for (let i = 0; i < valor.length; i++) {
+                if (i > 0 && i % 4 === 0) formatado += ' ';
+                formatado += valor[i];
+            }
+            e.target.value = formatado;
+        });
+    }
+    
+    // Máscara de validade (MM/AA)
     const cardExpiry = document.getElementById('card-expiry');
     if (cardExpiry) {
-        cardExpiry.addEventListener('keydown', function(e) {
-            // Permitir backspace, delete, tab, etc
-            const allowedKeys = ['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'ArrowLeft', 'ArrowRight'];
-            if (allowedKeys.includes(e.key)) {
-                return;
-            }
-        });
-        
         cardExpiry.addEventListener('input', function(e) {
-            let valor = e.target.value.replace(/\D/g, '');
-            
-            // Limitar a 4 dígitos (MM/AA)
-            valor = valor.substring(0, 4);
-            
+            let valor = e.target.value.replace(/\D/g, '').substring(0, 4);
             let formatado = '';
+            
             if (valor.length >= 1) {
-                // Validar mês (01-12)
                 let mes = valor.substring(0, 2);
                 if (mes.length === 2) {
                     const mesNum = parseInt(mes);
@@ -1041,32 +1043,14 @@ function aplicarMascaras() {
         });
     }
     
-    // Máscara de número do cartão (0000 0000 0000 0000)
-    const cardNumber = document.getElementById('card-number');
-    if (cardNumber) {
-        cardNumber.addEventListener('input', function(e) {
-            let valor = e.target.value.replace(/\D/g, '');
-            let formatado = '';
-            for (let i = 0; i < valor.length && i < 16; i++) {
-                if (i > 0 && i % 4 === 0) formatado += ' ';
-                formatado += valor[i];
-            }
-            e.target.value = formatado;
-            
-
-        });
-    }
-    
     // Máscara de CVV (apenas 3-4 dígitos)
     const cardCvv = document.getElementById('card-cvv');
     if (cardCvv) {
         cardCvv.addEventListener('input', function(e) {
             e.target.value = e.target.value.replace(/\D/g, '').substring(0, 4);
-            
-
         });
     }
-    }
+}
 }
 
 // Verificar status do plano ao carregar
