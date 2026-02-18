@@ -75,8 +75,8 @@ function fazerLogout() {
         localStorage.removeItem('abaPainelAtiva');
         localStorage.removeItem('statusOverride');
         
-        // Redirecionar para login ou página inicial
-        window.location.href = 'index.html';
+        // Redirecionar para página de login
+        window.location.href = '/login';
     }
 }
 
