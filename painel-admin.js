@@ -1020,6 +1020,13 @@ function aplicarMascaras() {
     if (cardExpiry) {
         cardExpiry.addEventListener('input', function(e) {
             let valor = e.target.value.replace(/\D/g, '').substring(0, 4);
+            
+            // Se ficou vazio, deixar vazio
+            if (valor.length === 0) {
+                e.target.value = '';
+                return;
+            }
+            
             let formatado = '';
             
             if (valor.length >= 1) {
