@@ -1018,12 +1018,24 @@ function aplicarMascaras() {
     // Máscara de validade (MM/AA)
     const cardExpiry = document.getElementById('card-expiry');
     if (cardExpiry) {
+        let lastValue = '';
+        
         cardExpiry.addEventListener('input', function(e) {
-            let valor = e.target.value.replace(/\D/g, '').substring(0, 4);
+            let currentValue = e.target.value;
+            let isDeleting = currentValue.length < lastValue.length;
             
-            // Se ficou vazio, deixar vazio
+            // Se está deletando, deixar deletar sem interferência
+            if (isDeleting) {
+                lastValue = currentValue;
+                return;
+            }
+            
+            // Quando digitando, aplicar máscara
+            let valor = currentValue.replace(/\D/g, '').substring(0, 4);
+            
             if (valor.length === 0) {
                 e.target.value = '';
+                lastValue = '';
                 return;
             }
             
@@ -1047,6 +1059,7 @@ function aplicarMascaras() {
             }
             
             e.target.value = formatado;
+            lastValue = formatado;
         });
     }
     
