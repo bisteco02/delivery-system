@@ -1222,12 +1222,54 @@ app.delete('/api/item-promotions/:itemName', async (req, res) => {
 
 // ==================== ROTAS - WHATSAPP API ====================
 
-app.get('/whatsapp/status', autenticarWhatsAppAPI, (req, res) => {
-  res.json({
-    success: true,
-    connected: isWhatsAppConnected,
-    status: connectionStatus
-  });
+// Status do WhatsApp (GET público para o painel)
+app.get('/whatsapp/status', async (req, res) => {
+  try {
+    // Inicializar WhatsApp sob demanda se ainda não foi inicializado
+    if (!waSocket && connectionStatus === 'initializing') {
+      console.log('🔄 Iniciando WhatsApp sob demanda...');
+      inicializarWhatsApp().catch(err => {
+        console.error('❌ Falha ao inicializar WhatsApp:', err.message);
+        connectionStatus = 'error';
+      });
+    }
+    
+    res.json({
+      connected: isWhatsAppConnected,
+      qr: qrCodeData,
+      number: waSocket?.user?.id || null,
+      status: connectionStatus
+    });
+  } catch (error) {
+    res.json({
+      connected: false,
+      qr: null,
+      number: null,
+      status: 'error'
+    });
+  }
+});
+
+// Forçar inicialização do WhatsApp
+app.post('/whatsapp/init', async (req, res) => {
+  try {
+    if (isWhatsAppConnected) {
+      return res.json({ success: true, message: 'Já conectado' });
+    }
+    
+    if (!waSocket) {
+      console.log('🚀 Iniciando WhatsApp manualmente...');
+      inicializarWhatsApp().catch(err => {
+        console.error('❌ Erro ao inicializar:', err);
+      });
+      
+      res.json({ success: true, message: 'Inicialização iniciada' });
+    } else {
+      res.json({ success: true, message: 'Já em processo de inicialização' });
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
 });
 
 app.get('/whatsapp/qr', async (req, res) => {
