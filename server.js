@@ -1244,12 +1244,10 @@ async function iniciarServidor() {
       }
       console.log(`\n📄 Site: http://localhost:${PORT}/index.html`);
       console.log(`⚙️  Painel Admin: http://localhost:${PORT}/painel-admin.html`);
-      console.log(`📱 WhatsApp QR: http://localhost:${PORT}/whatsapp/qr`);
-      console.log(`🔑 API Key WhatsApp: ${WHATSAPP_API_KEY}`);
       console.log('========================================\n');
 
-      // WhatsApp será inicializado sob demanda quando acessar /whatsapp/status pela primeira vez
-      console.log('📱 WhatsApp: Modo sob demanda (será inicializado ao acessar a aba)');
+      // WhatsApp removido - usar apenas links wa.me
+      console.log('📱 WhatsApp: Usando links wa.me (sem API)');
     });
 
     if (HTTPS_ENABLED) {
