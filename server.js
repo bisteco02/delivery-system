@@ -618,6 +618,28 @@ app.post('/api/pedidos', async (req, res) => {
 
     console.log('✅ Novo pedido recebido:', novoPedido.id);
 
+    // Disparar webhook automaticamente para Make.com/Zapier
+    try {
+      const webhookUrl = process.env.WEBHOOK_URL;
+      if (webhookUrl) {
+        fetch(webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            pedidoId: novoPedido.id,
+            clienteWhatsapp: novoPedido.cliente.whatsapp,
+            clienteNome: novoPedido.cliente.nome,
+            itens: novoPedido.itens,
+            total: novoPedido.total,
+            endereco: novoPedido.endereco,
+            timestamp: novoPedido.data
+          })
+        }).catch(err => console.error('Erro ao chamar webhook:', err));
+      }
+    } catch (error) {
+      console.error('Aviso: webhook não disparou', error.message);
+    }
+
     res.json({ 
       success: true, 
       message: 'Pedido recebido com sucesso!',
@@ -629,6 +651,53 @@ app.post('/api/pedidos', async (req, res) => {
       success: false, 
       message: 'Erro ao processar pedido.' 
     });
+  }
+});
+
+// ==================== WEBHOOK PARA AUTOMAÇÃO ====================
+// Rota que o Make.com/Zapier vai usar para disparar notificações automáticas
+app.post('/api/webhook/pedido', async (req, res) => {
+  try {
+    const { pedidoId, clienteWhatsapp, clienteNome, itens, total, endereco } = req.body;
+
+    if (!pedidoId || !clienteWhatsapp) {
+      return res.status(400).json({ success: false, message: 'Dados incompletos' });
+    }
+
+    // Formatar mensagem para enviar
+    const itemsText = Array.isArray(itens) 
+      ? itens.map(item => `- ${item.quantidade}x ${item.nome}`).join('\n')
+      : '';
+
+    const mensagem = `🍞 *Pedido Recebido!*
+
+✅ Seu pedido foi confirmado!
+🆔 *Pedido #${pedidoId}*
+
+📍 Local: ${endereco || 'Para retirar'}
+💰 *Total: R$ ${parseFloat(total).toFixed(2)}*
+
+📋 Itens:
+${itemsText}
+
+⏱️  Tempo estimado: 30-45 minutos
+
+Obrigado! 🙏`;
+
+    // Retorna a mensagem para o Make.com enviar
+    res.json({
+      success: true,
+      message: 'Webhook acionado',
+      whatsappNumber: clienteWhatsapp,
+      clienteName: clienteNome,
+      orderMessage: mensagem,
+      formattedNumber: `55${clienteWhatsapp.replace(/\D/g, '')}`
+    });
+
+    console.log(`✅ Webhook acionado para pedido ${pedidoId}`);
+  } catch (error) {
+    console.error('Erro no webhook:', error);
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
