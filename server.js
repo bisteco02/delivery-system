@@ -1304,16 +1304,16 @@ app.post('/whatsapp/send', autenticarWhatsAppAPI, async (req, res) => {
     });
   }
 });
-});
 
 // Desconectar WhatsApp
-app.post('/whatsapp/disconnect', (req, res) => {
+app.post('/whatsapp/disconnect', async (req, res) => {
   try {
-    if (whatsappClient) {
-      whatsappClient.logout();
+    if (waSocket) {
+      await waSocket.end();
       isWhatsAppConnected = false;
       connectionStatus = 'disconnected';
       qrCodeData = null;
+      waSocket = null;
     }
     res.json({ success: true });
   } catch (error) {
