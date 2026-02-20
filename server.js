@@ -7,8 +7,6 @@ const fsSync = require('fs');
 const https = require('https');
 const path = require('path');
 const multer = require('multer');
-const { Baileys, WASocket, makeCacheableSignalKeyStore, downloadMediaMessage } = require('@whiskeysockets/baileys');
-const QRCode = require('qrcode');
 const session = require('express-session');
 const SQLiteStore = require('connect-sqlite3')(session);
 const bcrypt = require('bcryptjs');
@@ -17,7 +15,6 @@ const { MercadoPagoConfig, PreApprovalPlan, PreApproval, Payment } = require('me
 
 const app = express();
 const PORT = process.env.PORT || 3001;
-const WHATSAPP_API_KEY = process.env.WHATSAPP_API_KEY || 'padoca-local-2026';
 
 const DOMAIN = process.env.DOMAIN || 'padocadodede.com';
 const HTTPS_CERT_DIR = `/etc/letsencrypt/live/${DOMAIN}`;
@@ -104,11 +101,6 @@ app.use((req, res, next) => {
 app.get('/painel', (req, res) => {
   if (!req.session.adminLoggedIn) return res.redirect('/login');
   res.redirect('/painel-admin.html');
-});
-
-app.get('/whatsapp', (req, res) => {
-  if (!req.session.adminLoggedIn) return res.redirect('/login');
-  res.redirect('/painel-admin.html?tab=whatsapp');
 });
 
 // ==================== ARQUIVOS ESTÁTICOS ====================
@@ -415,146 +407,13 @@ app.get('/logout', (req, res) => {
   });
 });
 
-// WhatsApp - Baileys
-let waSocket = null;
-let qrCodeData = null;
-let isWhatsAppConnected = false;
-let connectionStatus = 'initializing';
-const baileysCachePath = path.join(__dirname, '.baileys_cache');
-
-// Carregar Baileys corretamente
-const { default: makeWASocket, useMultiFileAuthState, DisconnectReason, Browsers } = require('@whiskeysockets/baileys');
-const pino = require('pino');
-const NodeCache = require('node-cache');
-
-const msgRetryCounterCache = new NodeCache();
-
-async function inicializarWhatsApp() {
-  try {
-    console.log('Iniciando WhatsApp com Baileys...');
-    
-    // Criar diretório de cache se não existir
-    try {
-      await fs.mkdir(baileysCachePath, { recursive: true });
-    } catch (e) {
-      // Diretório pode já existir
-    }
-
-    // Configurar autenticação
-    const { state, saveCreds } = await useMultiFileAuthState(baileysCachePath);
-    
-    waSocket = makeWASocket({
-      auth: state,
-      msgRetryCounterCache,
-      logger: pino({ level: 'silent' }),
-      browser: Browsers.ubuntu('Chrome'),
-      markOnlineOnConnect: false,
-      syncFullHistory: false,
-      shouldSyncHistoryMessage: () => false,
-      transactionOpts: { maxRetries: 1, delayMs: 100 },
-      retryRequestDelayMs: 10,
-      maxMsgRetryCount: 3
-    });
-
-    // Evento QR Code
-    waSocket.ev.on('connection.update', async (update) => {
-      const { connection, lastDisconnect, qr } = update;
-      
-      if (qr) {
-        qrCodeData = qr;
-        connectionStatus = 'qr_ready';
-        console.log('✅ QR Code gerado! Escaneie com o WhatsApp');
-      }
-
-      if (connection === 'connecting') {
-        console.log('⏳ Conectando ao WhatsApp...');
-      } else if (connection === 'open') {
-        isWhatsAppConnected = true;
-        connectionStatus = 'connected';
-        qrCodeData = null;
-        console.log('✅ WhatsApp conectado com sucesso!');
-        
-        // Informações da conta
-        try {
-          const user = waSocket.user;
-          if (user) {
-            console.log('📱 Número WhatsApp:', user.id);
-          }
-        } catch (error) {
-          console.log('Não foi possível obter informações da conta');
-        }
-      } else if (connection === 'close') {
-        isWhatsAppConnected = false;
-        connectionStatus = 'disconnected';
-        
-        const shouldReconnect = (lastDisconnect?.error)?.output?.statusCode !== DisconnectReason.loggedOut;
-        console.log(`⚠️  WhatsApp desconectado (reconectar: ${shouldReconnect})`);
-        
-        if (shouldReconnect) {
-          console.log('🔄 Reconectando em 10 segundos...');
-          setTimeout(() => {
-            console.log('Tentando reconectar...');
-            inicializarWhatsApp().catch(err => console.error('Erro ao reconectar:', err));
-          }, 10000);
-        }
-      }
-    });
-
-    // Salvar credenciais quando atualizar
-    waSocket.ev.on('creds.update', saveCreds);
-
-    // Evento de mensagem recebida (para referência)
-    waSocket.ev.on('messages.upsert', async (m) => {
-      // Mensagens recebidas
-      if (m.type !== 'notify') return;
-      
-      for (const msg of m.messages) {
-        console.log('📨 Mensagem recebida de:', msg.key.remoteJid);
-      }
-    });
-
-  } catch (error) {
-    console.error('❌ Erro ao inicializar WhatsApp:', error);
-    connectionStatus = 'error';
-    
-    if (waSocket) {
-      try {
-        await waSocket.end();
-      } catch (e) {
-        // Erro ao encerrar
-      }
-      waSocket = null;
-    }
-    
-    throw error;
   }
-}
-
-// Função para enviar mensagem
-async function enviarWhatsApp(numero, mensagem) {
-  try {
-    if (!isWhatsAppConnected || !waSocket) {
-      throw new Error('WhatsApp não está conectado');
-    }
-
-    const chatId = numero.includes('@') ? numero : `55${numero.replace(/\D/g, '')}@s.whatsapp.net`;
-    await waSocket.sendMessage(chatId, { text: mensagem });
-    console.log('✅ Mensagem enviada para:', numero);
-    return true;
-  } catch (error) {
-    console.error('❌ Erro ao enviar mensagem:', error);
-    throw error;
-  }
-}
+});
 
 // Middleware de autenticação WhatsApp API
 function autenticarWhatsAppAPI(req, res, next) {
-  const apiKey = req.headers['apikey'] || req.headers['authorization'];
-  if (apiKey === WHATSAPP_API_KEY) {
-    next();
-  } else {
-    res.status(401).json({ error: 'API Key inválida' });
-  }
+  // Removido - não há mais API WhatsApp
+  res.status(410).json({ error: 'API WhatsApp removida. Use links wa.me' });
 }
 
 // ==================== ARQUIVOS JSON ====================
@@ -760,30 +619,7 @@ app.post('/api/pedidos', async (req, res) => {
     pedidos.push(novoPedido);
     await salvarPedidos(pedidos);
 
-    console.log('Novo pedido:', novoPedido.id);
-
-    // Enviar WhatsApp automático para o cliente
-    try {
-      const mensagemCliente = `🍞 *Pedido Recebido!*\n\n✅ Seu pedido foi confirmado!\n🆔 *Pedido #${novoPedido.id}*\n\n📍 Local: ${novoPedido.endereco || 'Para retirar'}\n💰 *Total: R$ ${novoPedido.total.toFixed(2)}*\n\n⏱️  Tempo estimado: 30-45 minutos\n\nObrigado! 🙏`;
-      
-      await enviarWhatsApp(novoPedido.cliente.whatsapp, mensagemCliente);
-      console.log('✅ Mensagem de confirmação enviada ao cliente');
-    } catch (error) {
-      console.error('⚠️  Não foi possível enviar mensagem ao cliente:', error.message);
-    }
-
-    // Enviar WhatsApp para a empresa se configurado
-    try {
-      const companyData = await lerCompanyData();
-      if (companyData && companyData.companyWhatsapp && isWhatsAppConnected) {
-        const mensagemEmpresa = `🍞 *NOVO PEDIDO #${novoPedido.id}*\n\n👤 Cliente: ${novoPedido.cliente.nome}\n📱 WhatsApp: ${novoPedido.cliente.whatsapp}\n📍 Endereço: ${novoPedido.endereco || 'Retirar'}\n💰 Total: R$ ${novoPedido.total.toFixed(2)}\n\n📋 Itens:\n${novoPedido.itens.map(item => `- ${item.quantidade}x ${item.nome} (R$ ${item.precoTotal.toFixed(2)})`).join('\n')}\n\n⚡ Acesse o painel para confirmar!`;
-        
-        await enviarWhatsApp(companyData.companyWhatsapp, mensagemEmpresa);
-        console.log('✅ Notificação enviada para empresa');
-      }
-    } catch (error) {
-      console.error('⚠️  Não foi possível enviar mensagem para empresa:', error.message);
-    }
+    console.log('✅ Novo pedido recebido:', novoPedido.id);
 
     res.json({ 
       success: true, 
@@ -1217,149 +1053,6 @@ app.delete('/api/item-promotions/:itemName', async (req, res) => {
   } catch (error) {
     console.error('Erro ao deletar promoção:', error);
     res.status(500).json({ success: false, message: 'Erro ao deletar promoção' });
-  }
-});
-
-// ==================== ROTAS - WHATSAPP API ====================
-
-// Status do WhatsApp (GET público para o painel)
-app.get('/whatsapp/status', async (req, res) => {
-  try {
-    // Inicializar WhatsApp sob demanda se ainda não foi inicializado
-    if (!waSocket && connectionStatus === 'initializing') {
-      console.log('🔄 Iniciando WhatsApp sob demanda...');
-      inicializarWhatsApp().catch(err => {
-        console.error('❌ Falha ao inicializar WhatsApp:', err.message);
-        connectionStatus = 'error';
-      });
-    }
-    
-    res.json({
-      connected: isWhatsAppConnected,
-      qr: qrCodeData,
-      number: waSocket?.user?.id || null,
-      status: connectionStatus
-    });
-  } catch (error) {
-    res.json({
-      connected: false,
-      qr: null,
-      number: null,
-      status: 'error'
-    });
-  }
-});
-
-// Forçar inicialização do WhatsApp
-app.post('/whatsapp/init', async (req, res) => {
-  try {
-    if (isWhatsAppConnected) {
-      return res.json({ success: true, message: 'Já conectado' });
-    }
-    
-    if (!waSocket) {
-      console.log('🚀 Iniciando WhatsApp manualmente...');
-      inicializarWhatsApp().catch(err => {
-        console.error('❌ Erro ao inicializar:', err);
-      });
-      
-      res.json({ success: true, message: 'Inicialização iniciada' });
-    } else {
-      res.json({ success: true, message: 'Já em processo de inicialização' });
-    }
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-app.get('/whatsapp/qr', async (req, res) => {
-  if (!qrCodeData) {
-    return res.send(`
-      <!DOCTYPE html>
-      <html><head><meta charset="UTF-8"><title>WhatsApp QR</title>
-      <style>body{font-family:Arial;text-align:center;padding:50px;background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);color:#fff}
-      .card{background:rgba(255,255,255,0.1);padding:30px;border-radius:15px;max-width:500px;margin:0 auto}
-      p{font-size:16px;margin:15px 0}
-      a{color:#fff;text-decoration:none;background:rgba(255,255,255,0.2);padding:10px 20px;border-radius:8px;display:inline-block;transition:all 0.3s}
-      a:hover{background:rgba(255,255,255,0.3)}</style>
-      </head><body><div class="card">
-      <h1>📱 WhatsApp Baileys</h1>
-      <p>${connectionStatus === 'connected' ? '✅ Já conectado!' : '⏳ Aguardando QR Code...'}</p>
-      <p><a href="/whatsapp/qr">🔄 Recarregar</a></p>
-      </div></body></html>
-    `);
-  }
-
-  try {
-    const qrImage = await QRCode.toDataURL(qrCodeData);
-    res.send(`
-      <!DOCTYPE html>
-      <html><head><meta charset="UTF-8"><title>WhatsApp QR Code</title>
-      <style>body{font-family:Arial;text-align:center;padding:20px;background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);color:#fff}
-      .card{background:rgba(255,255,255,0.1);padding:30px;border-radius:15px;max-width:600px;margin:0 auto}
-      img{max-width:400px;margin:20px auto;background:#fff;padding:20px;border-radius:10px;display:block}
-      .status{font-size:14px;opacity:0.9;margin-top:20px}
-      .status.connected{color:#4caf50}</style>
-      </head><body><div class="card">
-      <h1>📱 Conectar WhatsApp</h1>
-      <p>Escaneie este QR Code com seu WhatsApp</p>
-      <img src="${qrImage}" alt="QR Code">
-      <div class="status">⏳ Aguardando confirmação...</div>
-      <script>setTimeout(() => location.reload(), 5000)</script>
-      </div></body></html>
-    `);
-  } catch (error) {
-    console.error('Erro ao gerar QR Code:', error);
-    res.status(500).send('Erro ao gerar QR Code');
-  }
-});
-
-app.post('/whatsapp/send', autenticarWhatsAppAPI, async (req, res) => {
-  try {
-    if (!isWhatsAppConnected) {
-      return res.status(503).json({
-        success: false,
-        message: 'WhatsApp não está conectado'
-      });
-    }
-
-    const { number, message } = req.body;
-    
-    if (!number || !message) {
-      return res.status(400).json({
-        success: false,
-        message: 'Número e mensagem são obrigatórios'
-      });
-    }
-
-    await enviarWhatsApp(number, message);
-
-    res.json({
-      success: true,
-      message: 'Mensagem enviada com sucesso'
-    });
-  } catch (error) {
-    console.error('Erro ao enviar mensagem:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Erro ao enviar mensagem: ' + error.message
-    });
-  }
-});
-
-// Desconectar WhatsApp
-app.post('/whatsapp/disconnect', async (req, res) => {
-  try {
-    if (waSocket) {
-      await waSocket.end();
-      isWhatsAppConnected = false;
-      connectionStatus = 'disconnected';
-      qrCodeData = null;
-      waSocket = null;
-    }
-    res.json({ success: true });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
   }
 });
 
