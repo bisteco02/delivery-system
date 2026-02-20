@@ -431,6 +431,7 @@ async function inicializarWhatsApp() {
       }),
       puppeteer: {
         headless: true,
+        executablePath: '/root/.cache/puppeteer/chrome/linux-144.0.7559.96/chrome-linux64/chrome',
         args: [
           '--no-sandbox', 
           '--disable-setuid-sandbox',
