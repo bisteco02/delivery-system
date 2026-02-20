@@ -407,9 +407,6 @@ app.get('/logout', (req, res) => {
   });
 });
 
-  }
-});
-
 // Middleware de autenticação WhatsApp API
 function autenticarWhatsAppAPI(req, res, next) {
   // Removido - não há mais API WhatsApp
