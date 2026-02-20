@@ -7,7 +7,7 @@ const fsSync = require('fs');
 const https = require('https');
 const path = require('path');
 const multer = require('multer');
-const { Client, LocalAuth } = require('whatsapp-web.js');
+const { Baileys, WASocket, makeCacheableSignalKeyStore, downloadMediaMessage } = require('@whiskeysockets/baileys');
 const QRCode = require('qrcode');
 const session = require('express-session');
 const SQLiteStore = require('connect-sqlite3')(session);
@@ -415,115 +415,135 @@ app.get('/logout', (req, res) => {
   });
 });
 
-// WhatsApp
-let whatsappClient = null;
+// WhatsApp - Baileys
+let waSocket = null;
 let qrCodeData = null;
 let isWhatsAppConnected = false;
 let connectionStatus = 'initializing';
+const baileysCachePath = path.join(__dirname, '.baileys_cache');
+
+// Carregar Baileys corretamente
+const { default: makeWASocket, useMultiFileAuthState, DisconnectReason, Browsers } = require('@whiskeysockets/baileys');
+const pino = require('pino');
+const NodeCache = require('node-cache');
+
+const msgRetryCounterCache = new NodeCache();
 
 async function inicializarWhatsApp() {
   try {
-    console.log('Iniciando WhatsApp...');
+    console.log('Iniciando WhatsApp com Baileys...');
     
-    whatsappClient = new Client({
-      authStrategy: new LocalAuth({
-        dataPath: path.join(__dirname, '.wwebjs_auth')
-      }),
-      puppeteer: {
-        headless: true,
-        executablePath: '/root/.cache/puppeteer/chrome/linux-144.0.7559.96/chrome-linux64/chrome',
-        args: [
-          '--no-sandbox', 
-          '--disable-setuid-sandbox',
-          '--disable-dev-shm-usage',
-          '--disable-accelerated-2d-canvas',
-          '--no-first-run',
-          '--no-zygote',
-          '--single-process',
-          '--disable-gpu'
-        ],
-        timeout: 60000
-      }
+    // Criar diretório de cache se não existir
+    try {
+      await fs.mkdir(baileysCachePath, { recursive: true });
+    } catch (e) {
+      // Diretório pode já existir
+    }
+
+    // Configurar autenticação
+    const { state, saveCreds } = await useMultiFileAuthState(baileysCachePath);
+    
+    waSocket = makeWASocket({
+      auth: state,
+      msgRetryCounterCache,
+      logger: pino({ level: 'silent' }),
+      browser: Browsers.ubuntu('Chrome'),
+      markOnlineOnConnect: false,
+      syncFullHistory: false,
+      shouldSyncHistoryMessage: () => false,
+      transactionOpts: { maxRetries: 1, delayMs: 100 },
+      retryRequestDelayMs: 10,
+      maxMsgRetryCount: 3
     });
 
-    whatsappClient.on('qr', async (qr) => {
-      qrCodeData = qr;
-      connectionStatus = 'qr_ready';
-      console.log('QR Code gerado: http://localhost:' + PORT + '/whatsapp/qr');
-    });
-
-    whatsappClient.on('ready', async () => {
-      isWhatsAppConnected = true;
-      connectionStatus = 'connected';
-      qrCodeData = null;
-      console.log('✅ WhatsApp conectado!');
-
-      // Verificar se o número conectado é o da empresa
-      try {
-        const info = whatsappClient.info;
-        if (info && info.wid && info.wid.user) {
-          const numeroConectado = info.wid.user;
-          console.log('📱 Número WhatsApp conectado:', numeroConectado);
-
-          const companyData = await lerCompanyData();
-          if (companyData && companyData.companyWhatsapp) {
-            const numeroEmpresa = companyData.companyWhatsapp.replace(/\D/g, '');
-            if (numeroConectado !== numeroEmpresa) {
-              console.warn(`⚠️  AVISO: O WhatsApp conectado (${numeroConectado}) não é o da empresa (${numeroEmpresa}). Configure o número correto no painel admin.`);
-            } else {
-              console.log('✅ WhatsApp da empresa conectado corretamente!');
-            }
-          }
-        }
-      } catch (error) {
-        console.error('Erro ao verificar número WhatsApp:', error);
-      }
-    });
-
-    whatsappClient.on('authenticated', () => {
-      console.log('🔐 WhatsApp autenticado!');
-    });
-
-    whatsappClient.on('auth_failure', (msg) => {
-      console.error('❌ Falha na autenticação WhatsApp:', msg);
-      connectionStatus = 'auth_failed';
-    });
-
-    whatsappClient.on('disconnected', () => {
-      isWhatsAppConnected = false;
-      connectionStatus = 'disconnected';
-      console.log('⚠️  WhatsApp desconectado - Tentando reconectar em 10 segundos...');
+    // Evento QR Code
+    waSocket.ev.on('connection.update', async (update) => {
+      const { connection, lastDisconnect, qr } = update;
       
-      // Tentar reconectar após 10 segundos
-      setTimeout(() => {
-        console.log('🔄 Tentando reconectar WhatsApp...');
+      if (qr) {
+        qrCodeData = qr;
+        connectionStatus = 'qr_ready';
+        console.log('✅ QR Code gerado! Escaneie com o WhatsApp');
+      }
+
+      if (connection === 'connecting') {
+        console.log('⏳ Conectando ao WhatsApp...');
+      } else if (connection === 'open') {
+        isWhatsAppConnected = true;
+        connectionStatus = 'connected';
+        qrCodeData = null;
+        console.log('✅ WhatsApp conectado com sucesso!');
+        
+        // Informações da conta
         try {
-          whatsappClient.initialize();
+          const user = waSocket.user;
+          if (user) {
+            console.log('📱 Número WhatsApp:', user.id);
+          }
         } catch (error) {
-          console.error('Erro ao reconectar:', error);
+          console.log('Não foi possível obter informações da conta');
         }
-      }, 10000);
+      } else if (connection === 'close') {
+        isWhatsAppConnected = false;
+        connectionStatus = 'disconnected';
+        
+        const shouldReconnect = (lastDisconnect?.error)?.output?.statusCode !== DisconnectReason.loggedOut;
+        console.log(`⚠️  WhatsApp desconectado (reconectar: ${shouldReconnect})`);
+        
+        if (shouldReconnect) {
+          console.log('🔄 Reconectando em 10 segundos...');
+          setTimeout(() => {
+            console.log('Tentando reconectar...');
+            inicializarWhatsApp().catch(err => console.error('Erro ao reconectar:', err));
+          }, 10000);
+        }
+      }
     });
 
-    await Promise.race([
-      whatsappClient.initialize(),
-      new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Timeout na inicialização do WhatsApp')), 120000) // 2 minutos
-      )
-    ]);
+    // Salvar credenciais quando atualizar
+    waSocket.ev.on('creds.update', saveCreds);
+
+    // Evento de mensagem recebida (para referência)
+    waSocket.ev.on('messages.upsert', async (m) => {
+      // Mensagens recebidas
+      if (m.type !== 'notify') return;
+      
+      for (const msg of m.messages) {
+        console.log('📨 Mensagem recebida de:', msg.key.remoteJid);
+      }
+    });
+
   } catch (error) {
     console.error('❌ Erro ao inicializar WhatsApp:', error);
     connectionStatus = 'error';
-    // Resetar cliente para evitar estado inconsistente
-    if (whatsappClient) {
+    
+    if (waSocket) {
       try {
-        whatsappClient.destroy();
+        await waSocket.end();
       } catch (e) {
-        console.error('Erro ao destruir cliente WhatsApp:', e);
+        // Erro ao encerrar
       }
-      whatsappClient = null;
+      waSocket = null;
     }
-    throw error; // Re-throw para o catch externo
+    
+    throw error;
+  }
+}
+
+// Função para enviar mensagem
+async function enviarWhatsApp(numero, mensagem) {
+  try {
+    if (!isWhatsAppConnected || !waSocket) {
+      throw new Error('WhatsApp não está conectado');
+    }
+
+    const chatId = numero.includes('@') ? numero : `55${numero.replace(/\D/g, '')}@s.whatsapp.net`;
+    await waSocket.sendMessage(chatId, { text: mensagem });
+    console.log('✅ Mensagem enviada para:', numero);
+    return true;
+  } catch (error) {
+    console.error('❌ Erro ao enviar mensagem:', error);
+    throw error;
   }
 }
 
@@ -742,19 +762,27 @@ app.post('/api/pedidos', async (req, res) => {
 
     console.log('Novo pedido:', novoPedido.id);
 
+    // Enviar WhatsApp automático para o cliente
+    try {
+      const mensagemCliente = `🍞 *Pedido Recebido!*\n\n✅ Seu pedido foi confirmado!\n🆔 *Pedido #${novoPedido.id}*\n\n📍 Local: ${novoPedido.endereco || 'Para retirar'}\n💰 *Total: R$ ${novoPedido.total.toFixed(2)}*\n\n⏱️  Tempo estimado: 30-45 minutos\n\nObrigado! 🙏`;
+      
+      await enviarWhatsApp(novoPedido.cliente.whatsapp, mensagemCliente);
+      console.log('✅ Mensagem de confirmação enviada ao cliente');
+    } catch (error) {
+      console.error('⚠️  Não foi possível enviar mensagem ao cliente:', error.message);
+    }
+
     // Enviar WhatsApp para a empresa se configurado
     try {
       const companyData = await lerCompanyData();
       if (companyData && companyData.companyWhatsapp && isWhatsAppConnected) {
-        const numeroEmpresa = companyData.companyWhatsapp.replace(/\D/g, '');
-        const chatIdEmpresa = `55${numeroEmpresa}@c.us`;
-        const mensagemEmpresa = `🍞 *NOVO PEDIDO #${novoPedido.id}*\n\n👤 Cliente: ${novoPedido.cliente.nome}\n📱 WhatsApp: ${novoPedido.cliente.whatsapp}\n📍 Endereço: ${novoPedido.endereco || 'Não informado'}\n💰 Total: R$ ${novoPedido.total.toFixed(2)}\n\n📋 Itens:\n${novoPedido.itens.map(item => `- ${item.quantidade}x ${item.nome} (R$ ${item.precoTotal.toFixed(2)})`).join('\n')}\n\n⚡ Acesse o painel para confirmar!`;
+        const mensagemEmpresa = `🍞 *NOVO PEDIDO #${novoPedido.id}*\n\n👤 Cliente: ${novoPedido.cliente.nome}\n📱 WhatsApp: ${novoPedido.cliente.whatsapp}\n📍 Endereço: ${novoPedido.endereco || 'Retirar'}\n💰 Total: R$ ${novoPedido.total.toFixed(2)}\n\n📋 Itens:\n${novoPedido.itens.map(item => `- ${item.quantidade}x ${item.nome} (R$ ${item.precoTotal.toFixed(2)})`).join('\n')}\n\n⚡ Acesse o painel para confirmar!`;
         
-        await whatsappClient.sendMessage(chatIdEmpresa, mensagemEmpresa);
-        console.log('Notificação enviada para:', numeroEmpresa);
+        await enviarWhatsApp(companyData.companyWhatsapp, mensagemEmpresa);
+        console.log('✅ Notificação enviada para empresa');
       }
     } catch (error) {
-      console.error('Erro ao enviar WhatsApp para empresa:', error);
+      console.error('⚠️  Não foi possível enviar mensagem para empresa:', error.message);
     }
 
     res.json({ 
@@ -1207,12 +1235,15 @@ app.get('/whatsapp/qr', async (req, res) => {
     return res.send(`
       <!DOCTYPE html>
       <html><head><meta charset="UTF-8"><title>WhatsApp QR</title>
-      <style>body{font-family:Arial;text-align:center;padding:50px;background:#667eea;color:#fff}
-      .card{background:rgba(255,255,255,0.1);padding:30px;border-radius:15px;max-width:500px;margin:0 auto}</style>
+      <style>body{font-family:Arial;text-align:center;padding:50px;background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);color:#fff}
+      .card{background:rgba(255,255,255,0.1);padding:30px;border-radius:15px;max-width:500px;margin:0 auto}
+      p{font-size:16px;margin:15px 0}
+      a{color:#fff;text-decoration:none;background:rgba(255,255,255,0.2);padding:10px 20px;border-radius:8px;display:inline-block;transition:all 0.3s}
+      a:hover{background:rgba(255,255,255,0.3)}</style>
       </head><body><div class="card">
-      <h1>📱 WhatsApp</h1>
+      <h1>📱 WhatsApp Baileys</h1>
       <p>${connectionStatus === 'connected' ? '✅ Já conectado!' : '⏳ Aguardando QR Code...'}</p>
-      <p><a href="/whatsapp/qr" style="color:#fff">🔄 Recarregar</a></p>
+      <p><a href="/whatsapp/qr">🔄 Recarregar</a></p>
       </div></body></html>
     `);
   }
@@ -1222,17 +1253,21 @@ app.get('/whatsapp/qr', async (req, res) => {
     res.send(`
       <!DOCTYPE html>
       <html><head><meta charset="UTF-8"><title>WhatsApp QR Code</title>
-      <style>body{font-family:Arial;text-align:center;padding:20px;background:#667eea;color:#fff}
+      <style>body{font-family:Arial;text-align:center;padding:20px;background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);color:#fff}
       .card{background:rgba(255,255,255,0.1);padding:30px;border-radius:15px;max-width:600px;margin:0 auto}
-      img{max-width:400px;margin:20px auto;background:#fff;padding:20px;border-radius:10px}</style>
+      img{max-width:400px;margin:20px auto;background:#fff;padding:20px;border-radius:10px;display:block}
+      .status{font-size:14px;opacity:0.9;margin-top:20px}
+      .status.connected{color:#4caf50}</style>
       </head><body><div class="card">
       <h1>📱 Conectar WhatsApp</h1>
       <p>Escaneie este QR Code com seu WhatsApp</p>
       <img src="${qrImage}" alt="QR Code">
-      <p style="font-size:14px;opacity:0.8">A página recarregará automaticamente em 5 segundos</p>
-      </div><script>setTimeout(() => location.reload(), 5000)</script></body></html>
+      <div class="status">⏳ Aguardando confirmação...</div>
+      <script>setTimeout(() => location.reload(), 5000)</script>
+      </div></body></html>
     `);
   } catch (error) {
+    console.error('Erro ao gerar QR Code:', error);
     res.status(500).send('Erro ao gerar QR Code');
   }
 });
@@ -1255,8 +1290,7 @@ app.post('/whatsapp/send', autenticarWhatsAppAPI, async (req, res) => {
       });
     }
 
-    const chatId = number.includes('@c.us') ? number : `55${number.replace(/\D/g, '')}@c.us`;
-    await whatsappClient.sendMessage(chatId, message);
+    await enviarWhatsApp(number, message);
 
     res.json({
       success: true,
@@ -1270,34 +1304,6 @@ app.post('/whatsapp/send', autenticarWhatsAppAPI, async (req, res) => {
     });
   }
 });
-
-// Status do WhatsApp (inicializa sob demanda)
-app.get('/whatsapp/status', async (req, res) => {
-  try {
-    // Inicializar WhatsApp se ainda não foi inicializado
-    if (!whatsappClient && connectionStatus === 'initializing') {
-      console.log('🔄 Iniciando WhatsApp sob demanda...');
-      // Não aguardar a inicialização completa para não travar a requisição
-      inicializarWhatsApp().catch(err => {
-        console.error('❌ Erro ao inicializar WhatsApp:', err.message);
-        connectionStatus = 'error';
-      });
-    }
-    
-    res.json({
-      connected: isWhatsAppConnected,
-      qr: qrCodeData,
-      number: whatsappClient?.info?.wid?.user || null,
-      status: connectionStatus
-    });
-  } catch (error) {
-    res.json({
-      connected: false,
-      qr: null,
-      number: null,
-      status: 'error'
-    });
-  }
 });
 
 // Desconectar WhatsApp
