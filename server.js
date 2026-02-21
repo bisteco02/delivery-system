@@ -13,6 +13,9 @@ const bcrypt = require('bcryptjs');
 const selfsigned = require('selfsigned');
 const { MercadoPagoConfig, PreApprovalPlan, PreApproval, Payment } = require('mercadopago');
 
+// WhatsApp Manager com Baileys
+const whatsappManager = require('./whatsapp-manager');
+
 const app = express();
 const PORT = process.env.PORT || 3001;
 
@@ -617,6 +620,31 @@ app.post('/api/pedidos', async (req, res) => {
     await salvarPedidos(pedidos);
 
     console.log('✅ Novo pedido recebido:', novoPedido.id);
+
+    // Enviar mensagem WhatsApp automaticamente
+    if (whatsappManager.isReady()) {
+      try {
+        const clienteWhatsapp = novoPedido.cliente.whatsappLimpo;
+        const clienteNome = novoPedido.cliente.nome;
+        
+        // Formatar mensagem
+        const itensStr = novoPedido.itens
+          .map(i => `• ${i.quantidade}x ${i.nome}${i.adicionais && i.adicionais.length > 0 ? ' +' : ''}`)
+          .join('\n');
+        
+        const mensagem = `🍕 *Pedido Confirmado!*\n\nOlá ${clienteNome}!\n\nSeu pedido foi recebido com sucesso!\n\n*Itens:*\n${itensStr}\n\n*Total:* R$ ${novoPedido.total.toFixed(2)}\n*Endereço:* ${novoPedido.endereco}\n*Bairro:* ${novoPedido.bairro}\n\nEntraremos em contato em breve!`;
+        
+        whatsappManager.sendMessage(clienteWhatsapp, mensagem).then(result => {
+          if (result.success) {
+            console.log(`✅ WhatsApp enviado para ${clienteWhatsapp}`);
+          } else {
+            console.warn(`⚠️ WhatsApp não enviado para ${clienteWhatsapp}: ${result.error}`);
+          }
+        });
+      } catch (error) {
+        console.error('Erro ao enviar WhatsApp:', error.message);
+      }
+    }
 
     // Disparar webhook automaticamente para Make.com/Zapier
     try {
@@ -1293,12 +1321,28 @@ app.get('/api/verificar-assinatura', async (req, res) => {
   }
 });
 
+// Status do WhatsApp
+app.get('/api/whatsapp-status', (req, res) => {
+  res.json({
+    connected: whatsappManager.isReady(),
+    status: whatsappManager.isReady() ? 'conectado' : 'desconectado',
+    queueLength: whatsappManager.messageQueue?.length || 0
+  });
+});
+
 // ==================== INICIALIZAR ====================
 
 async function iniciarServidor() {
   try {
     await inicializarArquivos();
     console.log('✅ Arquivos inicializados');
+
+    // Inicializar WhatsApp com Baileys
+    console.log('\n[WhatsApp] Iniciando gerenciador Baileys...');
+    const whatsappReady = await whatsappManager.initialize();
+    if (!whatsappReady) {
+      console.warn('[WhatsApp] ⚠️ WhatsApp não inicializado. Escaneie o QR code quando aparecer.');
+    }
 
     // Servidor HTTP
     app.listen(PORT, '0.0.0.0', () => {
