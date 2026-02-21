@@ -1,6 +1,6 @@
 // Gerenciador WhatsApp com Baileys - Implementação robusta
 const makeWASocket = require('@whiskeysockets/baileys').default;
-const { useSingleFileLegacyAuthState } = require('@whiskeysockets/baileys');
+const { makeCacheableSignalKeyStore, useMultiFileAuthState } = require('@whiskeysockets/baileys');
 const { Boom } = require('@whiskeysockets/baileys');
 const fs = require('fs');
 const path = require('path');
@@ -25,19 +25,23 @@ class WhatsAppManager {
   async initialize() {
     try {
       console.log('[WhatsApp] Inicializando Baileys...');
-      const { state, saveCreds } = useSingleFileLegacyAuthState(
-        path.join(this.authDir, 'auth.json')
-      );
+      const { state, saveCreds } = await useMultiFileAuthState(this.authDir);
 
       this.socket = makeWASocket({
-        auth: state,
+        auth: {
+          creds: state.creds,
+          keys: makeCacheableSignalKeyStore(state.keys, {
+            level: 'error',
+            log: () => {}
+          })
+        },
         printQRInTerminal: true,
         logger: {
-          level: 'silent',
+          level: 'error',
           log: () => {},
           error: (msg) => console.error('[WhatsApp Error]', msg),
           warn: (msg) => console.warn('[WhatsApp Warn]', msg),
-          info: (msg) => console.log('[WhatsApp Info]', msg),
+          info: () => {},
           debug: () => {},
           trace: () => {}
         },
@@ -64,10 +68,11 @@ class WhatsAppManager {
         this.handleMessagesUpsert(m);
       });
 
-      console.log('[WhatsApp] Baileys inicializado com sucesso');
+      console.log('[WhatsApp] ✅ Baileys inicializado com sucesso');
       return true;
     } catch (error) {
       console.error('[WhatsApp] Erro ao inicializar Baileys:', error.message);
+      console.error('[WhatsApp] Stack:', error.stack);
       return false;
     }
   }
