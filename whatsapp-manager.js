@@ -15,6 +15,8 @@ class WhatsAppManager {
     this.authDir = path.join(__dirname, 'whatsapp-auth');
     this.messageQueue = [];
     this.isProcessingQueue = false;
+    this.lastQRData = null; // Armazenar último QR code
+    this.phoneNumber = null; // Armazenar número conectado
 
     // Criar diretório de autenticação se não existir
     if (!fs.existsSync(this.authDir)) {
@@ -63,6 +65,7 @@ class WhatsAppManager {
 
     // QR Code
     if (qr) {
+      this.lastQRData = qr; // Armazenar QR data
       console.log('[WhatsApp] QR Code gerado - escaneie no seu telefone');
     }
 
@@ -91,7 +94,16 @@ class WhatsAppManager {
     if (connection === 'open') {
       this.isConnected = true;
       this.reconnectAttempts = 0;
-      console.log('[WhatsApp] ✅ Conectado com sucesso!');
+      this.lastQRData = null; // Limpar QR quando conectado
+      
+      // Tentar obter número do usuário
+      if (this.socket && this.socket.user) {
+        this.phoneNumber = this.socket.user.id.replace('@s.whatsapp.net', '');
+        console.log(`[WhatsApp] ✅ Conectado com sucesso! Número: ${this.phoneNumber}`);
+      } else {
+        console.log('[WhatsApp] ✅ Conectado com sucesso!');
+      }
+      
       this.processMessageQueue();
     }
 

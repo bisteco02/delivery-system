@@ -1371,13 +1371,15 @@ app.get('/api/whatsapp-qr', async (req, res) => {
 
 // Status do WhatsApp
 app.get('/whatsapp/status', (req, res) => {
-  res.json({
+  const status = {
     connected: whatsappManager.isReady(),
-    status: whatsappManager.isReady() ? 'connected' : 'disconnected',
-    number: null,
-    qr: null,
-    qr_ready: !whatsappManager.isReady()
-  });
+    status: whatsappManager.isReady() ? 'connected' : (whatsappManager.lastQRData ? 'qr_ready' : 'disconnected'),
+    number: whatsappManager.phoneNumber,
+    qr: whatsappManager.lastQRData,
+    qr_ready: !whatsappManager.isReady() && !!whatsappManager.lastQRData
+  };
+  
+  res.json(status);
 });
 
 // Desconectar WhatsApp
