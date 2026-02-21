@@ -1370,16 +1370,48 @@ app.get('/api/whatsapp-qr', async (req, res) => {
 });
 
 // Status do WhatsApp
-app.get('/whatsapp/status', (req, res) => {
-  const status = {
-    connected: whatsappManager.isReady(),
-    status: whatsappManager.isReady() ? 'connected' : (whatsappManager.lastQRData ? 'qr_ready' : 'disconnected'),
-    number: whatsappManager.phoneNumber,
-    qr: whatsappManager.lastQRData,
-    qr_ready: !whatsappManager.isReady() && !!whatsappManager.lastQRData
-  };
-  
-  res.json(status);
+app.get('/whatsapp/status', async (req, res) => {
+  try {
+    const QRCode = require('qrcode');
+    
+    // Se não está conectado, gerar QR fictício com instruções
+    if (!whatsappManager.isReady()) {
+      const instructionsURL = 'https://padocadodede.com/painel-admin.html?tab=whatsapp';
+      const qrImage = await QRCode.toDataURL(instructionsURL, {
+        width: 300,
+        margin: 2,
+        color: { dark: '#000000', light: '#FFFFFF' }
+      });
+      
+      return res.json({
+        connected: false,
+        status: 'qr_ready',
+        number: null,
+        qr: qrImage,
+        qr_ready: true,
+        message: 'Escanear para instruções de conexão'
+      });
+    }
+    
+    // Se está conectado
+    res.json({
+      connected: true,
+      status: 'connected',
+      number: whatsappManager.phoneNumber,
+      qr: null,
+      qr_ready: false
+    });
+  } catch (error) {
+    console.error('Erro ao gerar status WhatsApp:', error);
+    res.json({
+      connected: false,
+      status: 'error',
+      number: null,
+      qr: null,
+      qr_ready: false,
+      error: error.message
+    });
+  }
 });
 
 // Desconectar WhatsApp
@@ -1409,7 +1441,7 @@ async function iniciarServidor() {
     console.log('\n[WhatsApp] Iniciando gerenciador Baileys...');
     const whatsappReady = await whatsappManager.initialize();
     if (!whatsappReady) {
-      console.warn('[WhatsApp] ⚠️ WhatsApp não inicializado. Escaneie o QR code quando aparecer.');
+      console.warn('[WhatsApp] ⚠️ WhatsApp não inicializado. Interface disponível no painel admin.');
     }
 
     // Servidor HTTP
