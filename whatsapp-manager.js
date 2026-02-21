@@ -30,29 +30,10 @@ class WhatsAppManager {
       this.socket = makeWASocket({
         auth: {
           creds: state.creds,
-          keys: makeCacheableSignalKeyStore(state.keys, {
-            level: 'error',
-            log: () => {}
-          })
+          keys: makeCacheableSignalKeyStore(state.keys)
         },
         printQRInTerminal: true,
-        logger: {
-          level: 'error',
-          log: () => {},
-          error: (msg) => console.error('[WhatsApp Error]', msg),
-          warn: (msg) => console.warn('[WhatsApp Warn]', msg),
-          info: () => {},
-          debug: () => {},
-          trace: () => {}
-        },
-        browser: ['Ubuntu', 'Chrome', '130.0.6723.58'],
-        syncFullHistory: false,
-        markOnlineOnConnect: true,
-        emitOwnEvents: true,
-        fireInitQueries: false,
-        downloadHistory: false,
-        maxMsgsInMemory: 100,
-        version: [2, 2328, 16]
+        browser: ['Ubuntu', 'Chrome', '130.0.6723.58']
       });
 
       // Event: Credentials updated
