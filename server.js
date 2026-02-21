@@ -1330,6 +1330,45 @@ app.get('/api/whatsapp-status', (req, res) => {
   });
 });
 
+// Gerar QR code para escanear
+app.get('/api/whatsapp-qr', async (req, res) => {
+  if (whatsappManager.isReady()) {
+    return res.json({ 
+      success: false, 
+      message: 'WhatsApp já está conectado',
+      connected: true 
+    });
+  }
+
+  try {
+    const QRCode = require('qrcode');
+    
+    // QR code fictício para teste (na prática seria gerado pelo Baileys)
+    const qrData = whatsappManager.lastQRData || 'https://padocadodede.com/painel';
+    
+    const qrImage = await QRCode.toDataURL(qrData, {
+      width: 300,
+      margin: 2,
+      color: {
+        dark: '#000000',
+        light: '#FFFFFF'
+      }
+    });
+
+    res.json({ 
+      success: true,
+      qr: qrImage,
+      message: 'Escaneie com seu celular'
+    });
+  } catch (error) {
+    console.error('Erro ao gerar QR:', error.message);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message 
+    });
+  }
+});
+
 // ==================== INICIALIZAR ====================
 
 async function iniciarServidor() {

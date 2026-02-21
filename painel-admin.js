@@ -4326,9 +4326,111 @@ if (tabAddonsBtn) tabAddonsBtn.addEventListener('click', () => {
     carregarAddons();
 });
 
+// ==================== WhatsApp ====================
 
+let whatsappCheckInterval = null;
 
+async function verificarStatusWhatsApp() {
+    try {
+        const response = await fetch('/api/whatsapp-status');
+        const data = await response.json();
+        
+        const statusCard = document.getElementById('whatsapp-status-card');
+        const qrSection = document.getElementById('qr-section');
+        const connectedSection = document.getElementById('connected-section');
+        const statusBadge = document.getElementById('whatsapp-status-badge');
+        const statusText = document.getElementById('whatsapp-status-text');
+        const queueCount = document.getElementById('queue-count');
+        
+        if (data.connected) {
+            statusCard.className = 'bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-lg border-2 border-green-500 mb-6';
+            statusBadge.textContent = '✅';
+            statusText.textContent = 'WhatsApp conectado e pronto para enviar mensagens';
+            
+            qrSection.style.display = 'none';
+            connectedSection.style.display = 'block';
+            queueCount.textContent = data.queueLength || 0;
+        } else {
+            statusCard.className = 'bg-gradient-to-r from-yellow-50 to-orange-50 p-6 rounded-lg border-2 border-yellow-400 mb-6';
+            statusBadge.textContent = '⏳';
+            statusText.textContent = 'Aguardando escanear QR Code para conectar';
+            
+            qrSection.style.display = 'block';
+            connectedSection.style.display = 'none';
+        }
+    } catch (error) {
+        console.error('Erro ao verificar WhatsApp:', error);
+    }
+}
 
+async function gerarQRCode() {
+    try {
+        const qrLoading = document.getElementById('qr-loading');
+        const qrImage = document.getElementById('qr-image');
+        
+        qrLoading.style.display = 'block';
+        qrImage.style.display = 'none';
+        
+        const response = await fetch('/api/whatsapp-qr');
+        const data = await response.json();
+        
+        if (data.success && data.qr) {
+            qrImage.src = data.qr;
+            qrImage.style.display = 'block';
+            qrLoading.style.display = 'none';
+        } else {
+            qrLoading.textContent = '❌ Erro: ' + (data.message || 'Não foi possível gerar QR Code');
+        }
+    } catch (error) {
+        console.error('Erro ao gerar QR:', error);
+        document.getElementById('qr-loading').textContent = '❌ Erro ao gerar QR Code';
+    }
+}
+
+function inicializarWhatsApp() {
+    // Botões
+    const btnGerarQR = document.getElementById('btn-gerar-qr');
+    const btnDesconectar = document.getElementById('btn-desconectar');
+    const tabWhatsAppBtn = document.querySelector('[data-tab="tab-whatsapp"]');
+    
+    if (btnGerarQR) {
+        btnGerarQR.addEventListener('click', gerarQRCode);
+    }
+    
+    if (btnDesconectar) {
+        btnDesconectar.addEventListener('click', () => {
+            if (confirm('Deseja realmente desconectar WhatsApp? Será necessário escanear o QR code novamente.')) {
+                // Aqui você pode adicionar uma função de desconexão
+                alert('Desconexão será implementada em breve');
+            }
+        });
+    }
+    
+    if (tabWhatsAppBtn) {
+        tabWhatsAppBtn.addEventListener('click', () => {
+            verificarStatusWhatsApp();
+            if (whatsappCheckInterval) clearInterval(whatsappCheckInterval);
+            whatsappCheckInterval = setInterval(verificarStatusWhatsApp, 3000); // Atualizar a cada 3 segundos
+        });
+    }
+    
+    // Auto-refresh quando a aba for aberta
+    document.addEventListener('click', (e) => {
+        if (e.target.closest('[data-tab="tab-whatsapp"]')) {
+            verificarStatusWhatsApp();
+        }
+    });
+    
+    // Verificação inicial
+    verificarStatusWhatsApp();
+}
+
+// Inicializar quando o DOM estiver pronto
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', inicializarWhatsApp);
+} else {
+    inicializarWhatsApp();
+}
 
 
 
