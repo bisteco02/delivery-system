@@ -1369,6 +1369,33 @@ app.get('/api/whatsapp-qr', async (req, res) => {
   }
 });
 
+// Status do WhatsApp
+app.get('/whatsapp/status', (req, res) => {
+  res.json({
+    connected: whatsappManager.isReady(),
+    status: whatsappManager.isReady() ? 'connected' : 'disconnected',
+    number: null,
+    qr: null,
+    qr_ready: !whatsappManager.isReady()
+  });
+});
+
+// Desconectar WhatsApp
+app.post('/whatsapp/disconnect', async (req, res) => {
+  try {
+    await whatsappManager.disconnect();
+    res.json({ 
+      success: true,
+      message: 'WhatsApp desconectado com sucesso'
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      success: false, 
+      error: error.message 
+    });
+  }
+});
+
 // ==================== INICIALIZAR ====================
 
 async function iniciarServidor() {
