@@ -388,15 +388,6 @@ function setTab(tabId, addon = null, index = -1) {
             }
             if (novos.length > 0) {
 
-                if (somAtivo) {
-                    audioNovo.volume = 1.0;
-                    audioNovo.play().then(() => {
-                        console.log('✅ Som tocado com sucesso');
-                    }).catch(err => {
-                        console.error('❌ Erro ao tocar som:', err);
-                    });
-                }
-
                 // Auto confirmar novos pedidos se ativo
                 if (autoConfirmar) {
                     novos.forEach(async (pedido) => {
@@ -553,15 +544,13 @@ async function carregarPedidos() {
         somAtivo = !!e.target.checked;
         adminPrefs.somAtivo = somAtivo;
         localStorage.setItem('adminPrefs', JSON.stringify(adminPrefs));
-        // Testar som ao ativar
+        
+        // Tocar som de teste quando ativa
         if (somAtivo) {
-            console.log('🔊 Testando som...');
-            audioNovo.play().then(() => {
-                console.log('✅ Som de teste tocado com sucesso');
-            }).catch(err => {
-                console.error('❌ Erro ao tocar som de teste:', err);
-                mostrarModal('erro', 'Erro ao tocar som', 'Verifique se o arquivo existe e se o navegador permite reprodução automática.');
-            });
+            setTimeout(() => {
+                audioNovo.volume = 1.0;
+                audioNovo.play().catch(() => {});
+            }, 100);
         }
     });
 
