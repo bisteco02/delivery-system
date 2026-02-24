@@ -1536,7 +1536,8 @@ async function iniciarServidor() {
     // Inicializar Serviço de Impressão
     const apiUrl = HTTPS_ENABLED ? `https://${DOMAIN}` : `http://localhost:${PORT}`;
     printService = new PrintService(apiUrl);
-    await printService.start();
+    // Delay para servidor estar pronto
+    setTimeout(() => printService.start(), 2000);
 
     // Servidor HTTP
     app.listen(PORT, '0.0.0.0', () => {
