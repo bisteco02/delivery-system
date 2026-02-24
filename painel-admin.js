@@ -3850,30 +3850,41 @@ document.getElementById('disconnect-whatsapp')?.addEventListener('click', async 
 async function carregarConfigImpressora() {
     try {
         // Carregar lista de impressoras disponíveis
-        const printerResponse = await fetch('/api/printer/list');
-        const printers = await printerResponse.json();
-        
-        // Popular dropdown com impressoras reais do sistema
-        const select = document.getElementById('printer-selection');
-        select.innerHTML = '';
-        
-        if (printers.length === 0) {
-            select.innerHTML = '<option value="">Nenhuma impressora encontrada</option>';
-            select.disabled = true;
-        } else {
-            select.innerHTML = '<option value="">-- Selecione uma impressora --</option>';
-            printers.forEach(printer => {
-                const option = document.createElement('option');
-                option.value = printer.id;
-                option.textContent = printer.name;
-                select.appendChild(option);
-            });
-            select.disabled = false;
+        try {
+            const printerResponse = await fetch('/api/printer/list');
+            const printers = await printerResponse.json();
+            
+            console.log('[Impressora] Impressoras carregadas:', printers);
+            
+            // Popular dropdown com impressoras reais do sistema
+            const select = document.getElementById('printer-selection');
+            select.innerHTML = '';
+            
+            if (!Array.isArray(printers) || printers.length === 0) {
+                select.innerHTML = '<option value="">Nenhuma impressora encontrada</option>';
+                select.disabled = true;
+            } else {
+                select.innerHTML = '<option value="">-- Selecione uma impressora --</option>';
+                printers.forEach(printer => {
+                    if (printer && printer.id) {
+                        const option = document.createElement('option');
+                        option.value = printer.id;
+                        option.textContent = printer.name || printer.id;
+                        select.appendChild(option);
+                    }
+                });
+                select.disabled = false;
+            }
+        } catch (err) {
+            console.error('[Impressora] Erro ao buscar lista de impressoras:', err);
+            document.getElementById('printer-selection').innerHTML = '<option value="">Erro ao carregar impressoras</option>';
         }
         
         // Carregar configuração atual
         const response = await fetch('/api/printer/config');
         const config = await response.json();
+        
+        console.log('[Impressora] Config carregada:', config);
         
         // Atualizar UI
         document.getElementById('printer-enabled').checked = config.enabled || false;
@@ -3889,8 +3900,8 @@ async function carregarConfigImpressora() {
         document.getElementById('printer-test-btn').disabled = !config.enabled;
         
     } catch (error) {
-        console.error('Erro ao carregar config impressora:', error);
-        document.getElementById('printer-selection').innerHTML = '<option value="">Erro ao carregar impressoras</option>';
+        console.error('[Impressora] Erro ao carregar config impressora:', error);
+        document.getElementById('printer-selection').innerHTML = '<option value="">Erro ao carregar configuração</option>';
     }
 }
 
