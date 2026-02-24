@@ -1370,16 +1370,26 @@ app.get('/api/whatsapp-qr', async (req, res) => {
 });
 
 // Status do WhatsApp
-app.get('/whatsapp/status', (req, res) => {
+app.get('/whatsapp/status', async (req, res) => {
   try {
     const isConnected = whatsappManager.isReady();
     const hasQr = !!whatsappManager.lastQRData;
+    
+    let qrImage = null;
+    if (hasQr) {
+      const QRCode = require('qrcode');
+      qrImage = await QRCode.toDataURL(whatsappManager.lastQRData, {
+        width: 300,
+        margin: 2,
+        color: { dark: '#000000', light: '#FFFFFF' }
+      });
+    }
 
     res.json({
       connected: isConnected,
       status: isConnected ? 'connected' : (hasQr ? 'qr_ready' : 'disconnected'),
       number: whatsappManager.phoneNumber || null,
-      qr: hasQr ? whatsappManager.lastQRData : null,
+      qr: qrImage,
       qr_ready: !isConnected && hasQr
     });
   } catch (error) {
