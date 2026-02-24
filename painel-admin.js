@@ -3897,7 +3897,6 @@ async function carregarConfigImpressora() {
         // Habilitar/desabilitar controles
         document.getElementById('printer-selection').disabled = !config.enabled;
         document.getElementById('printer-autoprint').disabled = !config.enabled;
-        document.getElementById('printer-test-btn').disabled = !config.enabled;
         
     } catch (error) {
         console.error('[Impressora] Erro ao carregar config impressora:', error);
@@ -3945,31 +3944,11 @@ async function salvarConfigImpressora() {
             // Atualizar estado dos controles
             document.getElementById('printer-selection').disabled = !config.enabled;
             document.getElementById('printer-autoprint').disabled = !config.enabled;
-            document.getElementById('printer-test-btn').disabled = !config.enabled;
         } else {
             erro('Erro ao salvar configuração: ' + result.error);
         }
     } catch (error) {
         erro('Erro ao salvar configuração: ' + error.message);
-    }
-}
-
-// Testar impressão
-async function testarImpressao() {
-    try {
-        const response = await fetch('/api/printer/test', {
-            method: 'POST'
-        });
-        
-        const result = await response.json();
-        
-        if (result.success) {
-            sucesso('Página de teste enviada! Verifique sua impressora.');
-        } else {
-            erro('Erro ao testar: ' + result.error);
-        }
-    } catch (error) {
-        erro('Erro ao testar impressão: ' + error.message);
     }
 }
 
@@ -3984,11 +3963,9 @@ document.getElementById('printer-enabled')?.addEventListener('change', function(
     const desabilitado = !this.checked;
     document.getElementById('printer-selection').disabled = desabilitado;
     document.getElementById('printer-autoprint').disabled = desabilitado;
-    document.getElementById('printer-test-btn').disabled = desabilitado;
 });
 
 document.getElementById('printer-save-btn')?.addEventListener('click', salvarConfigImpressora);
-document.getElementById('printer-test-btn')?.addEventListener('click', testarImpressao);
 
 // ===== ADICIONAIS MANAGEMENT =====
 let addons = [];
