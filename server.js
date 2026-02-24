@@ -1519,6 +1519,74 @@ app.post('/api/printer/test', async (req, res) => {
   }
 });
 
+// Listar impressoras disponíveis do sistema
+app.get('/api/printer/list', async (req, res) => {
+  try {
+    let printers = [];
+    
+    const platform = process.platform;
+    
+    if (platform === 'win32') {
+      // Windows - usar PowerShell para listar impressoras
+      const { exec } = require('child_process');
+      exec('powershell -Command "Get-Printer | Select-Object Name | ConvertTo-Json"', (error, stdout) => {
+        try {
+          if (!error && stdout) {
+            const result = JSON.parse(stdout);
+            if (Array.isArray(result)) {
+              printers = result.map(p => ({ name: p.Name, id: p.Name }));
+            } else if (result.Name) {
+              printers = [{ name: result.Name, id: result.Name }];
+            }
+          }
+        } catch (e) {
+          console.log('Erro ao parsear impressoras:', e.message);
+        }
+        
+        // Adicionar impressora padrão
+        printers.unshift({ name: 'Impressora Padrão do Sistema', id: 'default' });
+        res.json(printers);
+      });
+    } else if (platform === 'darwin') {
+      // macOS
+      const { exec } = require('child_process');
+      exec('lpstat -p -d', (error, stdout) => {
+        if (!error && stdout) {
+          const lines = stdout.split('\n');
+          printers = lines
+            .filter(line => line.startsWith('printer'))
+            .map(line => {
+              const name = line.split(/\s+/)[1];
+              return { name, id: name };
+            });
+        }
+        printers.unshift({ name: 'Impressora Padrão do Sistema', id: 'default' });
+        res.json(printers);
+      });
+    } else {
+      // Linux
+      const { exec } = require('child_process');
+      exec('lpstat -p -d', (error, stdout) => {
+        if (!error && stdout) {
+          const lines = stdout.split('\n');
+          printers = lines
+            .filter(line => line.startsWith('printer'))
+            .map(line => {
+              const name = line.split(/\s+/)[1];
+              return { name, id: name };
+            });
+        }
+        printers.unshift({ name: 'Impressora Padrão do Sistema', id: 'default' });
+        res.json(printers);
+      });
+    }
+  } catch (error) {
+    res.status(500).json([
+      { name: 'Impressora Padrão do Sistema', id: 'default' }
+    ]);
+  }
+});
+
 // ==================== INICIALIZAR ====================
 
 async function iniciarServidor() {

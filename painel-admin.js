@@ -3849,6 +3849,29 @@ document.getElementById('disconnect-whatsapp')?.addEventListener('click', async 
 // Carregar configuração de impressora
 async function carregarConfigImpressora() {
     try {
+        // Carregar lista de impressoras disponíveis
+        const printerResponse = await fetch('/api/printer/list');
+        const printers = await printerResponse.json();
+        
+        // Popular dropdown com impressoras reais do sistema
+        const select = document.getElementById('printer-selection');
+        select.innerHTML = '';
+        
+        if (printers.length === 0) {
+            select.innerHTML = '<option value="">Nenhuma impressora encontrada</option>';
+            select.disabled = true;
+        } else {
+            select.innerHTML = '<option value="">-- Selecione uma impressora --</option>';
+            printers.forEach(printer => {
+                const option = document.createElement('option');
+                option.value = printer.id;
+                option.textContent = printer.name;
+                select.appendChild(option);
+            });
+            select.disabled = false;
+        }
+        
+        // Carregar configuração atual
         const response = await fetch('/api/printer/config');
         const config = await response.json();
         
@@ -3867,6 +3890,7 @@ async function carregarConfigImpressora() {
         
     } catch (error) {
         console.error('Erro ao carregar config impressora:', error);
+        document.getElementById('printer-selection').innerHTML = '<option value="">Erro ao carregar impressoras</option>';
     }
 }
 
