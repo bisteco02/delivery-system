@@ -16,6 +16,10 @@ const { MercadoPagoConfig, PreApprovalPlan, PreApproval, Payment } = require('me
 // WhatsApp Manager com Baileys
 const whatsappManager = require('./whatsapp-manager');
 
+// Serviço de Impressão Integrado
+const PrintService = require('./integrated-print-service');
+let printService = null;
+
 const app = express();
 const PORT = process.env.PORT || 3001;
 
@@ -1529,6 +1533,11 @@ async function iniciarServidor() {
       console.warn('[WhatsApp] ⚠️ WhatsApp não inicializado. Interface disponível no painel admin.');
     }
 
+    // Inicializar Serviço de Impressão
+    const apiUrl = HTTPS_ENABLED ? `https://${DOMAIN}` : `http://localhost:${PORT}`;
+    printService = new PrintService(apiUrl);
+    await printService.start();
+
     // Servidor HTTP
     app.listen(PORT, '0.0.0.0', () => {
       console.log('\n🍞 ========================================');
@@ -1544,8 +1553,9 @@ async function iniciarServidor() {
       console.log(`⚙️  Painel Admin: http://localhost:${PORT}/painel-admin.html`);
       console.log('========================================\n');
 
-      // WhatsApp removido - usar apenas links wa.me
-      console.log('📱 WhatsApp: Usando links wa.me (sem API)');
+      // Serviços ativos
+      console.log('📱 WhatsApp: Baileys ativo');
+      console.log('🖨️  Impressora: Serviço integrado ativo\n');
     });
 
     if (HTTPS_ENABLED) {
