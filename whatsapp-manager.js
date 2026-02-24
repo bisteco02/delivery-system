@@ -1,6 +1,6 @@
 // Gerenciador WhatsApp com Baileys - Implementação robusta
 const makeWASocket = require('@whiskeysockets/baileys').default;
-const { makeCacheableSignalKeyStore, useMultiFileAuthState } = require('@whiskeysockets/baileys');
+const { makeCacheableSignalKeyStore, useMultiFileAuthState, fetchLatestBaileysVersion } = require('@whiskeysockets/baileys');
 const { Boom } = require('@whiskeysockets/baileys');
 const fs = require('fs');
 const path = require('path');
@@ -29,13 +29,16 @@ class WhatsAppManager {
       console.log('[WhatsApp] Inicializando Baileys...');
       const { state, saveCreds } = await useMultiFileAuthState(this.authDir);
 
+      const { version } = await fetchLatestBaileysVersion();
+
       this.socket = makeWASocket({
+        version,
         auth: {
           creds: state.creds,
           keys: makeCacheableSignalKeyStore(state.keys)
         },
-        printQRInTerminal: true,
-        browser: ['Ubuntu', 'Chrome', '130.0.6723.58']
+        printQRInTerminal: false,
+        browser: ['Padoca', 'Chrome', '1.0.0']
       });
 
       // Event: Credentials updated
