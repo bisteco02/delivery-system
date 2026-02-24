@@ -64,33 +64,46 @@ class WhatsAppManager {
   }
 
   handleConnectionUpdate(update) {
-    const { connection, lastDisconnect, qr } = update;
+    const { connection, lastDisconnect, qr, isNewLogin } = update;
 
     // QR Code
     if (qr) {
       this.lastQRData = qr; // Armazenar QR data
       console.log('[WhatsApp] QR Code gerado - escaneie no seu telefone');
+      
+      // QR expira em ~2 minutos, regenerar se não conectar
+      this.qrExpiryTimer = setTimeout(() => {
+        if (!this.isConnected && this.socket) {
+          console.log('[WhatsApp] QR expirou, solicitando novo QR...');
+          // Força reconexão para gerar novo QR
+          this.socket.ws?.close();
+        }
+      }, 120000); // 2 minutos
     }
 
     // Connection states
     if (connection === 'close') {
       const shouldReconnect = lastDisconnect?.error?.output?.statusCode !== 401;
 
-      if (shouldReconnect && this.reconnectAttempts < this.maxReconnectAttempts) {
+      if (shouldReconnect) {
         this.isConnected = false;
-        this.reconnectAttempts++;
-        console.log(
-          `[WhatsApp] Conexão perdida. Tentando reconectar... (${this.reconnectAttempts}/${this.maxReconnectAttempts})`
-        );
-
+        console.log('[WhatsApp] Conexão perdida. Regenerando QR...');
+        
+        // Não incrementar tentativas infinitamente, deixar regenerar
+        if (this.reconnectAttempts < 1) {
+          this.reconnectAttempts++;
+        }
+        
+        // Reiniciar pra gerar novo QR
         setTimeout(() => {
-          this.initialize();
-        }, this.reconnectDelay * this.reconnectAttempts);
+          if (!this.isConnected) {
+            this.reconnectAttempts = 0;
+            this.initialize();
+          }
+        }, 3000);
       } else if (!shouldReconnect) {
         console.log('[WhatsApp] Sessão expirada. Deletando arquivo de autenticação...');
         this.deleteAuthFiles();
-      } else {
-        console.log('[WhatsApp] Máximo de tentativas de reconexão atingido');
       }
     }
 
@@ -195,6 +208,8 @@ class WhatsAppManager {
     if (this.socket) {
       await this.socket.end();
       this.isConnected = false;
+      this.lastQRData = null;
+      if (this.qrExpiryTimer) clearTimeout(this.qrExpiryTimer);
       console.log('[WhatsApp] Desconectado');
     }
   }
