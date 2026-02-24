@@ -3760,18 +3760,10 @@ async function verificarStatusWhatsApp() {
             connectedSection.classList.add('hidden');
             errorSection.classList.add('hidden');
             
-            // Gerar QR code se tiver dados
+            // Exibir QR code se tiver dados (já é base64 do servidor)
             if (data.qr) {
                 const qrContainer = document.getElementById('qr-code');
-                qrContainer.innerHTML = '';
-                new QRCode(qrContainer, {
-                    text: data.qr,
-                    width: 300,
-                    height: 300,
-                    colorDark: '#000000',
-                    colorLight: '#ffffff',
-                    correctLevel: QRCode.CorrectLevel.H
-                });
+                qrContainer.innerHTML = '<img src="' + data.qr + '" alt="QR Code WhatsApp" style="width: 300px; height: 300px; image-rendering: crisp-edges;">';
             }
         } else {
             statusText.innerHTML = '<span class="text-red-600">🔴 Desconectado</span>';
