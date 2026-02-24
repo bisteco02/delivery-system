@@ -1370,36 +1370,17 @@ app.get('/api/whatsapp-qr', async (req, res) => {
 });
 
 // Status do WhatsApp
-app.get('/whatsapp/status', async (req, res) => {
+app.get('/whatsapp/status', (req, res) => {
   try {
-    const QRCode = require('qrcode');
-    
-    // Se não está conectado, gerar QR fictício com instruções
-    if (!whatsappManager.isReady()) {
-      const instructionsURL = 'https://padocadodede.com/painel-admin.html?tab=whatsapp';
-      const qrImage = await QRCode.toDataURL(instructionsURL, {
-        width: 300,
-        margin: 2,
-        color: { dark: '#000000', light: '#FFFFFF' }
-      });
-      
-      return res.json({
-        connected: false,
-        status: 'qr_ready',
-        number: null,
-        qr: qrImage,
-        qr_ready: true,
-        message: 'Escanear para instruções de conexão'
-      });
-    }
-    
-    // Se está conectado
+    const isConnected = whatsappManager.isReady();
+    const hasQr = !!whatsappManager.lastQRData;
+
     res.json({
-      connected: true,
-      status: 'connected',
-      number: whatsappManager.phoneNumber,
-      qr: null,
-      qr_ready: false
+      connected: isConnected,
+      status: isConnected ? 'connected' : (hasQr ? 'qr_ready' : 'disconnected'),
+      number: whatsappManager.phoneNumber || null,
+      qr: hasQr ? whatsappManager.lastQRData : null,
+      qr_ready: !isConnected && hasQr
     });
   } catch (error) {
     console.error('Erro ao gerar status WhatsApp:', error);
