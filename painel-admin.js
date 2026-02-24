@@ -3577,18 +3577,11 @@ document.addEventListener('DOMContentLoaded', async function() {
         const pixCodigo = document.getElementById('config-pix-codigo').value.trim();
         const pixName = document.getElementById('config-pix-name').value.trim();
         const mpAccessToken = document.getElementById('config-mp-access-token').value.trim();
-        const whatsappNumero = document.getElementById('config-whatsapp-numero').value.trim();
-        const whatsappApiKey = document.getElementById('config-whatsapp-api-key').value.trim();
 
         if (!pixKey || !pixCodigo || !pixName) {
             mostrarModal('aviso', 'Dados incompletos', 'Por favor, preencha a chave PIX, código (copia e cola) e o nome do titular');
             return;
         }
-
-        // Gerar URL e instância automaticamente baseado no número
-        const numeroLimpo = whatsappNumero.replace(/\D/g, '');
-        const whatsappApiUrl = 'https://evolution-api.com'; // URL padrão, pode ser customizada depois
-        const whatsappInstance = `padoca-${numeroLimpo}`; // Gera instância automática baseada no número
 
         // Coletar taxas por bairro
         const deliveryFeesByNeighborhood = {};
@@ -3604,10 +3597,6 @@ document.addEventListener('DOMContentLoaded', async function() {
             pixCodigo,
             pixName,
             mpAccessToken,
-            whatsappNumero,
-            whatsappApiUrl,
-            whatsappApiKey,
-            whatsappInstance,
             deliveryFeesByNeighborhood,
             updatedAt: new Date().toISOString()
         };
@@ -3698,9 +3687,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             'config-pix-key': config.pixKey,
             'config-pix-codigo': config.pixCodigo,
             'config-pix-name': config.pixName,
-            'config-mp-access-token': config.mpAccessToken,
-            'config-whatsapp-numero': config.whatsappNumero,
-            'config-whatsapp-api-key': config.whatsappApiKey
+            'config-mp-access-token': config.mpAccessToken
         };
 
         Object.entries(map).forEach(([id, value]) => {

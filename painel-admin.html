@@ -631,51 +631,6 @@
                         <p class="text-xs text-gray-500 mt-1">Se vazio, mantém o fluxo de PIX estático atual.</p>
                     </div>
 
-                    <!-- Configurações de WhatsApp API -->
-                    <div class="border-t pt-6 mt-6">
-                        <h3 class="text-lg font-bold mb-4 text-gray-800">📱 Configurações WhatsApp API (Notificações Automáticas)</h3>
-                        <p class="text-sm text-gray-600 mb-4">Conecte seu WhatsApp para enviar notificações automáticas aos clientes. <strong>Apenas 2 campos!</strong></p>
-                        
-                        <div class="space-y-4">
-                            <!-- Número do WhatsApp da Empresa -->
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">📱 Número do WhatsApp da Empresa</label>
-                                <p class="text-xs text-gray-500 mb-2">Número usado para enviar as notificações (com DDD, sem símbolos)</p>
-                                <input type="tel" id="config-whatsapp-numero" placeholder="11987654321" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition" />
-                            </div>
-
-                            <!-- API Key -->
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">🔑 Token/API Key da Evolution API</label>
-                                <p class="text-xs text-gray-500 mb-2">Cole aqui o token fornecido pela sua Evolution API</p>
-                                <input type="password" id="config-whatsapp-api-key" placeholder="Seu token Evolution API" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition" />
-                            </div>
-
-                            <!-- Campos ocultos com valores automáticos -->
-                            <input type="hidden" id="config-whatsapp-api-url" value="https://evolution-api.com" />
-                            <input type="hidden" id="config-whatsapp-instance" value="auto-instance" />
-
-                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                                <p class="text-sm text-gray-700"><strong>🚀 Como configurar:</strong></p>
-                                <ol class="text-xs text-gray-600 mt-2 space-y-1 ml-4 list-decimal">
-                                    <li>Pegue sua <strong>API Key</strong> da Evolution API</li>
-                                    <li>Cole o <strong>número do WhatsApp</strong> da empresa (só números com DDD)</li>
-                                    <li>Clique em <strong>Salvar</strong></li>
-                                    <li>Pronto! ✅ As notificações automáticas já vão funcionar</li>
-                                </ol>
-                            </div>
-
-                            <div class="bg-green-50 border border-green-200 rounded-lg p-4">
-                                <p class="text-sm text-gray-700"><strong>✅ Notificações Automáticas:</strong></p>
-                                <ul class="text-xs text-gray-600 mt-2 space-y-1 ml-4 list-disc">
-                                    <li>Pedido <strong>Confirmado</strong> → Cliente recebe confirmação</li>
-                                    <li>Status <strong>Pronto</strong> → "Pedido pronto para retirada!"</li>
-                                    <li>Status <strong>A Caminho</strong> → "Pedido saiu para entrega!"</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-
                     <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-gray-700">
                         <p><strong>💡 Nota:</strong> Configure as taxas de entrega por bairro acima.</p>
                     </div>
