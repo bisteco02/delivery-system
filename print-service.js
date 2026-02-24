@@ -13,14 +13,15 @@ const fs = require('fs');
 const path = require('path');
 
 // Configurações
-const API_URL = process.env.API_URL || 'http://localhost:3001'; // Altere para seu servidor
+const API_URL = process.env.API_URL || 'https://padocadodede.com';
 const POLL_INTERVAL = 5000; // Verificar a cada 5 segundos
-const PRINTER_NAME = process.env.PRINTER_NAME || 'Padrão'; // Nome da impressora
 
 // Arquivo para rastrear últimos pedidos impressos
 const lastPrintedFile = path.join(__dirname, '.last-printed-id.txt');
 
 let lastPrintedId = null;
+let printerConfig = null;
+let statusVerified = false;
 
 /**
  * Ler ID do último pedido impresso
@@ -44,6 +45,39 @@ function saveLastPrinted(id) {
     lastPrintedId = id;
   } catch (error) {
     console.error('❌ Erro ao salvar ID impresso:', error.message);
+  }
+}
+
+/**
+ * Buscar configuração de impressora do servidor
+ */
+async function buscarConfiguracaoImpressora() {
+  try {
+    const response = await axios.get(`${API_URL}/api/printer/config`, {
+      timeout: 5000
+    });
+    
+    printerConfig = response.data;
+    
+    if (!statusVerified) {
+      if (printerConfig.enabled) {
+        console.log('✅ Impressão habilitada no painel');
+        console.log(`   Impressora: ${printerConfig.selectedPrinter || 'Padrão'}`);
+        console.log(`   Autoprint: ${printerConfig.autoprint ? 'Sim' : 'Não'}`);
+      } else {
+        console.log('⏸️  Impressão desabilitada no painel');
+      }
+      statusVerified = true;
+    }
+    
+    return printerConfig.enabled;
+  } catch (error) {
+    if (!statusVerified) {
+      console.error('⚠️  Não foi possível conectar ao servidor para verificar configuração');
+      console.error(`   URL: ${API_URL}`);
+      console.error(`   Erro: ${error.message}`);
+    }
+    return false;
   }
 }
 
@@ -186,7 +220,7 @@ function gerarHTMLPedido(pedido) {
       </div>
 
       <div class="footer">
-        <p>Imprensão automática - ${new Date().toLocaleString('pt-BR')}</p>
+        <p>Impressão automática - ${new Date().toLocaleString('pt-BR')}</p>
       </div>
     </body>
     </html>
@@ -208,7 +242,7 @@ function imprimirPedido(pedido) {
     let comando;
 
     if (platform === 'win32') {
-      // Windows
+      // Windows - abrir para impressão automática
       comando = `start "" "${tempFile}"`;
     } else if (platform === 'darwin') {
       // macOS
@@ -218,6 +252,21 @@ function imprimirPedido(pedido) {
       comando = `xdg-open "${tempFile}"`;
     }
 
+    // Se autoprint estiver ativado, enviar diretamente para impressora
+    if (printerConfig && printerConfig.autoprint) {
+      const platform = os.platform();
+      if (platform === 'win32') {
+        // Windows: usar powershell para imprimir
+        comando = `powershell -NoProfile -Command "Write-Process powershell -FilePath \\"${tempFile}\\" -Verb Print"`;
+      } else if (platform === 'darwin') {
+        // macOS: usar lpr
+        comando = `lpr -h "${tempFile}"`;
+      } else {
+        // Linux: usar lp ou lpr
+        comando = `lp -h "${tempFile}" 2>/dev/null || lpr "${tempFile}"`;
+      }
+    }
+
     exec(comando, (error) => {
       setTimeout(() => {
         try {
@@ -225,11 +274,11 @@ function imprimirPedido(pedido) {
         } catch {}
       }, 3000);
 
-      if (error) {
-        reject(error);
-      } else {
-        resolve(true);
+      if (error && printerConfig?.autoprint) {
+        console.warn('⚠️  Aviso ao imprimir:', error.message);
       }
+      
+      resolve(true);
     });
   });
 }
@@ -239,6 +288,13 @@ function imprimirPedido(pedido) {
  */
 async function buscarNovosPedidos() {
   try {
+    // Verificar configuração a cada ciclo
+    const impressaoHabilitada = await buscarConfiguracaoImpressora();
+    
+    if (!impressaoHabilitada) {
+      return; // Impressão desabilitada, não fazer nada
+    }
+
     const response = await axios.get(`${API_URL}/api/pedidos`, {
       timeout: 5000
     });
@@ -277,9 +333,9 @@ function iniciar() {
   console.log('╔════════════════════════════════════════════╗');
   console.log('║  🖨️  SERVIÇO DE IMPRESSÃO AUTOMÁTICA       ║');
   console.log('╚════════════════════════════════════════════╝');
-  console.log(`\n📡 Conectando ao servidor: ${API_URL}`);
+  console.log(`\n📡 Servidor: ${API_URL}`);
   console.log(`⏱️  Verificando a cada ${POLL_INTERVAL / 1000} segundos`);
-  console.log(`🖨️  Impressora: ${PRINTER_NAME}\n`);
+  console.log('🔄 Sincronizando com painel admin...\n');
 
   readLastPrinted();
 
