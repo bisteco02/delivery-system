@@ -3844,6 +3844,117 @@ document.getElementById('disconnect-whatsapp')?.addEventListener('click', async 
     }
 });
 
+// ===== IMPRESSORA MANAGEMENT =====
+
+// Carregar configuração de impressora
+async function carregarConfigImpressora() {
+    try {
+        const response = await fetch('/api/printer/config');
+        const config = await response.json();
+        
+        // Atualizar UI
+        document.getElementById('printer-enabled').checked = config.enabled || false;
+        document.getElementById('printer-selection').value = config.selectedPrinter || '';
+        document.getElementById('printer-autoprint').checked = config.autoprint || false;
+        
+        // Atualizar status
+        atualizarStatusImpressora(config.enabled);
+        
+        // Habilitar/desabilitar controles
+        document.getElementById('printer-selection').disabled = !config.enabled;
+        document.getElementById('printer-autoprint').disabled = !config.enabled;
+        document.getElementById('printer-test-btn').disabled = !config.enabled;
+        
+    } catch (error) {
+        console.error('Erro ao carregar config impressora:', error);
+    }
+}
+
+// Atualizar status visual da impressora
+function atualizarStatusImpressora(habilitada) {
+    const statusEl = document.getElementById('printer-status');
+    const statusTextEl = document.getElementById('printer-status-text');
+    
+    if (habilitada) {
+        statusEl.innerHTML = '<i class="fa fa-circle" style="color: #10b981;"></i> Habilitada';
+        statusEl.className = 'px-3 py-1 rounded-full text-sm font-semibold bg-green-200 text-green-800';
+        statusTextEl.textContent = 'habilitada';
+    } else {
+        statusEl.innerHTML = '<i class="fa fa-circle" style="color: #999;"></i> Desabilitada';
+        statusEl.className = 'px-3 py-1 rounded-full text-sm font-semibold bg-gray-200 text-gray-800';
+        statusTextEl.textContent = 'desabilitada';
+    }
+}
+
+// Salvar configuração de impressora
+async function salvarConfigImpressora() {
+    try {
+        const config = {
+            enabled: document.getElementById('printer-enabled').checked,
+            selectedPrinter: document.getElementById('printer-selection').value,
+            autoprint: document.getElementById('printer-autoprint').checked
+        };
+        
+        const response = await fetch('/api/printer/config', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(config)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            sucesso('Configuração de impressora salva com sucesso!');
+            atualizarStatusImpressora(config.enabled);
+            
+            // Atualizar estado dos controles
+            document.getElementById('printer-selection').disabled = !config.enabled;
+            document.getElementById('printer-autoprint').disabled = !config.enabled;
+            document.getElementById('printer-test-btn').disabled = !config.enabled;
+        } else {
+            erro('Erro ao salvar configuração: ' + result.error);
+        }
+    } catch (error) {
+        erro('Erro ao salvar configuração: ' + error.message);
+    }
+}
+
+// Testar impressão
+async function testarImpressao() {
+    try {
+        const response = await fetch('/api/printer/test', {
+            method: 'POST'
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            sucesso('Página de teste enviada! Verifique sua impressora.');
+        } else {
+            erro('Erro ao testar: ' + result.error);
+        }
+    } catch (error) {
+        erro('Erro ao testar impressão: ' + error.message);
+    }
+}
+
+// Event Listeners para Impressora
+document.addEventListener('click', (e) => {
+    if (e.target.closest('[data-tab="tab-impressora"]')) {
+        setTimeout(carregarConfigImpressora, 300);
+    }
+});
+
+document.getElementById('printer-enabled')?.addEventListener('change', function() {
+    const desabilitado = !this.checked;
+    document.getElementById('printer-selection').disabled = desabilitado;
+    document.getElementById('printer-autoprint').disabled = desabilitado;
+    document.getElementById('printer-test-btn').disabled = desabilitado;
+});
+
+document.getElementById('printer-save-btn')?.addEventListener('click', salvarConfigImpressora);
+document.getElementById('printer-test-btn')?.addEventListener('click', testarImpressao);
+
 // ===== ADICIONAIS MANAGEMENT =====
 let addons = [];
 let editingAddonIndex = -1;

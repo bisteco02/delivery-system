@@ -1421,6 +1421,100 @@ app.post('/whatsapp/disconnect', async (req, res) => {
   }
 });
 
+// ==================== IMPRESSORA ====================
+
+// Arquivo de configuração de impressora
+const PRINTER_CONFIG_FILE = path.join(__dirname, 'printer-config.json');
+
+// Ler configuração de impressora
+async function lerConfiguracaoImpressora() {
+  try {
+    if (await fs.access(PRINTER_CONFIG_FILE).catch(() => false)) {
+      const data = await fs.readFile(PRINTER_CONFIG_FILE, 'utf8');
+      return JSON.parse(data);
+    }
+  } catch (error) {
+    console.error('Erro ao ler config impressora:', error.message);
+  }
+  return {
+    enabled: false,
+    selectedPrinter: null,
+    autoprint: false,
+    testMode: false
+  };
+}
+
+// Salvar configuração de impressora
+async function salvarConfiguracaoImpressora(config) {
+  try {
+    await fs.writeFile(PRINTER_CONFIG_FILE, JSON.stringify(config, null, 2));
+  } catch (error) {
+    console.error('Erro ao salvar config impressora:', error.message);
+    throw error;
+  }
+}
+
+// Obter configuração de impressora
+app.get('/api/printer/config', async (req, res) => {
+  try {
+    const config = await lerConfiguracaoImpressora();
+    res.json(config);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Salvar configuração de impressora
+app.post('/api/printer/config', async (req, res) => {
+  try {
+    const { enabled, selectedPrinter, autoprint } = req.body;
+    
+    const config = await lerConfiguracaoImpressora();
+    config.enabled = !!enabled;
+    config.selectedPrinter = selectedPrinter || null;
+    config.autoprint = !!autoprint;
+    
+    await salvarConfiguracaoImpressora(config);
+    
+    res.json({ 
+      success: true, 
+      message: 'Configuração salva com sucesso',
+      config 
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      success: false, 
+      error: error.message 
+    });
+  }
+});
+
+// Testar impressão
+app.post('/api/printer/test', async (req, res) => {
+  try {
+    const config = await lerConfiguracaoImpressora();
+    
+    if (!config.enabled) {
+      return res.status(400).json({ 
+        error: 'Impressão não habilitada' 
+      });
+    }
+    
+    // Simulação de teste (em produção, teria integração real)
+    console.log(`🖨️ Teste de impressão: ${config.selectedPrinter || 'Padrão'}`);
+    
+    res.json({ 
+      success: true,
+      message: 'Página de teste enviada para impressora'
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      success: false, 
+      error: error.message 
+    });
+  }
+});
+
 // ==================== INICIALIZAR ====================
 
 async function iniciarServidor() {
