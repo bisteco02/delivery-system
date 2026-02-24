@@ -255,7 +255,7 @@ let menu = [
     {name: "Guaraná Antártica Lata", category: "bebidas", price: 5.00, image: "./assets/Guarana Lata.jpg", description: "", ativo: true}
 ];
 
-const audioNovo = new Audio('/assets/fart-with-reverb.mp3');
+const audioNovo = new Audio('/assets/u_7xr5ffk4oq-opening-bell-421471.mp3');
 
 const tabTitles = {
     'tab-dashboard': '📦 Painel Admin - Início',
