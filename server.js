@@ -1533,11 +1533,9 @@ async function iniciarServidor() {
       console.warn('[WhatsApp] ⚠️ WhatsApp não inicializado. Interface disponível no painel admin.');
     }
 
-    // Inicializar Serviço de Impressão
+    // Criar instância do PrintService (mas não iniciar ainda)
     const apiUrl = HTTPS_ENABLED ? `https://${DOMAIN}` : `http://localhost:${PORT}`;
     printService = new PrintService(apiUrl);
-    // Delay para servidor estar pronto
-    setTimeout(() => printService.start(), 2000);
 
     // Servidor HTTP
     app.listen(PORT, '0.0.0.0', () => {
@@ -1557,6 +1555,9 @@ async function iniciarServidor() {
       // Serviços ativos
       console.log('📱 WhatsApp: Baileys ativo');
       console.log('🖨️  Impressora: Serviço integrado ativo\n');
+
+      // Inicializar PrintService APÓS servidor estar pronto
+      printService.start();
     });
 
     if (HTTPS_ENABLED) {
