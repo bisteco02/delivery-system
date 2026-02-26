@@ -1526,19 +1526,46 @@ app.get('/api/printer/list', (req, res) => {
     const platform = process.platform;
     
     if (platform === 'win32') {
-      // Windows - usar PowerShell para listar impressoras
-      exec('powershell -Command "Get-Printer | Select-Object Name | ConvertTo-Json"', (error, stdout, stderr) => {
+      // Windows - tentar múltiplos métodos para detectar impressoras
+      const cmd = `powershell -Command "
+        $printers = @()
+        try {
+          $printers += Get-Printer -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Name
+        } catch {}
+        try {
+          $wmi = Get-WmiObject Win32_Printer -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Name
+          if ($wmi) { $printers += $wmi }
+        } catch {}
+        try {
+          $devices = Get-ItemProperty 'HKCU:\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Devices' -ErrorAction SilentlyContinue | Select-Object -Property * -ExcludeProperty PS*
+          if ($devices) {
+            $devices.PSObject.Properties | Where-Object { $_.Name -notlike 'PS*' } | ForEach-Object { $printers += $_.Name }
+          }
+        } catch {}
+        $printers | Select-Object -Unique | ConvertTo-Json
+      "`;
+      
+      exec(cmd, (error, stdout, stderr) => {
         try {
           let printers = [];
           
-          if (!error && stdout && stdout.trim()) {
-            const result = JSON.parse(stdout);
-            if (Array.isArray(result)) {
-              printers = result.map(p => ({ name: p.Name, id: p.Name }));
-            } else if (result && result.Name) {
-              printers = [{ name: result.Name, id: result.Name }];
+          if (stdout && stdout.trim()) {
+            try {
+              const result = JSON.parse(stdout);
+              if (Array.isArray(result)) {
+                printers = result.map(p => ({ name: p, id: p }));
+              } else if (typeof result === 'string') {
+                printers = [{ name: result, id: result }];
+              }
+            } catch (e) {
+              // Se não for JSON válido, tenta parsear como texto simples
+              const lines = stdout.trim().split('\n').filter(l => l.trim());
+              printers = lines.map(p => ({ name: p.trim(), id: p.trim() }));
             }
           }
+          
+          // Remover duplicatas e vazio
+          printers = printers.filter((p, i, a) => p.name && a.findIndex(x => x.name === p.name) === i);
           
           // Adicionar impressora padrão sempre
           printers.unshift({ name: 'Impressora Padrão do Sistema', id: 'default' });
