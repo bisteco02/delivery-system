@@ -3781,8 +3781,9 @@ async function verificarStatusWhatsApp() {
 // Iniciar nova conexão
 async function iniciarNovaConexao() {
     try {
-        erro('Recarregando página para reiniciar...');
-        setTimeout(() => location.reload(), 1500);
+        mostrarConfirmacao('🔄 Reiniciando', 'Gerando novo QR Code...');
+        await fetch('/whatsapp/reset', { method: 'POST' });
+        setTimeout(() => location.reload(), 1000);
     } catch (error) {
         console.error('Erro:', error);
     }
@@ -3829,6 +3830,9 @@ document.getElementById('disconnect-whatsapp')?.addEventListener('click', async 
         }
     }
 });
+
+document.getElementById('btn-nova-conexao')?.addEventListener('click', iniciarNovaConexao);
+document.getElementById('btn-nova-conexao-error')?.addEventListener('click', iniciarNovaConexao);
 
 // ===== IMPRESSORA MANAGEMENT =====
 

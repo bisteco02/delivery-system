@@ -1425,6 +1425,22 @@ app.post('/whatsapp/disconnect', async (req, res) => {
   }
 });
 
+// Resetar autenticação e gerar novo QR
+app.post('/whatsapp/reset', async (req, res) => {
+  try {
+    const ok = await whatsappManager.resetAuth();
+    res.json({
+      success: ok,
+      message: ok ? 'WhatsApp resetado. QR novo disponível.' : 'Falha ao resetar WhatsApp'
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
 // ==================== IMPRESSORA ====================
 
 // Arquivo de configuração de impressora

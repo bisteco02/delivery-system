@@ -190,13 +190,27 @@ class WhatsAppManager {
 
   deleteAuthFiles() {
     try {
-      const authFile = path.join(this.authDir, 'auth.json');
-      if (fs.existsSync(authFile)) {
-        fs.unlinkSync(authFile);
-        console.log('[WhatsApp] Arquivo de autenticação deletado');
+      if (fs.existsSync(this.authDir)) {
+        fs.rmSync(this.authDir, { recursive: true, force: true });
+        fs.mkdirSync(this.authDir, { recursive: true });
+        console.log('[WhatsApp] Arquivos de autenticação removidos');
       }
     } catch (error) {
       console.error('[WhatsApp] Erro ao deletar arquivo de auth:', error.message);
+    }
+  }
+
+  async resetAuth() {
+    try {
+      await this.disconnect();
+      this.deleteAuthFiles();
+      this.lastQRData = null;
+      this.phoneNumber = null;
+      this.isConnected = false;
+      return await this.initialize();
+    } catch (error) {
+      console.error('[WhatsApp] Erro ao resetar auth:', error.message);
+      return false;
     }
   }
 
