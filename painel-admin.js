@@ -1495,6 +1495,10 @@ function imprimirPedido(id) {
     
     // Criar janela de impressão
     const printWindow = window.open('', '_blank', 'width=800,height=600');
+    if (!printWindow || !printWindow.document) {
+        mostrarModal('erro', 'Pop-up bloqueado', 'Permita pop-ups no navegador para imprimir o pedido.');
+        return;
+    }
     
     const itensHtml = pedido.itens.map(item => `
         <tr>
