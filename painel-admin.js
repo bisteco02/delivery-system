@@ -4571,7 +4571,6 @@ function iniciarMonitorImpressora() {
         }
     }, 5000);
 }
-}
 
 function pararMonitorImpressora() {
     if (intervaloImpressora) {
