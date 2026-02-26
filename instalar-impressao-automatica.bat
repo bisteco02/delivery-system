@@ -23,10 +23,10 @@ pushd "%AGENT_DIR%"
 npm install
 popd
 
-echo 🧩 Registrando inicio automatico...
-schtasks /Create /F /SC ONLOGON /RL HIGHEST /TN "PadocaPrintAgent" /TR "\"%ROOT%iniciar-impressora.bat\"" >nul 2>&1
+echo 🧩 Registrando inicio automatico (Startup do usuario)...
+powershell -Command "$s='$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup\Impressora Automatica.lnk'; $w=New-Object -ComObject WScript.Shell; $sc=$w.CreateShortcut($s); $sc.TargetPath='%ROOT%iniciar-impressora.bat'; $sc.WorkingDirectory='%ROOT%'; $sc.IconLocation='shell32.dll,100'; $sc.Save();" >nul 2>&1
 
-echo ✅ Instalado! O agente iniciara automaticamente ao ligar o PC.
+echo ✅ Instalado! O agente iniciara automaticamente ao entrar no Windows.
 echo ▶️ Iniciando agora...
 start "" "%ROOT%iniciar-impressora.bat"
 
