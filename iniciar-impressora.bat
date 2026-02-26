@@ -19,13 +19,29 @@ if errorlevel 1 (
     exit /b 1
 )
 
-REM Definir URL do servidor (altere conforme necessário)
-set API_URL=https://padocadodede.com
+REM Pasta do agente local
+set AGENT_DIR=%~dp0print-agent
 
-echo 📡 Conectando ao servidor: %API_URL%
+if not exist "%AGENT_DIR%" (
+    echo ❌ Pasta do agente não encontrada: %AGENT_DIR%
+    pause
+    exit /b 1
+)
+
+echo 📡 Iniciando agente local de impressão...
 echo.
 
-REM Iniciar o serviço
-node print-service.js
+REM Instalar dependências se necessário
+if not exist "%AGENT_DIR%\node_modules" (
+    echo 📦 Instalando dependências do agente...
+    pushd "%AGENT_DIR%"
+    npm install
+    popd
+)
+
+REM Iniciar o agente
+pushd "%AGENT_DIR%"
+node print-agent.js
+popd
 
 pause

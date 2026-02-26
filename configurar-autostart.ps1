@@ -92,7 +92,7 @@ switch ($opcao) {
         }
         
         Write-Host "Iniciando com PM2..." -ForegroundColor Cyan
-        pm2 start print-service.js --name "print-service" --log "$projectPath\print-service.log"
+        pm2 start "$projectPath\print-agent\print-agent.js" --name "print-agent" --log "$projectPath\print-agent.log"
         pm2 startup
         pm2 save
         

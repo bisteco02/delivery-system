@@ -1,0 +1,12 @@
+{
+  "name": "padoca-print-agent",
+  "version": "1.0.0",
+  "description": "Agente local de impressão automática para pedidos",
+  "main": "print-agent.js",
+  "type": "commonjs",
+  "dependencies": {
+    "axios": "^1.7.9",
+    "pdf-to-printer": "^5.6.0",
+    "puppeteer": "^22.15.0"
+  }
+}
