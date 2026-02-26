@@ -1749,26 +1749,50 @@
                 const result = await response.json();
 
                 if (result.success) {
-                    // Criar mensagem WhatsApp
-                    const order = cart.map(item => `${item.name} x${item.quantity}`).join(', ');
-                    let message = `Olá! Meu nome é ${nome}. Gostaria de fazer o seguinte pedido: ${order}.`;
+                    // Criar mensagem WhatsApp (formatada)
+                    const formatCurrency = (value) => `R$ ${Number(value || 0).toFixed(2).replace('.', ',')}`;
+                    const itensTexto = cart.map(item => {
+                        const totalItem = (item.totalPrice || 0) * item.quantity;
+                        const extras = [];
+                        if (item.bebida) extras.push(`Bebida: ${item.bebida}`);
+                        if (Array.isArray(item.adicionais) && item.adicionais.length) {
+                            extras.push(`Adicionais: ${item.adicionais.join(', ')}`);
+                        }
+                        if (item.observacoes) extras.push(`Obs: ${item.observacoes}`);
+                        const extrasTexto = extras.length ? `\n   • ${extras.join(' | ')}` : '';
+                        return `• ${item.quantity}x ${item.name} — ${formatCurrency(totalItem)}${extrasTexto}`;
+                    }).join('\n');
 
-                    if (tipoEntrega === 'delivery') {
-                        const endereco = `${rua}, ${numero}${complemento ? ', ' + complemento : ''}, ${bairro}`;
-                        message += ` Tipo: Delivery. Endereço: ${endereco}. Taxa de entrega: R$${taxaEntrega.toFixed(2).replace('.', ',')}.`;
-                    } else {
-                        message += ` Tipo: Retirar no balcão.`;
-                    }
+                    const tipoEntregaTexto = tipoEntrega === 'delivery' ? 'Delivery' : 'Retirada no balcão';
+                    const enderecoTexto = tipoEntrega === 'delivery'
+                        ? `${rua}, ${numero}${complemento ? ', ' + complemento : ''}, ${bairro}`
+                        : 'Retirada no balcão';
+                    const formaPagamentoTexto = formaPagamento === 'pix'
+                        ? 'Pix'
+                        : formaPagamento === 'debito'
+                            ? 'Cartão de Débito'
+                            : formaPagamento === 'credito'
+                                ? 'Cartão de Crédito'
+                                : 'Dinheiro';
 
-                    message += ` Subtotal: R$${subtotal.toFixed(2).replace('.', ',')}. Total: R$${total.toFixed(2).replace('.', ',')}.`;
-
-                    if (observacoes) {
-                        message += ` Observações: ${observacoes}.`;
-                    }
-
-                    message += ` Pagamento: ${formaPagamento === 'pix' ? 'Pix' : formaPagamento === 'debito' ? 'Débito' : formaPagamento === 'credito' ? 'Crédito' : 'Dinheiro'}.`;
-                    message += ` WhatsApp: ${whatsapp}`;
-                    message += ` | Pedido #${result.pedido.id}`;
+                    const mensagem = [
+                        `🧾 *NOVO PEDIDO* #${result.pedido.id}`,
+                        `Cliente: ${nome}`,
+                        `WhatsApp: ${whatsapp}`,
+                        '',
+                        '*Itens:*',
+                        itensTexto,
+                        '',
+                        `Tipo: ${tipoEntregaTexto}`,
+                        `Endereço: ${enderecoTexto}`,
+                        tipoEntrega === 'delivery' ? `Taxa de entrega: ${formatCurrency(taxaEntrega)}` : null,
+                        '',
+                        `Subtotal: ${formatCurrency(subtotal)}`,
+                        `Total: ${formatCurrency(total)}`,
+                        '',
+                        `Pagamento: ${formaPagamentoTexto}`,
+                        observacoes ? `Observações: ${observacoes}` : null
+                    ].filter(Boolean).join('\n');
 
                     // Limpar carrinho
                     cart = [];
@@ -1790,7 +1814,7 @@
                     const whatsappNumber = siteConfig.companyWhatsapp
                         ? siteConfig.companyWhatsapp.replace(/\D/g, '')
                         : '63999999999';
-                    const encodedMessage = encodeURIComponent(message);
+                    const encodedMessage = encodeURIComponent(mensagem);
                     const whatsappUrl = `https://wa.me/55${whatsappNumber}?text=${encodedMessage}`;
                     window.open(whatsappUrl, '_blank');
 
