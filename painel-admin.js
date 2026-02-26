@@ -3696,6 +3696,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 // ==================== WHATSAPP ====================
 
 let whatsappCheckInterval = null;
+let whatsappConnectedNotified = false; // Flag para mensagem de sucesso
 
 async function verificarStatusWhatsApp() {
     try {
@@ -3725,7 +3726,11 @@ async function verificarStatusWhatsApp() {
             qrSection.classList.add('hidden');
             errorSection.classList.add('hidden');
             
-            sucesso('WhatsApp conectado com sucesso!');
+            // Mostrar mensagem de sucesso apenas na primeira conexão
+            if (!whatsappConnectedNotified) {
+                sucesso('WhatsApp conectado com sucesso!');
+                whatsappConnectedNotified = true;
+            }
         } else if (data.status === 'qr_ready') {
             statusText.innerHTML = '<span class="text-yellow-600">🟡 Aguardando Conexão</span>';
             connectedNumber.textContent = '-';
@@ -3742,6 +3747,9 @@ async function verificarStatusWhatsApp() {
                 qrContainer.innerHTML = '<img src="' + data.qr + '" alt="QR Code WhatsApp" style="width: 300px; height: 300px; image-rendering: crisp-edges;">';
             }
         } else {
+            // Resetar flag quando desconectar
+            whatsappConnectedNotified = false;
+            
             statusText.innerHTML = '<span class="text-red-600">🔴 Desconectado</span>';
             connectedNumber.textContent = '-';
             statusBadge.innerHTML = '<i class="fas fa-circle mr-2" style="color: #ef4444; animation: pulse 2s infinite;"></i> Desconectado';
