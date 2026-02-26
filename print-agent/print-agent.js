@@ -60,6 +60,10 @@ function detectPrintersWin() {
         $devices = Get-ItemProperty 'HKCU:\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Devices' -ErrorAction SilentlyContinue | Select-Object -Property * -ExcludeProperty PS*
         if ($devices) { $devices.PSObject.Properties | Where-Object { $_.Name -notlike 'PS*' } | ForEach-Object { $printers += $_.Name } }
       } catch {}
+      try {
+        $regPrinters = Get-ChildItem 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Print\\Printers' -ErrorAction SilentlyContinue | Select-Object -ExpandProperty PSChildName
+        if ($regPrinters) { $printers += $regPrinters }
+      } catch {}
       $printers | Select-Object -Unique
     "`;
 
@@ -68,6 +72,16 @@ function detectPrintersWin() {
         .split('\n')
         .map(p => p.trim())
         .filter(p => p && !p.startsWith('---'));
+      if (!printers.length) {
+        exec('cmd /c wmic printer get name', (err2, out2) => {
+          const fallback = (out2 || '')
+            .split('\n')
+            .map(p => p.trim())
+            .filter(p => p && p.toLowerCase() !== 'name');
+          resolve(fallback);
+        });
+        return;
+      }
       resolve(printers);
     });
   });
@@ -79,7 +93,7 @@ async function detectPrinters() {
     if (printers.length) {
       log(`Impressoras detectadas: ${printers.join(', ')}`);
     } else {
-      log('⚠️ Nenhuma impressora detectada. Verifique se está instalada no Windows.');
+      log('⚠️ Nenhuma impressora detectada. Verifique se está instalada no Windows (Configurações → Impressoras).');
     }
     return printers;
   }
