@@ -1482,6 +1482,38 @@ app.post('/whatsapp/reset', async (req, res) => {
 });
 
 // Enviar mensagem de teste
+// Endpoint GET para testar envio de mensagem
+app.get('/whatsapp/test-send', async (req, res) => {
+  try {
+    if (!whatsappManager.isReady()) {
+      return res.json({ success: false, message: 'WhatsApp não conectado' });
+    }
+
+    const { phone, message } = req.query;
+    let destino = (phone || '').replace(/\D/g, '');
+
+    if (!destino) {
+      return res.json({ success: false, message: 'Número de telefone não fornecido' });
+    }
+
+    const msg = message || `✅ Teste de conexão WhatsApp\n\nPadoca: mensagem automática funcionando!\nHora: ${new Date().toLocaleString('pt-BR')}`;
+    console.log(`[WhatsApp] Enviando mensagem de teste para ${destino}...`);
+    
+    const result = await whatsappManager.sendMessage(destino, msg);
+
+    if (result.success) {
+      console.log(`[WhatsApp] ✅ Teste enviado para ${destino}`);
+      return res.json({ success: true, message: 'Mensagem enviada com sucesso', phone: destino });
+    }
+
+    console.error(`[WhatsApp] ❌ Falha ao enviar para ${destino}: ${result.error}`);
+    return res.json({ success: false, message: result.error || 'Falha ao enviar', phone: destino });
+  } catch (error) {
+    console.error('[WhatsApp] Erro:', error);
+    return res.json({ success: false, message: error.message });
+  }
+});
+
 app.post('/whatsapp/test', async (req, res) => {
   try {
     if (!whatsappManager.isReady()) {
