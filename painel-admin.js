@@ -3834,6 +3834,39 @@ document.getElementById('disconnect-whatsapp')?.addEventListener('click', async 
 document.getElementById('btn-nova-conexao')?.addEventListener('click', iniciarNovaConexao);
 document.getElementById('btn-nova-conexao-error')?.addEventListener('click', iniciarNovaConexao);
 
+// Enviar mensagem teste
+const whatsappTestBtn = document.getElementById('whatsapp-test-btn');
+if (whatsappTestBtn) {
+    whatsappTestBtn.addEventListener('click', async () => {
+        try {
+            const companyData = await carregarDadosEmpresaLocal();
+            const destino = (companyData && companyData.companyWhatsapp) ? companyData.companyWhatsapp : '';
+            if (!destino) {
+                mostrarConfirmacao('⚠️ WhatsApp não configurado', 'Configure o WhatsApp da empresa na aba Configurações.');
+                return;
+            }
+            whatsappTestBtn.disabled = true;
+            whatsappTestBtn.textContent = 'Enviando...';
+            const response = await fetch('/whatsapp/test', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ number: destino })
+            });
+            const data = await response.json();
+            if (data.success) {
+                sucesso('✅ Mensagem de teste enviada!');
+            } else {
+                erro(`Falha ao enviar teste: ${data.error || data.message || 'Erro desconhecido'}`);
+            }
+        } catch (error) {
+            erro('Erro ao enviar teste: ' + error.message);
+        } finally {
+            whatsappTestBtn.disabled = false;
+            whatsappTestBtn.innerHTML = '<i class="fa fa-paper-plane"></i> Enviar mensagem teste';
+        }
+    });
+}
+
 // ===== IMPRESSORA MANAGEMENT =====
 
 // Carregar configuração de impressora

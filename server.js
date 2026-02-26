@@ -1441,6 +1441,38 @@ app.post('/whatsapp/reset', async (req, res) => {
   }
 });
 
+// Enviar mensagem de teste
+app.post('/whatsapp/test', async (req, res) => {
+  try {
+    if (!whatsappManager.isReady()) {
+      return res.status(400).json({ success: false, message: 'WhatsApp não conectado' });
+    }
+
+    const { number } = req.body || {};
+    let destino = (number || '').replace(/\D/g, '');
+
+    if (!destino) {
+      const company = await lerCompanyData();
+      destino = (company.companyWhatsapp || '').replace(/\D/g, '');
+    }
+
+    if (!destino) {
+      return res.status(400).json({ success: false, message: 'WhatsApp da empresa não configurado' });
+    }
+
+    const mensagem = `✅ Teste de conexão WhatsApp\n\nPadoca: mensagem automática funcionando!\nHora: ${new Date().toLocaleString('pt-BR')}`;
+    const result = await whatsappManager.sendMessage(destino, mensagem);
+
+    if (result.success) {
+      return res.json({ success: true, message: 'Mensagem enviada' });
+    }
+
+    return res.status(500).json({ success: false, message: result.error || 'Falha ao enviar' });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // ==================== IMPRESSORA ====================
 
 // Arquivo de configuração de impressora
