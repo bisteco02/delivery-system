@@ -27,6 +27,7 @@ const POLL_INTERVAL_MS = config.POLL_INTERVAL_MS || 5000;
 
 let lastPrintedAt = null;
 let isFirstRun = true;
+let isPolling = false;
 
 function log(msg) {
   const time = new Date().toLocaleTimeString('pt-BR');
@@ -185,7 +186,7 @@ async function imprimirPedido(pedido) {
 }
 
 async function buscarPedidos() {
-  const response = await axios.get(`${API_URL}/api/pedidos`, { timeout: 5000 });
+  const response = await axios.get(`${API_URL}/api/pedidos`, { timeout: 15000 });
   return Array.isArray(response.data) ? response.data : response.data.pedidos || [];
 }
 
@@ -195,6 +196,8 @@ function isNovoPedido(pedido) {
 }
 
 async function loop() {
+  if (isPolling) return;
+  isPolling = true;
   try {
     const pedidos = await buscarPedidos();
     pedidos.sort((a, b) => new Date(a.data) - new Date(b.data));
@@ -220,7 +223,9 @@ async function loop() {
       }
     }
   } catch (e) {
-    log(`⚠️ Erro: ${e.message}`);
+    log(`⚠️ Erro: ${e.message || e}`);
+  } finally {
+    isPolling = false;
   }
 }
 
