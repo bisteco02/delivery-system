@@ -125,35 +125,36 @@ function gerarHTMLPedido(pedido) {
     <head>
       <meta charset="UTF-8">
       <style>
-        body { font-family: 'Courier New', monospace; padding: 12px; font-size: 12px; }
+        body { font-family: Arial, sans-serif; padding: 12px; font-size: 12px; margin: 0; }
         .header { text-align: center; margin-bottom: 10px; }
         .pedido-id { font-size: 16px; font-weight: bold; }
         .section { margin: 8px 0; padding: 5px 0; border-bottom: 1px solid #ccc; }
         table { width: 100%; border-collapse: collapse; }
-        th { border-bottom: 2px solid #000; padding: 5px; text-align: left; }
+        th { border-bottom: 2px solid #000; padding: 5px; text-align: left; font-weight: bold; }
         td { border: 1px solid #ccc; padding: 5px; }
         .total-row { background: #f0f0f0; font-weight: bold; }
         .footer { text-align: center; margin-top: 10px; font-size: 10px; }
+        .small { font-size: 10px; }
       </style>
     </head>
     <body>
       <div class="header">
-        <div class="pedido-id">🍕 NOVO PEDIDO</div>
+        <div class="pedido-id">NOVO PEDIDO</div>
         <div class="pedido-id">#${pedido.id}</div>
-        <small>${dataFormatada}</small>
+        <div class="small">${dataFormatada}</div>
       </div>
       <div class="section">
         <div><strong>Cliente:</strong> ${pedido.cliente.nome}</div>
         <div><strong>Telefone:</strong> ${pedido.cliente.whatsapp}</div>
       </div>
       <div class="section">
-        <div><strong>Endereço:</strong> ${pedido.endereco}, ${pedido.bairro}</div>
-        ${pedido.referencia ? `<div><small>Ref: ${pedido.referencia}</small></div>` : ''}
+        <div><strong>Endereco:</strong> ${pedido.endereco}, ${pedido.bairro}</div>
+        ${pedido.referencia ? `<div class="small">Ref: ${pedido.referencia}</div>` : ''}
       </div>
       <div class="section">
         <table>
           <thead>
-            <tr><th style="width:15%">Qtd</th><th style="width:60%">Descrição</th><th style="width:25%">Valor</th></tr>
+            <tr><th style="width:15%">Qtd</th><th style="width:60%">Descricao</th><th style="width:25%">Valor</th></tr>
           </thead>
           <tbody>
             ${itensHTML}
@@ -171,10 +172,18 @@ function gerarHTMLPedido(pedido) {
 }
 
 async function gerarPDF(html, filePath) {
-  const browser = await puppeteer.launch({ headless: 'new' });
+  const browser = await puppeteer.launch({ 
+    headless: 'new',
+    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu']
+  });
   const page = await browser.newPage();
-  await page.setContent(html, { waitUntil: 'networkidle0', timeout: 30000 });
-  await page.pdf({ path: filePath, format: 'A4', printBackground: true });
+  await page.setContent(html, { waitUntil: 'load', timeout: 60000 });
+  await page.pdf({ 
+    path: filePath, 
+    format: 'A4', 
+    printBackground: true,
+    timeout: 60000
+  });
   await browser.close();
 }
 
