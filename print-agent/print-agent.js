@@ -24,6 +24,9 @@ const PRINTER_NAME = config.PRINTER_NAME || null;
 const AUTOPRINT = config.AUTOPRINT !== false;
 const IGNORE_EXISTING_ON_START = config.IGNORE_EXISTING_ON_START !== false;
 const POLL_INTERVAL_MS = config.POLL_INTERVAL_MS || 5000;
+const PRINT_TIMEOUT_MS = config.PRINT_TIMEOUT_MS || 60000;
+const PRINT_RETRY_COUNT = config.PRINT_RETRY_COUNT || 3;
+const PRINT_RETRY_DELAY_MS = config.PRINT_RETRY_DELAY_MS || 3000;
 
 let lastPrintedAt = null;
 let isFirstRun = true;
@@ -32,6 +35,10 @@ let isPolling = false;
 function log(msg) {
   const time = new Date().toLocaleTimeString('pt-BR');
   console.log(`[${time}] ${msg}`);
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 function loadState() {
@@ -166,7 +173,7 @@ function gerarHTMLPedido(pedido) {
 async function gerarPDF(html, filePath) {
   const browser = await puppeteer.launch({ headless: 'new' });
   const page = await browser.newPage();
-  await page.setContent(html, { waitUntil: 'networkidle0' });
+  await page.setContent(html, { waitUntil: 'networkidle0', timeout: 30000 });
   await page.pdf({ path: filePath, format: 'A4', printBackground: true });
   await browser.close();
 }
@@ -177,8 +184,30 @@ async function imprimirPedido(pedido) {
 
   await gerarPDF(html, pdfPath);
 
-  const options = PRINTER_NAME ? { printer: PRINTER_NAME } : undefined;
-  await print(pdfPath, options);
+  const options = PRINTER_NAME
+    ? { printer: PRINTER_NAME, timeout: PRINT_TIMEOUT_MS }
+    : { timeout: PRINT_TIMEOUT_MS };
+
+  log(`🖨️ Impressora alvo: ${PRINTER_NAME || 'Padrão do Windows'}`);
+
+  let lastError = null;
+  for (let attempt = 1; attempt <= PRINT_RETRY_COUNT; attempt++) {
+    try {
+      await print(pdfPath, options);
+      lastError = null;
+      break;
+    } catch (error) {
+      lastError = error;
+      log(`⚠️ Falha ao imprimir (tentativa ${attempt}/${PRINT_RETRY_COUNT}): ${error.message || error}`);
+      if (attempt < PRINT_RETRY_COUNT) {
+        await sleep(PRINT_RETRY_DELAY_MS);
+      }
+    }
+  }
+
+  if (lastError) {
+    throw lastError;
+  }
 
   setTimeout(() => {
     try { fs.unlinkSync(pdfPath); } catch {}
