@@ -1,6 +1,6 @@
 {
   "API_URL": "https://padocadodede.com",
-  "PRINTER_NAME": "",
+  "PRINTER_NAME": "PADOCA DELIVERY",
   "AUTOPRINT": true,
   "IGNORE_EXISTING_ON_START": true,
   "POLL_INTERVAL_MS": 5000

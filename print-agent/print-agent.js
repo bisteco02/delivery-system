@@ -56,6 +56,10 @@ function detectPrintersWin() {
       $printers = @()
       try { $printers += Get-Printer -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Name } catch {}
       try { $wmi = Get-WmiObject Win32_Printer -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Name; if ($wmi) { $printers += $wmi } } catch {}
+      try {
+        $devices = Get-ItemProperty 'HKCU:\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Devices' -ErrorAction SilentlyContinue | Select-Object -Property * -ExcludeProperty PS*
+        if ($devices) { $devices.PSObject.Properties | Where-Object { $_.Name -notlike 'PS*' } | ForEach-Object { $printers += $_.Name } }
+      } catch {}
       $printers | Select-Object -Unique
     "`;
 
@@ -72,7 +76,11 @@ function detectPrintersWin() {
 async function detectPrinters() {
   if (os.platform() === 'win32') {
     const printers = await detectPrintersWin();
-    log(`Impressoras detectadas: ${printers.length ? printers.join(', ') : 'Nenhuma'}`);
+    if (printers.length) {
+      log(`Impressoras detectadas: ${printers.join(', ')}`);
+    } else {
+      log('⚠️ Nenhuma impressora detectada. Verifique se está instalada no Windows.');
+    }
     return printers;
   }
   log('Detecção automática não suportada neste SO.');
