@@ -4426,159 +4426,9 @@ if (tabAddonsBtn) tabAddonsBtn.addEventListener('click', () => {
 
 // ==================== SISTEMA DE IMPRESSÃO AUTOMÁTICA ====================
 
-let printerConfig = {
-    enabled: false,
-    autoprint: true
-};
-
+let impressaoAutoAtiva = false;
 let ultimosPedidosImpressos = new Set();
 let intervaloImpressora = null;
-
-function carregarConfigImpressora() {
-    try {
-        const saved = localStorage.getItem('printerConfig');
-        if (saved) {
-            printerConfig = JSON.parse(saved);
-        }
-    } catch (e) {
-        console.error('Erro ao carregar config de impressora:', e);
-    }
-    atualizarUIImpressora();
-}
-
-function salvarConfigImpressora() {
-    try {
-        localStorage.setItem('printerConfig', JSON.stringify(printerConfig));
-        atualizarUIImpressora();
-        
-        // Iniciar ou parar monitor baseado na configuração
-        if (printerConfig.enabled) {
-            iniciarMonitorImpressora();
-            mostrarConfirmacao('✅ Salvo', 'Impressão automática ATIVADA! Aguardando pedidos...');
-        } else {
-            pararMonitorImpressora();
-            mostrarConfirmacao('✅ Salvo', 'Impressão automática desativada');
-        }
-    } catch (e) {
-        console.error('Erro ao salvar config:', e);
-        mostrarConfirmacao('❌ Erro', 'Erro ao salvar configuração');
-    }
-}
-
-function atualizarUIImpressora() {
-    const enabledCheckbox = document.getElementById('printer-enabled');
-    const autoprintCheckbox = document.getElementById('printer-autoprint');
-    const autoprintLabel = document.getElementById('auto-print-label');
-    const statusBadge = document.getElementById('printer-status-badge');
-    const statusText = document.getElementById('printer-status-text');
-
-    if (enabledCheckbox) {
-        enabledCheckbox.checked = printerConfig.enabled;
-        enabledCheckbox.addEventListener('change', (e) => {
-            printerConfig.enabled = e.target.checked;
-            atualizarUIImpressora();
-            if (printerConfig.enabled) {
-                iniciarMonitorImpressora();
-            } else {
-                pararMonitorImpressora();
-            }
-        });
-    }
-
-    if (autoprintCheckbox) {
-        autoprintCheckbox.checked = printerConfig.autoprint;
-        autoprintCheckbox.disabled = !printerConfig.enabled;
-        autoprintCheckbox.addEventListener('change', (e) => {
-            printerConfig.autoprint = e.target.checked;
-        });
-    }
-
-    if (autoprintLabel) {
-        autoprintLabel.style.opacity = printerConfig.enabled ? '1' : '0.5';
-        autoprintLabel.style.pointerEvents = printerConfig.enabled ? 'auto' : 'none';
-    }
-
-    if (statusBadge) {
-        if (printerConfig.enabled) {
-            statusBadge.className = 'px-3 py-1 bg-green-200 text-green-700 rounded-full text-sm font-semibold';
-            statusBadge.innerHTML = '🟢 Ativa';
-            if (statusText) statusText.textContent = 'A impressora automática está ATIVA';
-        } else {
-            statusBadge.className = 'px-3 py-1 bg-gray-200 text-gray-700 rounded-full text-sm font-semibold';
-            statusBadge.innerHTML = '🔴 Desabilitada';
-            if (statusText) statusText.textContent = 'A impressora automática está desabilitada';
-        }
-    }
-}
-
-function iniciarMonitorImpressora() {
-    if (intervaloImpressora) {
-        console.log('⚠️ Monitor já está rodando');
-        return;
-    }
-    
-    console.log('🖨️ Monitor de impressão INICIADO');
-    
-    // Primeira execução imediata
-    (async () => {
-        try {
-            const response = await fetchTenant('/pedidos');
-            const todos = await parseJSONResponse(response);
-            const pendentes = Array.isArray(todos) 
-                ? todos.filter(p => p.status === 'pendente')
-                : (todos.pedidos || []).filter(p => p.status === 'pendente');
-
-            // Na primeira vez, marca todos como já vistos (não imprime pedidos antigos)
-            if (ultimosPedidosImpressos.size === 0) {
-                console.log(`📋 Marcando ${pendentes.length} pedidos existentes como já processados`);
-                pendentes.forEach(p => ultimosPedidosImpressos.add(p.id));
-            }
-
-            atualizarListaPedidosImpressora(pendentes);
-        } catch (error) {
-            console.error('Erro na primeira busca:', error);
-        }
-    })();
-    
-    // Monitora a cada 5 segundos
-    intervaloImpressora = setInterval(async () => {
-        try {
-            const response = await fetchTenant('/pedidos');
-            const todos = await parseJSONResponse(response);
-            const pendentes = Array.isArray(todos) 
-                ? todos.filter(p => p.status === 'pendente')
-                : (todos.pedidos || []).filter(p => p.status === 'pendente');
-
-            console.log(`🔍 Verificando pedidos... ${pendentes.length} pendentes`);
-
-            for (const pedido of pendentes) {
-                if (!ultimosPedidosImpressos.has(pedido.id)) {
-                    ultimosPedidosImpressos.add(pedido.id);
-                    console.log(`📤 NOVO PEDIDO DETECTADO: #${pedido.id}`);
-                    
-                    if (printerConfig.autoprint) {
-                        console.log(`🖨️ Abrindo janela de impressão para pedido #${pedido.id}`);
-                        abrirJanelaPrint(pedido);
-                    } else {
-                        mostrarConfirmacao('📝 Novo Pedido', `Pedido #${pedido.id} chegou. Clique em "Imprimir" para processar.`);
-                    }
-                }
-            }
-
-            atualizarListaPedidosImpressora(pendentes);
-        } catch (error) {
-            console.error('Erro ao buscar pedidos para impressão:', error);
-        }
-    }, 5000);
-}
-
-function pararMonitorImpressora() {
-    if (intervaloImpressora) {
-        clearInterval(intervaloImpressora);
-        intervaloImpressora = null;
-        console.log('❌ Monitor de impressão parado');
-    }
-}
 
 function abrirJanelaPrint(pedido) {
     const dataFormatada = new Date(pedido.data).toLocaleString('pt-BR');
@@ -4607,7 +4457,6 @@ function abrirJanelaPrint(pedido) {
     .footer { text-align: center; margin-top: 20px; font-size: 11px; color: #999; }
     @media print {
       body { padding: 0; }
-      .no-print { display: none; }
     }
   </style>
 </head>
@@ -4643,9 +4492,7 @@ function abrirJanelaPrint(pedido) {
   <div class="footer">Impresso em ${new Date().toLocaleTimeString('pt-BR')}</div>
   
   <script>
-    // Abre print automaticamente
     window.print();
-    // Fecha a aba após 2 segundos
     setTimeout(() => window.close(), 2000);
   </script>
 </body>
@@ -4653,74 +4500,92 @@ function abrirJanelaPrint(pedido) {
 
     const blob = new Blob([html], { type: 'text/html' });
     const url = URL.createObjectURL(blob);
-    const win = window.open(url, '_blank', 'width=600,height=800');
+    window.open(url, '_blank', 'width=600,height=800');
 }
 
-function atualizarListaPedidosImpressora(pedidos) {
-    const container = document.getElementById('printer-pedidos-container');
-    if (!container) return;
-
-    if (pedidos.length === 0) {
-        container.innerHTML = '<p class="text-center text-gray-500 py-8">✅ Nenhum pedido pendente</p>';
+function iniciarMonitorImpressora() {
+    if (intervaloImpressora) {
+        console.log('⚠️ Monitor já rodando');
         return;
     }
-
-    container.innerHTML = pedidos
-        .sort((a, b) => new Date(b.data) - new Date(a.data))
-        .slice(0, 10) // Mostra os últimos 10
-        .map(pedido => `
-            <div class="p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
-                <div class="flex justify-between items-start mb-2">
-                    <div>
-                        <div class="font-bold text-lg">Pedido #${pedido.id}</div>
-                        <div class="text-sm text-gray-600">${pedido.cliente.nome}</div>
-                        <div class="text-sm text-gray-500">${new Date(pedido.data).toLocaleString('pt-BR')}</div>
-                    </div>
-                    <button onclick="abrirJanelaPrint({id: ${pedido.id}, data: '${pedido.data}', cliente: {nome: '${pedido.cliente.nome}', whatsapp: '${pedido.cliente.whatsapp}'}, endereco: '${pedido.endereco}', bairro: '${pedido.bairro}', itens: ${JSON.stringify(pedido.itens)}, total: ${pedido.total}})" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm">
-                        🖨️ Imprimir
-                    </button>
-                </div>
-                <div class="text-sm text-gray-600">R$ ${pedido.total.toFixed(2)}</div>
-            </div>
-        `)
-        .join('');
-}
-
-// Setup da aba de impressora
-const tabImpressoraBtn = document.querySelector('[data-tab="tab-impressora"]');
-if (tabImpressoraBtn) {
-    tabImpressoraBtn.addEventListener('click', () => {
-        carregarConfigImpressora();
-        // Busca pedidos quando entra na aba
-        (async () => {
-            try {
-                const response = await fetchTenant('/pedidos');
-                const todos = await parseJSONResponse(response);
-                const pendentes = Array.isArray(todos) 
-                    ? todos.filter(p => p.status === 'pendente')
-                    : (todos.pedidos || []).filter(p => p.status === 'pendente');
-                atualizarListaPedidosImpressora(pendentes);
-            } catch (error) {
-                console.error('Erro ao carregar pedidos:', error);
-            }
-        })();
-    });
-}
-
-// Salvar configuração
-const printerSaveBtn = document.getElementById('printer-save-btn');
-if (printerSaveBtn) {
-    printerSaveBtn.addEventListener('click', salvarConfigImpressora);
-}
-
-// Carregar config ao iniciar
-document.addEventListener('DOMContentLoaded', () => {
-    carregarConfigImpressora();
     
-    // Se impressora estava habilitada, inicia o monitor automaticamente
-    if (printerConfig.enabled) {
-        console.log('🖨️ Impressora estava habilitada, iniciando monitor...');
+    console.log('🖨️ Monitor de impressão INICIADO');
+    
+    // Marca pedidos existentes como já processados
+    (async () => {
+        try {
+            const response = await fetchTenant('/pedidos');
+            const todos = await parseJSONResponse(response);
+            const pendentes = Array.isArray(todos) 
+                ? todos.filter(p => p.status === 'pendente')
+                : (todos.pedidos || []).filter(p => p.status === 'pendente');
+
+            if (ultimosPedidosImpressos.size === 0) {
+                console.log(`📋 Marcando ${pendentes.length} pedidos existentes como processados`);
+                pendentes.forEach(p => ultimosPedidosImpressos.add(p.id));
+            }
+        } catch (error) {
+            console.error('Erro inicial:', error);
+        }
+    })();
+    
+    // Monitora a cada 5 segundos
+    intervaloImpressora = setInterval(async () => {
+        if (!impressaoAutoAtiva) return;
+        
+        try {
+            const response = await fetchTenant('/pedidos');
+            const todos = await parseJSONResponse(response);
+            const pendentes = Array.isArray(todos) 
+                ? todos.filter(p => p.status === 'pendente')
+                : (todos.pedidos || []).filter(p => p.status === 'pendente');
+
+            console.log(`🔍 ${pendentes.length} pedidos pendentes`);
+
+            for (const pedido of pendentes) {
+                if (!ultimosPedidosImpressos.has(pedido.id)) {
+                    ultimosPedidosImpressos.add(pedido.id);
+                    console.log(`📤 NOVO PEDIDO #${pedido.id} - Abrindo impressão`);
+                    abrirJanelaPrint(pedido);
+                }
+            }
+        } catch (error) {
+            console.error('Erro ao verificar pedidos:', error);
+        }
+    }, 5000);
+}
+
+function pararMonitorImpressora() {
+    if (intervaloImpressora) {
+        clearInterval(intervaloImpressora);
+        intervaloImpressora = null;
+        ultimosPedidosImpressos.clear();
+        console.log('❌ Monitor parado');
+    }
+}
+
+// Setup do toggle
+const toggleImpressao = document.getElementById('toggle-impressao-auto');
+if (toggleImpressao) {
+    // Carregar estado salvo
+    const saved = localStorage.getItem('impressaoAutoAtiva');
+    impressaoAutoAtiva = saved === 'true';
+    toggleImpressao.checked = impressaoAutoAtiva;
+    
+    if (impressaoAutoAtiva) {
         iniciarMonitorImpressora();
     }
-});
-
+    
+    toggleImpressao.addEventListener('change', (e) => {
+        impressaoAutoAtiva = e.target.checked;
+        localStorage.setItem('impressaoAutoAtiva', impressaoAutoAtiva ? 'true' : 'false');
+        
+        if (impressaoAutoAtiva) {
+            console.log('✅ Impressão automática ATIVADA');
+            iniciarMonitorImpressora();
+        } else {
+            console.log('❌ Impressão automática DESATIVADA');
+            pararMonitorImpressora();
+        }
+    });
+}
