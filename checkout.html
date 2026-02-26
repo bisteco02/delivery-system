@@ -1759,13 +1759,13 @@
                             extras.push(`Adicionais: ${item.adicionais.join(', ')}`);
                         }
                         if (item.observacoes) extras.push(`Obs: ${item.observacoes}`);
-                        const extrasTexto = extras.length ? `\n   • ${extras.join(' | ')}` : '';
-                        return `• ${item.quantity}x ${item.name} — ${formatCurrency(totalItem)}${extrasTexto}`;
+                        const extrasTexto = extras.length ? `\n    ${extras.join(' | ')}` : '';
+                        return `- ${item.quantity}x ${item.name} (${formatCurrency(totalItem)})${extrasTexto}`;
                     }).join('\n');
 
                     const tipoEntregaTexto = tipoEntrega === 'delivery' ? 'Delivery' : 'Retirada no balcão';
                     const enderecoTexto = tipoEntrega === 'delivery'
-                        ? `${rua}, ${numero}${complemento ? ', ' + complemento : ''}, ${bairro}`
+                        ? `${rua}, ${numero}${complemento ? ', ' + complemento : ''} - ${bairro}`
                         : 'Retirada no balcão';
                     const formaPagamentoTexto = formaPagamento === 'pix'
                         ? 'Pix'
@@ -1776,22 +1776,23 @@
                                 : 'Dinheiro';
 
                     const mensagem = [
-                        `🧾 *NOVO PEDIDO* #${result.pedido.id}`,
-                        `Cliente: ${nome}`,
-                        `WhatsApp: ${whatsapp}`,
+                        `*PEDIDO #${result.pedido.id}*`,
                         '',
-                        '*Itens:*',
+                        `*Cliente:* ${nome}`,
+                        `*WhatsApp:* ${whatsapp}`,
+                        '',
+                        `*Entrega:* ${tipoEntregaTexto}`,
+                        `*Endereço:* ${enderecoTexto}`,
+                        tipoEntrega === 'delivery' ? `*Taxa:* ${formatCurrency(taxaEntrega)}` : null,
+                        '',
+                        '*Itens*',
                         itensTexto,
                         '',
-                        `Tipo: ${tipoEntregaTexto}`,
-                        `Endereço: ${enderecoTexto}`,
-                        tipoEntrega === 'delivery' ? `Taxa de entrega: ${formatCurrency(taxaEntrega)}` : null,
+                        `*Subtotal:* ${formatCurrency(subtotal)}`,
+                        `*Total:* ${formatCurrency(total)}`,
                         '',
-                        `Subtotal: ${formatCurrency(subtotal)}`,
-                        `Total: ${formatCurrency(total)}`,
-                        '',
-                        `Pagamento: ${formaPagamentoTexto}`,
-                        observacoes ? `Observações: ${observacoes}` : null
+                        `*Pagamento:* ${formaPagamentoTexto}`,
+                        observacoes ? `*Observações:* ${observacoes}` : null
                     ].filter(Boolean).join('\n');
 
                     // Limpar carrinho
