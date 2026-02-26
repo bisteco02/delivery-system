@@ -71,14 +71,17 @@ class WhatsAppManager {
       this.lastQRData = qr; // Armazenar QR data
       console.log('[WhatsApp] QR Code gerado - escaneie no seu telefone');
       
-      // QR expira em ~2 minutos, regenerar se não conectar
+      // Limpar timer anterior se existir
+      if (this.qrExpiryTimer) clearTimeout(this.qrExpiryTimer);
+      
+      // QR expira em 10 minutos - maior tempo para escanear
       this.qrExpiryTimer = setTimeout(() => {
         if (!this.isConnected && this.socket) {
-          console.log('[WhatsApp] QR expirou, solicitando novo QR...');
+          console.log('[WhatsApp] QR expirou após 10 minutos, solicitando novo QR...');
           // Força reconexão para gerar novo QR
           this.socket.ws?.close();
         }
-      }, 120000); // 2 minutos
+      }, 600000); // 10 minutos
     }
 
     // Connection states
