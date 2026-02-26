@@ -187,117 +187,35 @@ async function gerarPDF(html, filePath) {
   await browser.close();
 }
 
-async function verificarImpressoraDisponivel() {
-  return new Promise((resolve) => {
-    exec('powershell -Command "Get-Printer | Select-Object -ExpandProperty Name"', (error, stdout) => {
-      const printers = (stdout || '')
-        .split('\n')
-        .map(p => p.trim())
-        .filter(p => p && !p.startsWith('---'));
-      
-      const hasTarget = PRINTER_NAME && printers.some(p => p.toLowerCase() === PRINTER_NAME.toLowerCase());
-      resolve(hasTarget);
-    });
-  });
-}
-
-async function imprimirPedidoViaComando(pdfPath) {
-  return new Promise((resolve, reject) => {
-    const escapedPath = `"${pdfPath}"`;
-    const escapedPrinter = `"${PRINTER_NAME}"`;
-    
-    // Tenta usar PowerShell (mais confiável que pdf-to-printer)
-    const cmd = `powershell -Command "Add-PrinterPort -Name 'LPT1:' -LprHostAddress localhost -LprQueueName 'PADOCA' -ErrorAction SilentlyContinue | Out-Null; Start-Process -FilePath 'C:\\Windows\\System32\\rundll32.exe' -ArgumentList 'printui.dll,PrintUIEntry /pt /n ${escapedPrinter} ${escapedPath}' -Wait -WindowStyle Hidden"`;
-    
-    exec(cmd, (error, stdout, stderr) => {
-      if (error) {
-        reject(new Error(`Erro ao imprimir via PowerShell: ${error.message || error}`));
-      } else {
-        resolve();
-      }
-    });
-  });
-}
-
-async function imprimirPedidoViaPdfToPrinter(pdfPath) {
-  const options = PRINTER_NAME
-    ? { printer: PRINTER_NAME, timeout: 10000 }
-    : { timeout: 10000 };
-
-  return print(pdfPath, options);
-}
-
 async function imprimirPedido(pedido) {
   const html = gerarHTMLPedido(pedido);
   const pdfPath = path.join(os.tmpdir(), `pedido-${pedido.id}.pdf`);
 
   try {
+    log(`📄 Gerando PDF do pedido #${pedido.id}...`);
     await gerarPDF(html, pdfPath);
-    log(`✅ PDF gerado: ${pdfPath}`);
+    log(`✅ PDF gerado com sucesso`);
   } catch (error) {
     log(`❌ Erro ao gerar PDF: ${error.message}`);
     throw error;
   }
 
-  log(`🖨️ Impressora alvo: ${PRINTER_NAME || 'Padrão do Windows'}`);
+  log(`🖨️ Enviando para impressora: ${PRINTER_NAME || 'Padrão do Windows'}`);
 
-  const impressoraDisponivel = await verificarImpressoraDisponivel();
-  
-  if (!impressoraDisponivel && PRINTER_NAME) {
-    log(`⚠️ Impressora "${PRINTER_NAME}" não encontrada. Salvando PDF em ${os.homedir()}\\Desktop`);
-    const desktopPath = path.join(os.homedir(), 'Desktop', `pedido-${pedido.id}.pdf`);
-    try {
-      fs.copyFileSync(pdfPath, desktopPath);
-      log(`✅ PDF salvo em Desktop: ${desktopPath}`);
-    } catch (e) {
-      log(`⚠️ Não foi possível salvar em Desktop: ${e.message}`);
-    }
+  const options = PRINTER_NAME
+    ? { printer: PRINTER_NAME }
+    : {};
+
+  try {
+    await print(pdfPath, options);
+    log(`✅ Pedido #${pedido.id} impresso com sucesso!`);
+  } catch (error) {
+    log(`❌ Erro ao imprimir: ${error.message || error}`);
+    throw error;
+  } finally {
     setTimeout(() => {
       try { fs.unlinkSync(pdfPath); } catch {}
-    }, 2000);
-    return;
-  }
-
-  let lastError = null;
-  
-  // Tenta múltiplos métodos
-  const metodos = [
-    { nome: 'pdf-to-printer', fn: () => imprimirPedidoViaPdfToPrinter(pdfPath) },
-    { nome: 'PowerShell/rundll32', fn: () => imprimirPedidoViaComando(pdfPath) }
-  ];
-
-  for (const metodo of metodos) {
-    for (let attempt = 1; attempt <= 2; attempt++) {
-      try {
-        log(`📤 Tentando imprimir via ${metodo.nome} (tentativa ${attempt}/2)...`);
-        await metodo.fn();
-        lastError = null;
-        log(`✅ Pedido #${pedido.id} impresso com sucesso via ${metodo.nome}!`);
-        setTimeout(() => {
-          try { fs.unlinkSync(pdfPath); } catch {}
-        }, 2000);
-        return;
-      } catch (error) {
-        lastError = error;
-        log(`⚠️ Falha no ${metodo.nome} (tentativa ${attempt}/2): ${error.message || error}`);
-        await sleep(1000);
-      }
-    }
-  }
-
-  if (lastError) {
-    log(`❌ Falha em todos os métodos de impressão. Salvando PDF em Desktop...`);
-    const desktopPath = path.join(os.homedir(), 'Desktop', `pedido-${pedido.id}.pdf`);
-    try {
-      fs.copyFileSync(pdfPath, desktopPath);
-      log(`✅ PDF salvo em Desktop como fallback: ${desktopPath}`);
-    } catch (e) {
-      log(`⚠️ Erro ao salvar em Desktop: ${e.message}`);
-    }
-    setTimeout(() => {
-      try { fs.unlinkSync(pdfPath); } catch {}
-    }, 2000);
-    throw lastError;
+    }, 1000);
   }
 }
 
