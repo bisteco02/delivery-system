@@ -1112,7 +1112,8 @@
             pixKey: '',
             pixName: '',
             pixCodigo: '',
-            mpAccessToken: ''
+            mpAccessToken: '',
+            companyWhatsapp: ''
         };
 
         let PIX_CODIGO = siteConfig.pixKey;
@@ -1132,7 +1133,8 @@
                         pixKey: json.companyData.pixKey || '',
                         pixCodigo: json.companyData.pixCodigo || '',
                         pixName: json.companyData.pixName || '',
-                        mpAccessToken: json.companyData.mpAccessToken || ''
+                        mpAccessToken: json.companyData.mpAccessToken || '',
+                        companyWhatsapp: json.companyData.companyWhatsapp || ''
                     };
                     PIX_CODIGO = siteConfig.pixCodigo || siteConfig.pixKey;
                     bairrosTaxas = siteConfig.deliveryFeesByNeighborhood;
@@ -1142,6 +1144,7 @@
                     siteConfig.pixKey = '63 99999-9999';
                     siteConfig.pixCodigo = '00020126580014BR.GOV.BCB.PIX01146399999999952040000530398654040.005802BR5925Padoca do Dedé6009SAO PAULO61080540900062290525TESTEPIX0014BR.GOV.BCB.PIX6304ABCD';
                     siteConfig.pixName = 'Padoca do Dedé';
+                    siteConfig.companyWhatsapp = '';
                     PIX_CODIGO = siteConfig.pixCodigo;
                     aplicarPixDisponibilidade();
                 }
@@ -1149,6 +1152,7 @@
                 siteConfig.pixKey = '63 99999-9999';
                 siteConfig.pixCodigo = '00020126580014BR.GOV.BCB.PIX01146399999999952040000530398654040.005802BR5925Padoca do Dedé6009SAO PAULO61080540900062290525TESTEPIX0014BR.GOV.BCB.PIX6304ABCD';
                 siteConfig.pixName = 'Padoca do Dedé';
+                siteConfig.companyWhatsapp = '';
                 PIX_CODIGO = siteConfig.pixCodigo;
                 aplicarPixDisponibilidade();
             }
@@ -1783,7 +1787,9 @@
                     }
 
                     // Abrir WhatsApp
-                    const whatsappNumber = siteConfig.companyWhatsapp ? siteConfig.companyWhatsapp.replace(/\D/g, '') : '63999999999';
+                    const whatsappNumber = siteConfig.companyWhatsapp
+                        ? siteConfig.companyWhatsapp.replace(/\D/g, '')
+                        : '63999999999';
                     const encodedMessage = encodeURIComponent(message);
                     const whatsappUrl = `https://wa.me/55${whatsappNumber}?text=${encodedMessage}`;
                     window.open(whatsappUrl, '_blank');
