@@ -4450,7 +4450,15 @@ function salvarConfigImpressora() {
     try {
         localStorage.setItem('printerConfig', JSON.stringify(printerConfig));
         atualizarUIImpressora();
-        mostrarConfirmacao('✅ Salvo', 'Configuração de impressora salva com sucesso!');
+        
+        // Iniciar ou parar monitor baseado na configuração
+        if (printerConfig.enabled) {
+            iniciarMonitorImpressora();
+            mostrarConfirmacao('✅ Salvo', 'Impressão automática ATIVADA! Aguardando pedidos...');
+        } else {
+            pararMonitorImpressora();
+            mostrarConfirmacao('✅ Salvo', 'Impressão automática desativada');
+        }
     } catch (e) {
         console.error('Erro ao salvar config:', e);
         mostrarConfirmacao('❌ Erro', 'Erro ao salvar configuração');
@@ -4504,9 +4512,33 @@ function atualizarUIImpressora() {
 }
 
 function iniciarMonitorImpressora() {
-    if (intervaloImpressora) return;
+    if (intervaloImpressora) {
+        console.log('⚠️ Monitor já está rodando');
+        return;
+    }
     
-    console.log('🖨️ Monitor de impressão iniciado');
+    console.log('🖨️ Monitor de impressão INICIADO');
+    
+    // Primeira execução imediata
+    (async () => {
+        try {
+            const response = await fetchTenant('/pedidos');
+            const todos = await parseJSONResponse(response);
+            const pendentes = Array.isArray(todos) 
+                ? todos.filter(p => p.status === 'pendente')
+                : (todos.pedidos || []).filter(p => p.status === 'pendente');
+
+            // Na primeira vez, marca todos como já vistos (não imprime pedidos antigos)
+            if (ultimosPedidosImpressos.size === 0) {
+                console.log(`📋 Marcando ${pendentes.length} pedidos existentes como já processados`);
+                pendentes.forEach(p => ultimosPedidosImpressos.add(p.id));
+            }
+
+            atualizarListaPedidosImpressora(pendentes);
+        } catch (error) {
+            console.error('Erro na primeira busca:', error);
+        }
+    })();
     
     // Monitora a cada 5 segundos
     intervaloImpressora = setInterval(async () => {
@@ -4517,12 +4549,15 @@ function iniciarMonitorImpressora() {
                 ? todos.filter(p => p.status === 'pendente')
                 : (todos.pedidos || []).filter(p => p.status === 'pendente');
 
+            console.log(`🔍 Verificando pedidos... ${pendentes.length} pendentes`);
+
             for (const pedido of pendentes) {
                 if (!ultimosPedidosImpressos.has(pedido.id)) {
                     ultimosPedidosImpressos.add(pedido.id);
-                    console.log(`📤 Novo pedido detectado: #${pedido.id}`);
+                    console.log(`📤 NOVO PEDIDO DETECTADO: #${pedido.id}`);
                     
                     if (printerConfig.autoprint) {
+                        console.log(`🖨️ Abrindo janela de impressão para pedido #${pedido.id}`);
                         abrirJanelaPrint(pedido);
                     } else {
                         mostrarConfirmacao('📝 Novo Pedido', `Pedido #${pedido.id} chegou. Clique em "Imprimir" para processar.`);
@@ -4535,6 +4570,7 @@ function iniciarMonitorImpressora() {
             console.error('Erro ao buscar pedidos para impressão:', error);
         }
     }, 5000);
+}
 }
 
 function pararMonitorImpressora() {
@@ -4681,5 +4717,11 @@ if (printerSaveBtn) {
 // Carregar config ao iniciar
 document.addEventListener('DOMContentLoaded', () => {
     carregarConfigImpressora();
+    
+    // Se impressora estava habilitada, inicia o monitor automaticamente
+    if (printerConfig.enabled) {
+        console.log('🖨️ Impressora estava habilitada, iniciando monitor...');
+        iniciarMonitorImpressora();
+    }
 });
 
