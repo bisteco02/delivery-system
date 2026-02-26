@@ -136,7 +136,6 @@
             <button class="tab-btn bg-gray-200 px-4 py-2 rounded" data-tab="tab-addons">Adicionais</button>
             <button class="tab-btn bg-gray-200 px-4 py-2 rounded" data-tab="tab-monte">Monte sua pizza</button>
             <button class="tab-btn bg-gray-200 px-4 py-2 rounded" data-tab="tab-whatsapp">📱 WhatsApp</button>
-            <button class="tab-btn bg-gray-200 px-4 py-2 rounded" data-tab="tab-impressora">🖨️ Impressora</button>
             <button class="tab-btn bg-gray-200 px-4 py-2 rounded" data-tab="tab-relatorios">Relatórios</button>
         </div>
         <!-- Dashboard / Cardápio -->
@@ -205,6 +204,11 @@
                     <label class="flex items-center gap-2 cursor-pointer">
                         <input id="toggle-auto-confirmar" type="checkbox" class="toggle-checkbox" />
                         <span class="text-sm font-medium">✅ Auto confirmar</span>
+                    </label>
+
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input id="toggle-impressao-auto" type="checkbox" class="toggle-checkbox" />
+                        <span class="text-sm font-medium">🖨️ Impressão auto</span>
                     </label>
 
                     <div class="flex gap-2">
@@ -810,60 +814,6 @@
         </section>
 
         <!-- Impressora -->
-        <section id="tab-impressora" class="tab-section hidden">
-            <div class="space-y-6">
-                <div>
-                    <h1 class="text-4xl font-bold text-gray-900 mb-2">🖨️ Impressão de Pedidos</h1>
-                    <p class="text-gray-600">Imprima pedidos automaticamente conforme chegam</p>
-                </div>
-
-                <!-- Status da Impressora -->
-                <div class="bg-white p-6 rounded-lg shadow">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-lg font-bold">Status da Impressora</h3>
-                        <span id="printer-status-badge" class="px-3 py-1 bg-gray-200 text-gray-700 rounded-full text-sm font-semibold">
-                            🔴 Desabilitada
-                        </span>
-                    </div>
-                    <p class="text-gray-600">
-                        <span id="printer-status-text">A impressora automática está desabilitada</span>
-                    </p>
-                </div>
-
-                <!-- Configurações -->
-                <div class="bg-white p-6 rounded-lg shadow">
-                    <h3 class="text-lg font-bold mb-4">⚙️ Configurações</h3>
-                    
-                    <div class="space-y-4">
-                        <!-- Enable Toggle -->
-                        <label class="flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
-                            <input type="checkbox" id="printer-enabled" class="w-5 h-5 text-blue-600 rounded">
-                            <span class="ml-3 font-medium text-gray-700">Habilitar impressão automática</span>
-                        </label>
-
-                        <!-- Auto Print Toggle -->
-                        <label class="flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 opacity-50 pointer-events-none" id="auto-print-label">
-                            <input type="checkbox" id="printer-autoprint" class="w-5 h-5 text-blue-600 rounded" disabled>
-                            <span class="ml-3 font-medium text-gray-700">Imprimir automaticamente sem confirmação</span>
-                        </label>
-                    </div>
-
-                    <button id="printer-save-btn" class="w-full mt-6 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold transition">
-                        💾 Salvar Configuração
-                    </button>
-                </div>
-
-                <!-- Pedidos Pendentes -->
-                <div class="bg-white p-6 rounded-lg shadow">
-                    <h3 class="text-lg font-bold mb-4">📋 Pedidos Pendentes</h3>
-                    
-                    <div id="printer-pedidos-container" class="space-y-4">
-                        <p class="text-center text-gray-500">Carregando pedidos...</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
         <!-- Relatórios -->
         <section id="tab-relatorios" class="tab-section hidden">
             <!-- Cabeçalho com Filtro - Atualizado -->
