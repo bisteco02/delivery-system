@@ -624,9 +624,11 @@ app.post('/api/pedidos', async (req, res) => {
     await salvarPedidos(pedidos);
 
     console.log('✅ Novo pedido recebido:', novoPedido.id);
+    console.log('📱 Cliente WhatsApp:', novoPedido.cliente.whatsappLimpo);
 
     // Enviar mensagem WhatsApp automaticamente
     if (whatsappManager.isReady()) {
+      console.log('[DEBUG] WhatsApp está pronto, tentando enviar...');
       try {
         const clienteWhatsapp = novoPedido.cliente.whatsappLimpo;
         const clienteNome = novoPedido.cliente.nome;
@@ -638,16 +640,23 @@ app.post('/api/pedidos', async (req, res) => {
         
         const mensagem = `🍕 *Pedido Confirmado!*\n\nOlá ${clienteNome}!\n\nSeu pedido foi recebido com sucesso!\n\n*Itens:*\n${itensStr}\n\n*Total:* R$ ${novoPedido.total.toFixed(2)}\n*Endereço:* ${novoPedido.endereco}\n*Bairro:* ${novoPedido.bairro}\n\nEntraremos em contato em breve!`;
         
+        console.log('[DEBUG] Mensagem a ser enviada:', mensagem);
+        
         whatsappManager.sendMessage(clienteWhatsapp, mensagem).then(result => {
           if (result.success) {
-            console.log(`✅ WhatsApp enviado para ${clienteWhatsapp}`);
+            console.log(`✅ WhatsApp enviado com sucesso para ${clienteWhatsapp}`);
+            console.log(`📬 Message ID: ${result.messageId}`);
           } else {
-            console.warn(`⚠️ WhatsApp não enviado para ${clienteWhatsapp}: ${result.error}`);
+            console.warn(`⚠️ WhatsApp FALHOU para ${clienteWhatsapp}: ${result.error}`);
           }
+        }).catch(err => {
+          console.error(`❌ Erro crítico ao enviar WhatsApp: ${err.message}`);
         });
       } catch (error) {
-        console.error('Erro ao enviar WhatsApp:', error.message);
+        console.error('❌ Erro ao preparar envio WhatsApp:', error.message);
       }
+    } else {
+      console.warn('⚠️ WhatsApp NÃO está pronto. Status:', whatsappManager.isConnected ? 'Conectado' : 'Desconectado');
     }
 
     // Disparar webhook automaticamente para Make.com/Zapier
@@ -729,6 +738,37 @@ Obrigado! 🙏`;
     console.log(`✅ Webhook acionado para pedido ${pedidoId}`);
   } catch (error) {
     console.error('Erro no webhook:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Endpoint para testar envio direto de WhatsApp
+app.post('/api/test-whatsapp', async (req, res) => {
+  try {
+    const { phoneNumber, message } = req.body;
+    
+    if (!phoneNumber || !message) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'phoneNumber e message são obrigatórios' 
+      });
+    }
+
+    if (!whatsappManager.isReady()) {
+      return res.json({ 
+        success: false, 
+        error: 'WhatsApp não está conectado',
+        connected: whatsappManager.isConnected
+      });
+    }
+
+    console.log(`[TEST] Enviando para ${phoneNumber}: ${message}`);
+    const result = await whatsappManager.sendMessage(phoneNumber, message);
+    
+    console.log('[TEST] Resultado:', result);
+    res.json(result);
+  } catch (error) {
+    console.error('[TEST] Erro:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });
