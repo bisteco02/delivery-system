@@ -1486,164 +1486,181 @@ function limparHorario() {
     }
 }
 
-function imprimirPedido(id) {
-    const pedido = pedidos.find(p => p.id === id);
-    if (!pedido) {
-        mostrarModal('erro', 'Pedido não encontrado', 'Não foi possível localizar o pedido para impressão.');
-        return;
-    }
-    
-    // Criar janela de impressão
-    const printWindow = window.open('', '_blank', 'width=800,height=600');
-    if (!printWindow || !printWindow.document) {
-        mostrarModal('erro', 'Pop-up bloqueado', 'Permita pop-ups no navegador para imprimir o pedido.');
-        return;
-    }
-    
-    const itensHtml = pedido.itens.map(item => `
-        <tr>
-            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${item.quantidade}x</td>
-            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${item.nome}</td>
-            <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: right;">R$ ${((item.preco ?? item.precoUnitario ?? 0).toFixed(2)).replace('.', ',')}</td>
-        </tr>
-    `).join('');
-    
+let qzSecurityConfigured = false;
+
+function gerarHTMLImpressaoPedido(pedido, autoClose = false) {
     const dataFormatada = new Date(pedido.data).toLocaleString('pt-BR');
-    
-    printWindow.document.write(`
-        <!DOCTYPE html>
+    const cliente = pedido.cliente || {};
+    const telefone = cliente.whatsapp || cliente.telefone || 'Nao informado';
+    const enderecoTexto = pedido.tipoEntrega === 'delivery'
+        ? (typeof pedido.endereco === 'object'
+            ? `${pedido.endereco.rua || ''}, ${pedido.endereco.numero || ''}${pedido.endereco.complemento ? ` - ${pedido.endereco.complemento}` : ''} - ${pedido.endereco.bairro || pedido.bairro || ''}`
+            : `${pedido.endereco || ''}${pedido.bairro ? `, ${pedido.bairro}` : ''}`)
+        : 'Retirada no local';
+
+    const itensHtml = (pedido.itens || []).map(item => {
+        const precoUnitario = item.preco ?? item.precoUnitario ?? 0;
+        const subtotal = Number(precoUnitario) * Number(item.quantidade || 0);
+        return `
+        <tr>
+            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${item.quantidade || 0}x</td>
+            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${item.nome || 'Item'}</td>
+            <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: right;">R$ ${subtotal.toFixed(2).replace('.', ',')}</td>
+        </tr>`;
+    }).join('');
+
+    const scriptAutoClose = autoClose
+        ? `<script>window.onload = function() { window.print(); setTimeout(() => window.close(), 500); };</script>`
+        : '';
+
+    return `<!DOCTYPE html>
         <html>
         <head>
+            <meta charset="UTF-8">
             <title>Pedido #${pedido.numero_pedido || pedido.id}</title>
             <style>
-                body {
-                    font-family: Arial, sans-serif;
-                    padding: 20px;
-                    max-width: 800px;
-                    margin: 0 auto;
-                }
-                .header {
-                    text-align: center;
-                    border-bottom: 2px solid #000;
-                    padding-bottom: 20px;
-                    margin-bottom: 20px;
-                }
-                .header h1 {
-                    margin: 0;
-                    font-size: 24px;
-                }
-                .info-section {
-                    margin-bottom: 20px;
-                    padding: 10px;
-                    background-color: #f5f5f5;
-                    border-radius: 5px;
-                }
-                .info-section h3 {
-                    margin: 0 0 10px 0;
-                    font-size: 16px;
-                }
-                table {
-                    width: 100%;
-                    border-collapse: collapse;
-                    margin: 20px 0;
-                }
-                th {
-                    background-color: #333;
-                    color: white;
-                    padding: 10px;
-                    text-align: left;
-                }
-                .total {
-                    text-align: right;
-                    font-size: 20px;
-                    font-weight: bold;
-                    margin-top: 20px;
-                    padding-top: 10px;
-                    border-top: 2px solid #000;
-                }
-                .status {
-                    display: inline-block;
-                    padding: 5px 15px;
-                    border-radius: 20px;
-                    font-weight: bold;
-                    margin-top: 10px;
-                }
+                body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; }
+                .header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 20px; margin-bottom: 20px; }
+                .header h1 { margin: 0; font-size: 24px; }
+                .info-section { margin-bottom: 20px; padding: 10px; background-color: #f5f5f5; border-radius: 5px; }
+                .info-section h3 { margin: 0 0 10px 0; font-size: 16px; }
+                table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+                th { background-color: #333; color: white; padding: 10px; text-align: left; }
+                .total { text-align: right; font-size: 20px; font-weight: bold; margin-top: 20px; padding-top: 10px; border-top: 2px solid #000; }
+                .status { display: inline-block; padding: 5px 15px; border-radius: 20px; font-weight: bold; margin-top: 10px; }
                 .status-pendente { background-color: #fef3c7; color: #92400e; }
                 .status-confirmado { background-color: #d1fae5; color: #065f46; }
                 .status-pronto { background-color: #e9d5ff; color: #6b21a8; }
                 .status-entregue { background-color: #dbeafe; color: #1e40af; }
                 .status-cancelado { background-color: #fee2e2; color: #991b1b; }
-                @media print {
-                    body { padding: 0; }
-                }
+                @media print { body { padding: 0; } }
             </style>
         </head>
         <body>
             <div class="header">
-                <h1>🍞 Pedido #${pedido.numero_pedido || pedido.id}</h1>
+                <h1>Pedido #${pedido.numero_pedido || pedido.id}</h1>
                 <p>${dataFormatada}</p>
-                <span class="status status-${pedido.status}">${pedido.status.toUpperCase()}</span>
+                <span class="status status-${pedido.status}">${(pedido.status || '').toUpperCase()}</span>
             </div>
-            
+
             <div class="info-section">
-                <h3>👤 Informações do Cliente</h3>
-                <p><strong>Nome:</strong> ${pedido.cliente.nome}</p>
-                <p><strong>WhatsApp:</strong> ${pedido.cliente.whatsapp}</p>
+                <h3>Informacoes do Cliente</h3>
+                <p><strong>Nome:</strong> ${cliente.nome || 'Nao informado'}</p>
+                <p><strong>WhatsApp:</strong> ${telefone}</p>
+                <p><strong>Entrega:</strong> ${enderecoTexto}</p>
             </div>
-            
-            <div class="info-section">
-                <h3>📦 Tipo de Entrega</h3>
-                <p><strong>${pedido.tipoEntrega === 'delivery' ? '🚗 Delivery' : '🏪 Retirada'}</strong></p>
-                ${pedido.tipoEntrega === 'delivery' && pedido.endereco ? `
-                    <p><strong>Endereço:</strong> ${pedido.endereco.rua}, ${pedido.endereco.numero}</p>
-                    ${pedido.endereco.complemento ? `<p><strong>Complemento:</strong> ${pedido.endereco.complemento}</p>` : ''}
-                    <p><strong>Bairro:</strong> ${pedido.endereco.bairro}</p>
-                ` : ''}
-            </div>
-            
+
             <table>
                 <thead>
                     <tr>
                         <th style="width: 80px;">Qtd</th>
                         <th>Item</th>
-                        <th style="width: 120px; text-align: right;">Preço</th>
+                        <th style="width: 140px; text-align: right;">Subtotal</th>
                     </tr>
                 </thead>
-                <tbody>
-                    ${itensHtml}
-                </tbody>
+                <tbody>${itensHtml}</tbody>
             </table>
-            
+
             ${pedido.observacoes ? `
                 <div class="info-section">
-                    <h3>📝 Observações</h3>
+                    <h3>Observacoes</h3>
                     <p>${pedido.observacoes}</p>
-                </div>
-            ` : ''}
-            
-            ${pedido.pagamento ? `
-                <div class="info-section">
-                    <h3>💳 Forma de Pagamento</h3>
-                    <p><strong>${pedido.pagamento.forma || 'Não informado'}</strong></p>
-                    ${pedido.pagamento.troco ? `<p><strong>Troco para:</strong> R$ ${pedido.pagamento.troco.toFixed(2).replace('.', ',')}</p>` : ''}
-                </div>
-            ` : ''}
-            
-            <div class="total">
-                TOTAL: R$ ${pedido.total.toFixed(2).replace('.', ',')}
-            </div>
-            
-            <script>
-                window.onload = function() {
-                    window.print();
-                    setTimeout(() => window.close(), 500);
-                }
-            </script>
+                </div>` : ''}
+
+            <div class="total">TOTAL: R$ ${(pedido.total || 0).toFixed(2).replace('.', ',')}</div>
+            ${scriptAutoClose}
         </body>
-        </html>
-    `);
-    
+        </html>`;
+}
+
+function abrirPopupImpressao(html) {
+    const printWindow = window.open('', '_blank', 'width=800,height=600');
+    if (!printWindow || !printWindow.document) {
+        mostrarModal('erro', 'Pop-up bloqueado', 'Permita pop-ups no navegador para imprimir o pedido.');
+        return false;
+    }
+    printWindow.document.write(html);
     printWindow.document.close();
+    return true;
+}
+
+async function obterConfigImpressora() {
+    try {
+        const response = await fetch('/api/printer/config');
+        if (!response.ok) return null;
+        return await response.json();
+    } catch (error) {
+        console.warn('[QZ] Falha ao carregar config de impressora:', error.message);
+        return null;
+    }
+}
+
+async function configurarQzSecurity() {
+    if (qzSecurityConfigured || !window.qz) return;
+    qz.security.setCertificatePromise((resolve) => resolve());
+    qz.security.setSignaturePromise(() => (resolve) => resolve());
+    qzSecurityConfigured = true;
+}
+
+async function imprimirViaQzTray(pedido) {
+    if (!window.qz) {
+        return { success: false, reason: 'QZ Tray nao carregado no painel' };
+    }
+
+    try {
+        await configurarQzSecurity();
+
+        if (!qz.websocket.isActive()) {
+            await qz.websocket.connect({ retries: 1, delay: 1 });
+        }
+
+        const config = await obterConfigImpressora();
+        let printerName = config?.selectedPrinter;
+
+        if (!printerName || printerName === 'default') {
+            printerName = await qz.printers.getDefault();
+        }
+
+        if (!printerName) {
+            return { success: false, reason: 'Nenhuma impressora disponivel no QZ Tray' };
+        }
+
+        const html = gerarHTMLImpressaoPedido(pedido, false);
+        const qzConfig = qz.configs.create(printerName, {
+            copies: 1,
+            jobName: `Pedido-${pedido.numero_pedido || pedido.id}`
+        });
+
+        await qz.print(qzConfig, [{
+            type: 'pixel',
+            format: 'html',
+            flavor: 'plain',
+            data: html
+        }]);
+
+        console.log(`[QZ] Pedido #${pedido.id} enviado para impressora ${printerName}`);
+        return { success: true, printer: printerName };
+    } catch (error) {
+        console.warn('[QZ] Falha na impressao via QZ Tray:', error.message);
+        return { success: false, reason: error.message };
+    }
+}
+
+async function imprimirPedido(id) {
+    const pedido = pedidos.find(p => p.id === id);
+    if (!pedido) {
+        mostrarModal('erro', 'Pedido não encontrado', 'Não foi possível localizar o pedido para impressão.');
+        return;
+    }
+
+    const qzResult = await imprimirViaQzTray(pedido);
+    if (qzResult.success) {
+        sucesso(`Pedido enviado para impressora (${qzResult.printer})`);
+        return;
+    }
+
+    const html = gerarHTMLImpressaoPedido(pedido, true);
+    abrirPopupImpressao(html);
 }
 
 // Funções do Cardápio - Visualização (Início)
@@ -4471,77 +4488,14 @@ let impressaoAutoAtiva = false;
 let ultimosPedidosImpressos = new Set();
 let intervaloImpressora = null;
 
-function abrirJanelaPrint(pedido) {
-    const dataFormatada = new Date(pedido.data).toLocaleString('pt-BR');
-    const itensHTML = pedido.itens.map(item => `
-      <tr>
-        <td style="text-align:center;padding:8px;border:1px solid #ccc;">${item.quantidade}</td>
-        <td style="padding:8px;border:1px solid #ccc;">${item.nome}</td>
-        <td style="text-align:right;padding:8px;border:1px solid #ccc;">R$ ${(item.preco * item.quantidade).toFixed(2)}</td>
-      </tr>
-    `).join('');
+async function abrirJanelaPrint(pedido) {
+        const qzResult = await imprimirViaQzTray(pedido);
+        if (qzResult.success) {
+                return;
+        }
 
-    const html = `<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <style>
-    body { font-family: Arial, sans-serif; padding: 20px; font-size: 14px; margin: 0; }
-    .header { text-align: center; margin-bottom: 20px; }
-    .pedido-id { font-size: 28px; font-weight: bold; color: #000; }
-    .data { font-size: 12px; color: #666; margin: 10px 0; }
-    .section { margin: 15px 0; padding: 10px 0; border-bottom: 1px solid #ddd; }
-    table { width: 100%; border-collapse: collapse; margin: 15px 0; }
-    th { border: 1px solid #000; padding: 8px; text-align: left; background: #f0f0f0; font-weight: bold; }
-    td { border: 1px solid #ccc; padding: 8px; }
-    .total { background: #f0f0f0; font-weight: bold; }
-    .footer { text-align: center; margin-top: 20px; font-size: 11px; color: #999; }
-    @media print {
-      body { padding: 0; }
-    }
-  </style>
-</head>
-<body>
-  <div class="header">
-    <div class="pedido-id">PEDIDO #${pedido.id}</div>
-    <div class="data">${dataFormatada}</div>
-  </div>
-  
-  <div class="section">
-    <div><strong>Cliente:</strong> ${pedido.cliente.nome}</div>
-    <div><strong>Telefone:</strong> ${pedido.cliente.whatsapp}</div>
-    <div><strong>Endereço:</strong> ${pedido.endereco}, ${pedido.bairro}</div>
-  </div>
-  
-  <table>
-    <thead>
-      <tr>
-        <th style="width:10%">Qtd</th>
-        <th style="width:70%">Descrição</th>
-        <th style="width:20%">Valor</th>
-      </tr>
-    </thead>
-    <tbody>
-      ${itensHTML}
-      <tr class="total">
-        <td colspan="2" style="text-align:right">TOTAL:</td>
-        <td style="text-align:right">R$ ${pedido.total.toFixed(2)}</td>
-      </tr>
-    </tbody>
-  </table>
-  
-  <div class="footer">Impresso em ${new Date().toLocaleTimeString('pt-BR')}</div>
-  
-  <script>
-    window.print();
-    setTimeout(() => window.close(), 2000);
-  </script>
-</body>
-</html>`;
-
-    const blob = new Blob([html], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    window.open(url, '_blank', 'width=600,height=800');
+        const html = gerarHTMLImpressaoPedido(pedido, true);
+        abrirPopupImpressao(html);
 }
 
 function iniciarMonitorImpressora() {

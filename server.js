@@ -19,6 +19,7 @@ const whatsappManager = require('./whatsapp-manager');
 // Serviço de Impressão Integrado
 const PrintService = require('./integrated-print-service');
 let printService = null;
+const ENABLE_SERVER_PRINT_SERVICE = process.env.ENABLE_SERVER_PRINT_SERVICE === 'true';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -1765,9 +1766,11 @@ async function iniciarServidor() {
       console.warn('[WhatsApp] ⚠️ WhatsApp não inicializado. Interface disponível no painel admin.');
     }
 
-    // Criar instância do PrintService (mas não iniciar ainda)
-    const apiUrl = HTTPS_ENABLED ? `https://${DOMAIN}` : `http://localhost:${PORT}`;
-    printService = new PrintService(apiUrl);
+    // Criar instância do PrintService apenas quando habilitado explicitamente
+    if (ENABLE_SERVER_PRINT_SERVICE) {
+      const apiUrl = HTTPS_ENABLED ? `https://${DOMAIN}` : `http://localhost:${PORT}`;
+      printService = new PrintService(apiUrl);
+    }
 
     // Servidor HTTP
     app.listen(PORT, '0.0.0.0', () => {
@@ -1786,10 +1789,16 @@ async function iniciarServidor() {
 
       // Serviços ativos
       console.log('📱 WhatsApp: Baileys ativo');
-      console.log('🖨️  Impressora: Serviço integrado ativo\n');
+      if (ENABLE_SERVER_PRINT_SERVICE && printService) {
+        console.log('🖨️  Impressora: Serviço integrado ativo\n');
+      } else {
+        console.log('🖨️  Impressora: Serviço integrado desativado (use agente local)\n');
+      }
 
-      // Inicializar PrintService APÓS servidor estar pronto
-      printService.start();
+      // Inicializar PrintService APÓS servidor estar pronto (se habilitado)
+      if (ENABLE_SERVER_PRINT_SERVICE && printService) {
+        printService.start();
+      }
     });
 
     if (HTTPS_ENABLED) {
