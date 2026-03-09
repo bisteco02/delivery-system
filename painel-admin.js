@@ -9,6 +9,19 @@ let autoConfirmar = false;
 let ultimoPedidoIds = new Set();
 let primeiraVez = true;
 const AUTO_REFRESH_MS = 30000;
+const pedidosAutoImpressos = new Set();
+
+function agendarImpressaoAutomatica(pedidoId, delayMs = 500, origem = 'auto') {
+    if (pedidosAutoImpressos.has(pedidoId)) {
+        console.log(`🛑 Impressão duplicada bloqueada para pedido #${pedidoId} (${origem})`);
+        return;
+    }
+
+    pedidosAutoImpressos.add(pedidoId);
+    setTimeout(() => {
+        imprimirPedido(pedidoId);
+    }, delayMs);
+}
 
 const MINIMIZED_KEY = 'adminMinimizedPedidos';
 const getMinimizedSet = () => {
@@ -481,10 +494,8 @@ async function carregarPedidos() {
                             await atualizarStatus(pedido.id, 'confirmado');
 
                             // Imprimir após confirmar
-                            setTimeout(() => {
-                                console.log(`🖨️ Imprimindo pedido #${pedido.numero_pedido || pedido.id} automaticamente...`);
-                                imprimirPedido(pedido.id);
-                            }, 1000);
+                            console.log(`🖨️ Imprimindo pedido #${pedido.numero_pedido || pedido.id} automaticamente...`);
+                            agendarImpressaoAutomatica(pedido.id, 1000, 'auto-confirmar');
                         }
                     });
                 } else {
@@ -492,7 +503,7 @@ async function carregarPedidos() {
                     novos.forEach(pedido => {
                         if (pedido.status === 'confirmado') {
                             console.log(`🖨️ Imprimindo pedido #${pedido.numero_pedido || pedido.id} automaticamente...`);
-                            setTimeout(() => imprimirPedido(pedido.id), 500);
+                            agendarImpressaoAutomatica(pedido.id, 500, 'novos-confirmados');
                         }
                     });
                 }
@@ -4511,13 +4522,13 @@ function iniciarMonitorImpressora() {
         try {
             const response = await fetchTenant('/pedidos');
             const todos = await parseJSONResponse(response);
-            const pendentes = Array.isArray(todos) 
-                ? todos.filter(p => p.status === 'pendente')
-                : (todos.pedidos || []).filter(p => p.status === 'pendente');
+            const confirmados = Array.isArray(todos)
+                ? todos.filter(p => p.status === 'confirmado')
+                : (todos.pedidos || []).filter(p => p.status === 'confirmado');
 
             if (ultimosPedidosImpressos.size === 0) {
-                console.log(`📋 Marcando ${pendentes.length} pedidos existentes como processados`);
-                pendentes.forEach(p => ultimosPedidosImpressos.add(p.id));
+                console.log(`📋 Marcando ${confirmados.length} pedidos confirmados existentes como processados`);
+                confirmados.forEach(p => ultimosPedidosImpressos.add(p.id));
             }
         } catch (error) {
             console.error('Erro inicial:', error);
@@ -4531,17 +4542,17 @@ function iniciarMonitorImpressora() {
         try {
             const response = await fetchTenant('/pedidos');
             const todos = await parseJSONResponse(response);
-            const pendentes = Array.isArray(todos) 
-                ? todos.filter(p => p.status === 'pendente')
-                : (todos.pedidos || []).filter(p => p.status === 'pendente');
+            const confirmados = Array.isArray(todos)
+                ? todos.filter(p => p.status === 'confirmado')
+                : (todos.pedidos || []).filter(p => p.status === 'confirmado');
 
-            console.log(`🔍 ${pendentes.length} pedidos pendentes`);
+            console.log(`🔍 ${confirmados.length} pedidos confirmados`);
 
-            for (const pedido of pendentes) {
+            for (const pedido of confirmados) {
                 if (!ultimosPedidosImpressos.has(pedido.id)) {
                     ultimosPedidosImpressos.add(pedido.id);
-                    console.log(`📤 NOVO PEDIDO #${pedido.id} - Abrindo impressão`);
-                    abrirJanelaPrint(pedido);
+                    console.log(`📤 PEDIDO CONFIRMADO #${pedido.id} - Enviando para impressão`);
+                    agendarImpressaoAutomatica(pedido.id, 400, 'monitor-confirmado');
                 }
             }
         } catch (error) {
