@@ -26,7 +26,9 @@ const PORT = process.env.PORT || 3001;
 
 const DOMAIN = process.env.DOMAIN || 'padocadodede.com';
 const HTTPS_CERT_DIR = `/etc/letsencrypt/live/${DOMAIN}`;
-const HTTPS_ENABLED = process.env.NODE_ENV === 'production' && fsSync.existsSync(HTTPS_CERT_DIR);
+// Em VPS com Nginx, o HTTPS deve ficar no proxy reverso (porta 443),
+// evitando conflito com o Node na mesma porta.
+const HTTPS_ENABLED = process.env.ENABLE_INTERNAL_HTTPS === 'true' && fsSync.existsSync(HTTPS_CERT_DIR);
 
 app.use(session({
   secret: process.env.SESSION_SECRET || 'padoca-secret-key-2026',
