@@ -1502,32 +1502,56 @@ let qzSecurityConfigured = false;
 
 function gerarHTMLImpressaoPedido(pedido, autoClose = false) {
     const dataFormatada = new Date(pedido.data).toLocaleString('pt-BR');
+    const horaPedido = new Date(pedido.data).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
     const cliente = pedido.cliente || {};
     const telefone = cliente.whatsapp || cliente.telefone || 'Nao informado';
+    const pedidoShort = String(pedido.numero_pedido || pedido.id || '').slice(-6);
+    const tipoEntregaLabel = pedido.tipoEntrega === 'delivery' ? 'DELIVERY' : 'RETIRADA';
     const enderecoTexto = pedido.tipoEntrega === 'delivery'
         ? (typeof pedido.endereco === 'object'
             ? `${pedido.endereco.rua || ''}, ${pedido.endereco.numero || ''}${pedido.endereco.complemento ? ` - ${pedido.endereco.complemento}` : ''} - ${pedido.endereco.bairro || pedido.bairro || ''}`
             : `${pedido.endereco || ''}${pedido.bairro ? `, ${pedido.bairro}` : ''}`)
         : 'Retirada no local';
 
-    const itensHtml = (pedido.itens || []).map(item => {
-        const precoUnitario = Number(item.preco ?? item.precoUnitario ?? 0);
-        const subtotal = Number(item.precoTotal ?? (precoUnitario * Number(item.quantidade || 0)));
-        const adicionais = Array.isArray(item.adicionais) ? item.adicionais.filter(Boolean) : [];
-        const adicionaisHtml = adicionais.length > 0
-            ? `<div class="addon-line"><strong>ADICIONAIS:</strong> <strong>${adicionais.join(' | ')}</strong></div>`
+    const itensPorCategoria = (pedido.itens || []).reduce((acc, item) => {
+        const cat = (item.categoria || item.category || 'Itens').toString();
+        if (!acc[cat]) acc[cat] = [];
+        acc[cat].push(item);
+        return acc;
+    }, {});
+
+    const itensHtml = Object.keys(itensPorCategoria).map((categoria) => {
+        const linhas = itensPorCategoria[categoria].map(item => {
+            const precoUnitario = Number(item.preco ?? item.precoUnitario ?? 0);
+            const subtotal = Number(item.precoTotal ?? (precoUnitario * Number(item.quantidade || 0)));
+            const adicionais = Array.isArray(item.adicionais) ? item.adicionais.filter(Boolean) : [];
+            const adicionaisHtml = adicionais.length > 0
+                ? `<div class="addon-line"><strong>ADICIONAIS:</strong> <strong>${adicionais.join(' | ')}</strong></div>`
+                : '';
+            const itemObs = item.observacoes ? `<div class="item-obs"><strong>Obs item:</strong> ${item.observacoes}</div>` : '';
+
+            return `
+            <tr>
+                <td class="qty">${item.quantidade || 0}x</td>
+                <td class="desc">
+                    <div class="item-name">${item.nome || 'Item'}</div>
+                    ${adicionaisHtml}
+                    ${itemObs}
+                </td>
+                <td class="price">R$ ${subtotal.toFixed(2).replace('.', ',')}</td>
+            </tr>`;
+        }).join('');
+
+        const tituloCategoria = categoria && categoria !== 'Itens'
+            ? `<tr><td colspan="3" class="category-row">${categoria.toUpperCase()}</td></tr>`
             : '';
 
-        return `
-        <tr>
-            <td class="qty">${item.quantidade || 0}x</td>
-            <td class="desc">
-                <div class="item-name">${item.nome || 'Item'}</div>
-                ${adicionaisHtml}
-            </td>
-            <td class="price">R$ ${subtotal.toFixed(2).replace('.', ',')}</td>
-        </tr>`;
+        return `${tituloCategoria}${linhas}`;
     }).join('');
+
+    const formaPagamento = pedido.pagamento?.forma ? String(pedido.pagamento.forma).toUpperCase() : '';
+    const troco = pedido.pagamento?.troco ? ` | Troco: R$ ${Number(pedido.pagamento.troco).toFixed(2).replace('.', ',')}` : '';
+    const pagamentoHtml = formaPagamento ? `<div class="line"><strong>Pagamento:</strong> ${formaPagamento}${troco}</div>` : '';
 
     const scriptAutoClose = autoClose
         ? `<script>window.onload = function() { window.print(); setTimeout(() => window.close(), 500); };</script>`
@@ -1539,29 +1563,37 @@ function gerarHTMLImpressaoPedido(pedido, autoClose = false) {
             <meta charset="UTF-8">
             <title>Pedido #${pedido.numero_pedido || pedido.id}</title>
             <style>
-                body { font-family: Arial, sans-serif; font-size: 13px; padding: 14px; margin: 0; color: #111; }
-                .header { text-align: center; border-bottom: 2px dashed #000; padding-bottom: 8px; margin-bottom: 10px; }
-                .header h1 { margin: 0; font-size: 21px; letter-spacing: 0.5px; }
-                .meta { margin-top: 4px; font-size: 12px; }
+                @page { size: 80mm auto; margin: 0; }
+                body { font-family: Arial, sans-serif; font-size: 12px; padding: 6px; margin: 0; color: #111; width: 76mm; }
+                .header { text-align: center; border-bottom: 2px dashed #000; padding-bottom: 6px; margin-bottom: 8px; }
+                .header h1 { margin: 0; font-size: 18px; letter-spacing: 0.5px; }
+                .order-main { font-size: 24px; font-weight: 800; line-height: 1.1; }
+                .badge { display: inline-block; margin-top: 4px; border: 1px solid #000; padding: 2px 8px; font-weight: bold; font-size: 11px; }
+                .meta { margin-top: 4px; font-size: 11px; }
                 .section-title { margin: 10px 0 6px; font-size: 12px; font-weight: bold; text-transform: uppercase; }
-                .line { margin: 2px 0; }
+                .line { margin: 2px 0; white-space: normal; word-break: break-word; overflow-wrap: anywhere; }
                 table { width: 100%; border-collapse: collapse; margin-top: 10px; }
                 th { border-top: 1px solid #000; border-bottom: 1px solid #000; text-align: left; padding: 6px 4px; font-size: 12px; }
                 td { padding: 6px 4px; border-bottom: 1px dashed #bbb; vertical-align: top; }
-                .qty { width: 46px; }
-                .price { width: 120px; text-align: right; white-space: nowrap; }
+                .qty { width: 34px; }
+                .price { width: 90px; text-align: right; white-space: nowrap; font-weight: bold; }
+                .desc { white-space: normal; word-break: break-word; overflow-wrap: anywhere; }
                 .item-name { font-weight: bold; }
-                .addon-line { margin-top: 4px; font-size: 12px; }
+                .category-row { border-bottom: 1px solid #000; font-weight: bold; text-transform: uppercase; background: #f2f2f2; }
+                .addon-line { margin-top: 3px; font-size: 11px; white-space: normal; word-break: break-word; overflow-wrap: anywhere; }
+                .item-obs { margin-top: 2px; font-size: 11px; white-space: normal; word-break: break-word; overflow-wrap: anywhere; }
                 .obs { margin-top: 10px; padding-top: 8px; border-top: 1px dashed #000; }
                 .total { margin-top: 12px; padding-top: 8px; border-top: 2px solid #000; text-align: right; font-size: 18px; font-weight: bold; }
                 .footer { text-align: center; margin-top: 8px; font-size: 11px; color: #444; }
-                @media print { body { padding: 6px; } }
+                @media print { body { width: 76mm; padding: 5px; } }
             </style>
         </head>
         <body>
             <div class="header">
-                <h1>Pedido #${pedido.numero_pedido || pedido.id}</h1>
-                <div class="meta">${dataFormatada}</div>
+                <h1>PADoca do Dede</h1>
+                <div class="order-main">#${pedidoShort}</div>
+                <div class="badge">${tipoEntregaLabel}</div>
+                <div class="meta">${horaPedido} | ${dataFormatada}</div>
             </div>
 
             <div class="section-title">Informacoes do Cliente</div>
@@ -1575,9 +1607,9 @@ function gerarHTMLImpressaoPedido(pedido, autoClose = false) {
             <table>
                 <thead>
                     <tr>
-                        <th style="width: 46px;">Qtd</th>
+                        <th style="width: 34px;">Qtd</th>
                         <th>Item</th>
-                        <th style="width: 120px; text-align: right;">Subtotal</th>
+                        <th style="width: 90px; text-align: right;">Subtotal</th>
                     </tr>
                 </thead>
                 <tbody>${itensHtml}</tbody>
@@ -1588,6 +1620,8 @@ function gerarHTMLImpressaoPedido(pedido, autoClose = false) {
                     <div><strong>Observacoes:</strong></div>
                     <div>${pedido.observacoes}</div>
                 </div>` : ''}
+
+            ${pagamentoHtml}
 
             <div class="total">TOTAL: R$ ${(pedido.total || 0).toFixed(2).replace('.', ',')}</div>
             <div class="footer">Impresso automaticamente</div>
