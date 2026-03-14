@@ -1564,27 +1564,27 @@ function gerarHTMLImpressaoPedido(pedido, autoClose = false) {
             <title>Pedido #${pedido.numero_pedido || pedido.id}</title>
             <style>
                 @page { size: 80mm auto; margin: 0; }
-                body { font-family: Arial, sans-serif; font-size: 12px; padding: 6px; margin: 0; color: #111; width: 76mm; }
-                .header { text-align: center; border-bottom: 2px dashed #000; padding-bottom: 6px; margin-bottom: 8px; }
-                .header h1 { margin: 0; font-size: 18px; letter-spacing: 0.5px; }
-                .order-main { font-size: 24px; font-weight: 800; line-height: 1.1; }
-                .badge { display: inline-block; margin-top: 4px; border: 1px solid #000; padding: 2px 8px; font-weight: bold; font-size: 11px; }
-                .meta { margin-top: 4px; font-size: 11px; }
-                .section-title { margin: 10px 0 6px; font-size: 12px; font-weight: bold; text-transform: uppercase; }
-                .line { margin: 2px 0; white-space: normal; word-break: break-word; overflow-wrap: anywhere; }
-                table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-                th { border-top: 1px solid #000; border-bottom: 1px solid #000; text-align: left; padding: 6px 4px; font-size: 12px; }
-                td { padding: 6px 4px; border-bottom: 1px dashed #bbb; vertical-align: top; }
+                body { font-family: Arial, sans-serif; font-size: 11px; padding: 5px; margin: 0; color: #111; width: 76mm; }
+                .header { text-align: center; border-bottom: 2px dashed #000; padding-bottom: 4px; margin-bottom: 6px; }
+                .header h1 { margin: 0; font-size: 15px; letter-spacing: 0.3px; }
+                .order-main { font-size: 20px; font-weight: 800; line-height: 1.05; }
+                .badge { display: inline-block; margin-top: 3px; border: 1px solid #000; padding: 1px 7px; font-weight: bold; font-size: 10px; }
+                .meta { margin-top: 3px; font-size: 10px; }
+                .section-title { margin: 7px 0 4px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
+                .line { margin: 1px 0; white-space: normal; word-break: break-word; overflow-wrap: anywhere; }
+                table { width: 100%; border-collapse: collapse; margin-top: 6px; }
+                th { border-top: 1px solid #000; border-bottom: 1px solid #000; text-align: left; padding: 4px 3px; font-size: 10px; }
+                td { padding: 4px 3px; border-bottom: 1px dashed #bbb; vertical-align: top; }
                 .qty { width: 34px; }
                 .price { width: 90px; text-align: right; white-space: nowrap; font-weight: bold; }
                 .desc { white-space: normal; word-break: break-word; overflow-wrap: anywhere; }
                 .item-name { font-weight: bold; }
                 .category-row { border-bottom: 1px solid #000; font-weight: bold; text-transform: uppercase; background: #f2f2f2; }
-                .addon-line { margin-top: 3px; font-size: 11px; white-space: normal; word-break: break-word; overflow-wrap: anywhere; }
-                .item-obs { margin-top: 2px; font-size: 11px; white-space: normal; word-break: break-word; overflow-wrap: anywhere; }
-                .obs { margin-top: 10px; padding-top: 8px; border-top: 1px dashed #000; }
-                .total { margin-top: 12px; padding-top: 8px; border-top: 2px solid #000; text-align: right; font-size: 18px; font-weight: bold; }
-                .footer { text-align: center; margin-top: 8px; font-size: 11px; color: #444; }
+                .addon-line { margin-top: 2px; font-size: 10px; white-space: normal; word-break: break-word; overflow-wrap: anywhere; }
+                .item-obs { margin-top: 1px; font-size: 10px; white-space: normal; word-break: break-word; overflow-wrap: anywhere; }
+                .obs { margin-top: 7px; padding-top: 6px; border-top: 1px dashed #000; }
+                .total { margin-top: 9px; padding-top: 6px; border-top: 2px solid #000; text-align: right; font-size: 16px; font-weight: bold; }
+                .footer { text-align: center; margin-top: 6px; font-size: 10px; color: #444; }
                 @media print { body { width: 76mm; padding: 5px; } }
             </style>
         </head>
