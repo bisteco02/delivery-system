@@ -859,6 +859,7 @@ function renderizarPedidos() {
                         <p class="text-xl font-bold">Total: R$${pedido.total.toFixed(2).replace('.', ',')}</p>
                         <div class="flex gap-2 flex-wrap justify-end">
                             <button onclick="imprimirPedido('${pedido.id}')" class="px-3 py-1 border rounded text-sm flex items-center gap-1"><i class="fa fa-print"></i> Imprimir</button>
+                            <button onclick="visualizarPedidoPDF('${pedido.id}')" class="px-3 py-1 border rounded text-sm flex items-center gap-1"><i class="fa fa-file-pdf"></i> PDF</button>
                             <select onchange="atualizarStatus('${pedido.id}', this.value)" class="border border-gray-300 rounded-lg px-3 py-2">
                                 <option value="pendente" ${pedido.status === 'pendente' ? 'selected' : ''}>Pendente</option>
                                 <option value="confirmado" ${pedido.status === 'confirmado' ? 'selected' : ''}>Confirmado</option>
@@ -1683,6 +1684,20 @@ async function imprimirPedido(id) {
 
     const html = gerarHTMLImpressaoPedido(pedido, true);
     abrirPopupImpressao(html);
+}
+
+function visualizarPedidoPDF(id) {
+    const pedido = pedidos.find(p => p.id === id);
+    if (!pedido) {
+        mostrarModal('erro', 'Pedido não encontrado', 'Não foi possível localizar o pedido para gerar PDF.');
+        return;
+    }
+
+    const html = gerarHTMLImpressaoPedido(pedido, false);
+    const ok = abrirPopupImpressao(html);
+    if (ok) {
+        mostrarModal('sucesso', 'Visualização PDF aberta', 'Use Ctrl+P e escolha "Salvar como PDF".');
+    }
 }
 
 // Funções do Cardápio - Visualização (Início)
