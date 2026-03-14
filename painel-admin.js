@@ -1510,13 +1510,21 @@ function gerarHTMLImpressaoPedido(pedido, autoClose = false) {
         : 'Retirada no local';
 
     const itensHtml = (pedido.itens || []).map(item => {
-        const precoUnitario = item.preco ?? item.precoUnitario ?? 0;
-        const subtotal = Number(precoUnitario) * Number(item.quantidade || 0);
+        const precoUnitario = Number(item.preco ?? item.precoUnitario ?? 0);
+        const subtotal = Number(item.precoTotal ?? (precoUnitario * Number(item.quantidade || 0)));
+        const adicionais = Array.isArray(item.adicionais) ? item.adicionais.filter(Boolean) : [];
+        const adicionaisHtml = adicionais.length > 0
+            ? `<div class="addon-line"><strong>ADICIONAIS:</strong> <strong>${adicionais.join(' | ')}</strong></div>`
+            : '';
+
         return `
         <tr>
-            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${item.quantidade || 0}x</td>
-            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${item.nome || 'Item'}</td>
-            <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: right;">R$ ${subtotal.toFixed(2).replace('.', ',')}</td>
+            <td class="qty">${item.quantidade || 0}x</td>
+            <td class="desc">
+                <div class="item-name">${item.nome || 'Item'}</div>
+                ${adicionaisHtml}
+            </td>
+            <td class="price">R$ ${subtotal.toFixed(2).replace('.', ',')}</td>
         </tr>`;
     }).join('');
 
@@ -1530,55 +1538,58 @@ function gerarHTMLImpressaoPedido(pedido, autoClose = false) {
             <meta charset="UTF-8">
             <title>Pedido #${pedido.numero_pedido || pedido.id}</title>
             <style>
-                body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; }
-                .header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 20px; margin-bottom: 20px; }
-                .header h1 { margin: 0; font-size: 24px; }
-                .info-section { margin-bottom: 20px; padding: 10px; background-color: #f5f5f5; border-radius: 5px; }
-                .info-section h3 { margin: 0 0 10px 0; font-size: 16px; }
-                table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-                th { background-color: #333; color: white; padding: 10px; text-align: left; }
-                .total { text-align: right; font-size: 20px; font-weight: bold; margin-top: 20px; padding-top: 10px; border-top: 2px solid #000; }
-                .status { display: inline-block; padding: 5px 15px; border-radius: 20px; font-weight: bold; margin-top: 10px; }
-                .status-pendente { background-color: #fef3c7; color: #92400e; }
-                .status-confirmado { background-color: #d1fae5; color: #065f46; }
-                .status-pronto { background-color: #e9d5ff; color: #6b21a8; }
-                .status-entregue { background-color: #dbeafe; color: #1e40af; }
-                .status-cancelado { background-color: #fee2e2; color: #991b1b; }
-                @media print { body { padding: 0; } }
+                body { font-family: Arial, sans-serif; font-size: 13px; padding: 14px; margin: 0; color: #111; }
+                .header { text-align: center; border-bottom: 2px dashed #000; padding-bottom: 8px; margin-bottom: 10px; }
+                .header h1 { margin: 0; font-size: 21px; letter-spacing: 0.5px; }
+                .meta { margin-top: 4px; font-size: 12px; }
+                .section-title { margin: 10px 0 6px; font-size: 12px; font-weight: bold; text-transform: uppercase; }
+                .line { margin: 2px 0; }
+                table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+                th { border-top: 1px solid #000; border-bottom: 1px solid #000; text-align: left; padding: 6px 4px; font-size: 12px; }
+                td { padding: 6px 4px; border-bottom: 1px dashed #bbb; vertical-align: top; }
+                .qty { width: 46px; }
+                .price { width: 120px; text-align: right; white-space: nowrap; }
+                .item-name { font-weight: bold; }
+                .addon-line { margin-top: 4px; font-size: 12px; }
+                .obs { margin-top: 10px; padding-top: 8px; border-top: 1px dashed #000; }
+                .total { margin-top: 12px; padding-top: 8px; border-top: 2px solid #000; text-align: right; font-size: 18px; font-weight: bold; }
+                .footer { text-align: center; margin-top: 8px; font-size: 11px; color: #444; }
+                @media print { body { padding: 6px; } }
             </style>
         </head>
         <body>
             <div class="header">
                 <h1>Pedido #${pedido.numero_pedido || pedido.id}</h1>
-                <p>${dataFormatada}</p>
-                <span class="status status-${pedido.status}">${(pedido.status || '').toUpperCase()}</span>
+                <div class="meta">${dataFormatada}</div>
             </div>
 
-            <div class="info-section">
-                <h3>Informacoes do Cliente</h3>
-                <p><strong>Nome:</strong> ${cliente.nome || 'Nao informado'}</p>
-                <p><strong>WhatsApp:</strong> ${telefone}</p>
-                <p><strong>Entrega:</strong> ${enderecoTexto}</p>
-            </div>
+            <div class="section-title">Informacoes do Cliente</div>
+            <div class="line"><strong>Nome:</strong> ${cliente.nome || 'Nao informado'}</div>
+            <div class="line"><strong>WhatsApp:</strong> ${telefone}</div>
+
+            <div class="section-title">Tipo de Entrega</div>
+            <div class="line"><strong>${pedido.tipoEntrega === 'delivery' ? 'Delivery' : 'Retirada'}</strong></div>
+            <div class="line">${enderecoTexto}</div>
 
             <table>
                 <thead>
                     <tr>
-                        <th style="width: 80px;">Qtd</th>
+                        <th style="width: 46px;">Qtd</th>
                         <th>Item</th>
-                        <th style="width: 140px; text-align: right;">Subtotal</th>
+                        <th style="width: 120px; text-align: right;">Subtotal</th>
                     </tr>
                 </thead>
                 <tbody>${itensHtml}</tbody>
             </table>
 
             ${pedido.observacoes ? `
-                <div class="info-section">
-                    <h3>Observacoes</h3>
-                    <p>${pedido.observacoes}</p>
+                <div class="obs">
+                    <div><strong>Observacoes:</strong></div>
+                    <div>${pedido.observacoes}</div>
                 </div>` : ''}
 
             <div class="total">TOTAL: R$ ${(pedido.total || 0).toFixed(2).replace('.', ',')}</div>
+            <div class="footer">Impresso automaticamente</div>
             ${scriptAutoClose}
         </body>
         </html>`;
