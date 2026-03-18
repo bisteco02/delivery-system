@@ -1365,7 +1365,15 @@ function openSimpleModal(name, price, image) {
                   return cat.includes('pizz') && monteOk;
                 });
                 if (pizzasList.length > 0) {
-                  renderFromArray(pizzasList.map(p => ({ nome: p.name || p.nome })));
+                  renderFromArray(pizzasList.map(p => ({
+                    nome: p.name || p.nome,
+                    preco: (() => {
+                      const raw = String(p.price ?? p.preco ?? '0').trim();
+                      const normalized = raw.includes(',') ? raw.replace(/\./g, '').replace(',', '.') : raw;
+                      const parsed = Number.parseFloat(normalized);
+                      return Number.isFinite(parsed) ? parsed : 0;
+                    })()
+                  })));
                   return;
                 }
                 container.innerHTML = '<p class="text-gray-500 text-sm">Nenhum sabor disponível.</p>';
