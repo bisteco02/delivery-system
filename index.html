@@ -1353,35 +1353,53 @@ function openSimpleModal(name, price, image) {
               });
             };
 
-            // Usar sabores do cardápio de pizzas
-            (async () => {
-              try {
-                const resp = await fetchTenant('/cardapio');
-                const data = await resp.json();
-                const cardapio = Array.isArray(data.cardapio) ? data.cardapio : (Array.isArray(data) ? data : []);
-                const pizzasList = cardapio.filter(i => {
-                  const cat = (i.category || i.categoria || '').toString().toLowerCase();
-                  const monteOk = i.monteEnabled !== false;
-                  return cat.includes('pizz') && monteOk;
-                });
-                if (pizzasList.length > 0) {
-                  renderFromArray(pizzasList.map(p => ({
+            // Fonte principal: pizzas já carregadas no site (mesmos dados do painel/admin)
+            const pizzasEmMemoria = (pizzas || []).filter(p => {
+              const monteOk = p.monteEnabled !== false;
+              const preco = Number(p.preco ?? p.price ?? 0);
+              return monteOk && Number.isFinite(preco) && preco > 0;
+            });
+
+            if (pizzasEmMemoria.length > 0) {
+              renderFromArray(pizzasEmMemoria.map(p => ({ nome: p.nome || p.name, preco: Number(p.preco ?? p.price ?? 0) })));
+            } else {
+              // Fallback: buscar diretamente da API
+              (async () => {
+                try {
+                  const resp = await fetchTenant('/cardapio');
+                  const data = await resp.json();
+                  const cardapio = Array.isArray(data.cardapio) ? data.cardapio : (Array.isArray(data) ? data : []);
+                  const parsePreco = (value) => {
+                    if (typeof value === 'number') return Number.isFinite(value) ? value : 0;
+                    const match = String(value ?? '').match(/[\d.,]+/);
+                    if (!match) return 0;
+                    const raw = match[0];
+                    const normalized = raw.includes(',') ? raw.replace(/\./g, '').replace(',', '.') : raw;
+                    const parsed = Number.parseFloat(normalized);
+                    return Number.isFinite(parsed) ? parsed : 0;
+                  };
+
+                  const pizzasList = cardapio.filter(i => {
+                    const cat = (i.category || i.categoria || '').toString().toLowerCase();
+                    const monteOk = i.monteEnabled !== false;
+                    return cat.includes('pizz') && monteOk;
+                  }).map(p => ({
                     nome: p.name || p.nome,
-                    preco: (() => {
-                      const raw = String(p.price ?? p.preco ?? '0').trim();
-                      const normalized = raw.includes(',') ? raw.replace(/\./g, '').replace(',', '.') : raw;
-                      const parsed = Number.parseFloat(normalized);
-                      return Number.isFinite(parsed) ? parsed : 0;
-                    })()
-                  })));
-                  return;
+                    preco: parsePreco(p.price ?? p.preco)
+                  })).filter(p => p.preco > 0);
+
+                  if (pizzasList.length > 0) {
+                    renderFromArray(pizzasList);
+                    return;
+                  }
+
+                  container.innerHTML = '<p class="text-gray-500 text-sm">Nenhum sabor disponível.</p>';
+                } catch (err) {
+                  console.warn('Erro ao carregar sabores do servidor:', err);
+                  container.innerHTML = '<p class="text-gray-500 text-sm">Nenhum sabor disponível.</p>';
                 }
-                container.innerHTML = '<p class="text-gray-500 text-sm">Nenhum sabor disponível.</p>';
-              } catch (err) {
-                console.warn('Erro ao carregar sabores do servidor:', err);
-                container.innerHTML = '<p class="text-gray-500 text-sm">Nenhum sabor disponível.</p>';
-              }
-            })();
+              })();
+            }
           })();
 
           // Fechar modal
