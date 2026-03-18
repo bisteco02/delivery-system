@@ -1040,6 +1040,21 @@ app.get('/api/categories-merged', async (req, res) => {
 
     const merged = { ...categoriasPadrao };
 
+    customCategories.forEach(cat => {
+      if (merged[cat.key]) {
+        merged[cat.key] = { ...merged[cat.key], emoji: cat.emoji || merged[cat.key].emoji, nome: cat.nome };
+      } else {
+        merged[cat.key] = { emoji: cat.emoji || '📦', nome: cat.nome, icon: 'fa-box' };
+      }
+    });
+
+    res.json({ success: true, categories: merged });
+  } catch (error) {
+    console.error('Erro ao mesclar categorias:', error);
+    res.status(500).json({ success: false, message: 'Erro ao obter categorias' });
+  }
+});
+
     
 
 // ==================== ROTAS - ADDONS (ADICIONAIS) ====================
@@ -1126,22 +1141,6 @@ app.delete('/api/addons/:name', async (req, res) => {
   } catch (error) {
     console.error('Erro ao deletar addon:', error);
     res.status(500).json({ success: false, message: 'Erro ao deletar adicional' });
-  }
-});
-
-
-    customCategories.forEach(cat => {
-      if (merged[cat.key]) {
-        merged[cat.key] = { ...merged[cat.key], emoji: cat.emoji || merged[cat.key].emoji, nome: cat.nome };
-      } else {
-        merged[cat.key] = { emoji: cat.emoji || '📦', nome: cat.nome, icon: 'fa-box' };
-      }
-    });
-
-    res.json({ success: true, categories: merged });
-  } catch (error) {
-    console.error('Erro ao mesclar categorias:', error);
-    res.status(500).json({ success: false, message: 'Erro ao obter categorias' });
   }
 });
 
