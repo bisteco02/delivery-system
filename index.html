@@ -1336,7 +1336,9 @@ function openSimpleModal(name, price, image) {
               container.innerHTML = arr.map(a => {
                 const nome = a.nome || a.name || a.nome || a;
                 const valor = `1/2 ${nome}`;
-                return `<label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded"><input type="checkbox" class="monte-sabores mr-3 text-blue-600 focus:ring-blue-500" value="${valor.replace(/\"/g,'&quot;')}"> <span>${valor}</span></label>`;
+                const precoInteiro = Number(a.preco ?? a.price ?? 0) || 0;
+                const precoMetade = precoInteiro / 2;
+                return `<label class="flex items-center justify-between cursor-pointer hover:bg-gray-100 p-2 rounded gap-3"><span class="flex items-center"><input type="checkbox" class="monte-sabores mr-3 text-blue-600 focus:ring-blue-500" value="${valor.replace(/\"/g,'&quot;')}" data-half-price="${precoMetade.toFixed(2)}"> <span>${valor}</span></span><span class="text-sm font-semibold text-gray-700">R$ ${precoMetade.toFixed(2).replace('.', ',')}</span></label>`;
               }).join('');
               const saboresCheckboxes = modal.querySelectorAll('.monte-sabores');
               saboresCheckboxes.forEach(checkbox => {
@@ -1420,8 +1422,15 @@ function openSimpleModal(name, price, image) {
               return;
             }
 
-            // Preço fixo definido no painel admin (item da categoria monte-pizza)
-            addToCart('Monte sua pizza', Number(price) || 0, bebida, sabores, observacoes, image);
+            // Usa preço fixo do item monte-pizza; se estiver zerado, usa soma das metades.
+            const precoFixo = Number(price) || 0;
+            const precoMetades = saboresSelecionados.reduce((sum, cb) => {
+              const half = Number.parseFloat(cb.dataset.halfPrice || '0');
+              return sum + (Number.isFinite(half) ? half : 0);
+            }, 0);
+            const precoBase = precoFixo > 0 ? precoFixo : precoMetades;
+
+            addToCart('Monte sua pizza', precoBase, bebida, sabores, observacoes, image);
             modal.style.display = 'none';
             modal.remove();
           };
