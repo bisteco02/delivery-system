@@ -683,7 +683,7 @@
                   category: cat,
                   drinkType: item.drinkType || 'nenhum',
                   allowAddons: item.allowAddons !== false,
-                  monteEnabled: item.monteEnabled !== false
+                  monteEnabled: item.monteEnabled === true
                 });
               });
               
@@ -1373,7 +1373,7 @@ function openSimpleModal(name, price, image) {
                 const pizzasApi = cardapio
                   .filter(i => {
                     const cat = (i.category || i.categoria || '').toString().toLowerCase();
-                    const monteOk = i.monteEnabled !== false;
+                    const monteOk = i.monteEnabled === true;
                     return cat.includes('pizz') && monteOk;
                   })
                   .map(p => ({
@@ -1392,7 +1392,7 @@ function openSimpleModal(name, price, image) {
 
               // Fallback local apenas se API falhar
               const pizzasEmMemoria = (pizzas || [])
-                .filter(p => p.monteEnabled !== false)
+                .filter(p => p.monteEnabled === true)
                 .map(p => ({ nome: p.nome || p.name, preco: parsePreco(p.preco ?? p.price) }))
                 .filter(p => p.preco > 0);
 
