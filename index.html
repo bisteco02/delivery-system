@@ -433,6 +433,8 @@
 
         let cart = JSON.parse(localStorage.getItem('cart')) || [];
         const persistCart = () => localStorage.setItem('cart', JSON.stringify(cart));
+        const BASE_CATEGORIES = new Set(['burguers', 'pizzas', 'monte-pizza', 'porcoes', 'sobremesas', 'bebidas']);
+        let categoriasPublicasMeta = {};
         // Ensure modals are hidden on load
         document.addEventListener('DOMContentLoaded', async () => {
           // Verificar horário de funcionamento
@@ -703,6 +705,7 @@
               renderCategoria(porcoes, 'porcoes-grid');
               renderCategoria(sobremesas, 'sobremesas-grid');
               carregarBebidas();
+              renderCategoriasCustomizadas(cardapioPorCategoria);
               return true;
             }
           } catch (error) {
@@ -1940,6 +1943,47 @@ function openSimpleModal(name, price, image) {
           });
         }
 
+        function ensureCustomCategorySection(categoryKey, displayName = null) {
+          const key = String(categoryKey || '').trim();
+          if (!key || BASE_CATEGORIES.has(key)) return null;
+
+          let section = document.querySelector(`.category-section[data-category="${key}"]`);
+          if (!section) {
+            section = document.createElement('div');
+            section.className = 'category-section';
+            section.setAttribute('data-category', key);
+            section.setAttribute('data-custom-generated', 'true');
+            section.innerHTML = `
+              <div class="mx-auto max-w-7xl px-2 my-2">
+                <h2 class="font-bold text-3xl mt-4" id="${key}">${displayName || key}</h2>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-7 md:gap-10 mx-auto max-w-7xl px-2 mb-16" id="${key}-grid"></div>
+            `;
+
+            const sectionsContainer = document.querySelector('.category-section')?.parentElement;
+            if (sectionsContainer) sectionsContainer.appendChild(section);
+          } else if (displayName) {
+            const title = section.querySelector('h2');
+            if (title) title.textContent = displayName;
+          }
+
+          return `${key}-grid`;
+        }
+
+        function renderCategoriasCustomizadas(cardapioPorCategoria = {}) {
+          document.querySelectorAll('.category-section[data-custom-generated="true"]').forEach(el => el.remove());
+
+          Object.entries(cardapioPorCategoria).forEach(([catKey, items]) => {
+            if (!catKey || BASE_CATEGORIES.has(catKey)) return;
+            if (catKey === 'sabores' || catKey === 'bolinhos') return;
+            if (!Array.isArray(items) || items.length === 0) return;
+
+            const nome = categoriasPublicasMeta[catKey]?.nome || catKey;
+            const gridId = ensureCustomCategorySection(catKey, nome);
+            if (gridId) renderCategoria(items, gridId);
+          });
+        }
+
         // Inicializar filtro de categorias
         const categoryButtons = document.querySelectorAll('.category-filter-btn');
         const categorySections = document.querySelectorAll('.category-section');
@@ -1996,6 +2040,7 @@ function openSimpleModal(name, price, image) {
                 const nome = (cat && (cat.nome || cat.name || cat.label)) || slug.replace(/-/g, ' ');
                 const emoji = cat?.emoji || cat?.icon || '📦';
                 catMap.set(slug, { key: slug, nome, emoji });
+                categoriasPublicasMeta[slug] = { nome, emoji };
                 if (!order.includes(slug)) order.push(slug);
               });
             }
@@ -2175,9 +2220,16 @@ function openSimpleModal(name, price, image) {
           if (addLock) return;
           addLock = true;
           setTimeout(() => { addLock = false; }, 250);
+          const parseLinhaPreco = (linha = '') => {
+            const match = String(linha).match(/-\s*R\$\s*([\d.,]+)/i);
+            if (!match) return 0;
+            const valor = Number.parseFloat(match[1].replace('.', '').replace(',', '.'));
+            return Number.isFinite(valor) ? valor : 0;
+          };
+
+          const adicionaisList = Array.isArray(adicionais) ? adicionais : [];
           const fullName = bebida ? `${name} + ${bebida}` : name;
-          const extraPrice = (bebida ? parseFloat(bebida.split(' - R$')[1].replace(',', '.')) : 0) +
-                             adicionais.reduce((sum, add) => sum + parseFloat(add.split(' - R$')[1].replace(',', '.')), 0);
+          const extraPrice = parseLinhaPreco(bebida) + adicionaisList.reduce((sum, add) => sum + parseLinhaPreco(add), 0);
           const totalPrice = price + extraPrice;
           
           const itemDetails = {
@@ -2185,13 +2237,14 @@ function openSimpleModal(name, price, image) {
             basePrice: price,
             totalPrice: totalPrice,
             bebida: bebida,
-            adicionais: adicionais,
+            adicionais: adicionaisList,
             observacoes: observacoes,
             image: image || './assets/default.jpg',
             quantity: 1
           };
 
-          const existingItem = cart.find(item => item.name === fullName && item.observacoes === observacoes);
+          const adicionaisChave = JSON.stringify(adicionaisList);
+          const existingItem = cart.find(item => item.name === fullName && item.observacoes === observacoes && JSON.stringify(item.adicionais || []) === adicionaisChave);
           if (existingItem) {
             existingItem.quantity += 1;
           } else {
