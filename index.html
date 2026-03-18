@@ -238,10 +238,6 @@
                     <input type="radio" name="bebida" value="" class="mr-3 text-blue-600 focus:ring-blue-500" checked>
                     <span>Nenhum</span>
                   </label>
-                  <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
-                    <input type="radio" name="bebida" value="Refrigerante a sua escolha" class="mr-3 text-blue-600 focus:ring-blue-500">
-                    <span>Refrigerante a sua escolha</span>
-                  </label>
                 </div>
             </div>
 
@@ -912,41 +908,35 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
                                     <input type="radio" name="simple-bebida" value="" class="mr-3 text-blue-600 focus:ring-blue-500" checked>
                                     <span>Nenhuma</span>
                                 </label>
-                                ${drinkType === 'escolha' || drinkType === 'nenhum' ? `
-                                <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
-                                    <input type="radio" name="simple-bebida" value="Refrigerante a sua escolha" class="mr-3 text-blue-600 focus:ring-blue-500">
-                                    <span>Refrigerante a sua escolha</span>
-                                </label>
-                                ` : ''}
-                                ${drinkType === 'coca-lata' || drinkType === 'nenhum' ? `
+                                ${drinkType === 'coca-lata' || drinkType === 'nenhum' || drinkType === 'escolha' ? `
                                 <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
                                     <input type="radio" name="simple-bebida" value="Coca Cola Lata - R$5,00" class="mr-3 text-blue-600 focus:ring-blue-500">
                                     <img src="./assets/Coca Lata.jpg" alt="Coca Cola Lata" class="w-8 h-8 mr-3 rounded">
                                     <span>Coca Cola Lata - R$5,00</span>
                                 </label>
                                 ` : ''}
-                                ${drinkType === 'coca-zero-lata' || drinkType === 'nenhum' ? `
+                                ${drinkType === 'coca-zero-lata' || drinkType === 'nenhum' || drinkType === 'escolha' ? `
                                 <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
                                     <input type="radio" name="simple-bebida" value="Coca Cola Zero Lata - R$6,00" class="mr-3 text-blue-600 focus:ring-blue-500">
                                     <img src="./assets/Coca Zero Lata.png" alt="Coca Cola Zero Lata" class="w-8 h-8 mr-3 rounded">
                                     <span>Coca Cola Zero Lata - R$6,00</span>
                                 </label>
                                 ` : ''}
-                                ${drinkType === 'coca-2l' || drinkType === 'nenhum' ? `
+                                ${drinkType === 'coca-2l' || drinkType === 'nenhum' || drinkType === 'escolha' ? `
                                 <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
                                     <input type="radio" name="simple-bebida" value="Coca Cola 2L - R$14,00" class="mr-3 text-blue-600 focus:ring-blue-500">
                                     <img src="./assets/Coca 2L.jpg" alt="Coca Cola 2L" class="w-8 h-8 mr-3 rounded">
                                     <span>Coca Cola 2L - R$14,00</span>
                                 </label>
                                 ` : ''}
-                                ${drinkType === 'coca-zero-2l' || drinkType === 'nenhum' ? `
+                                ${drinkType === 'coca-zero-2l' || drinkType === 'nenhum' || drinkType === 'escolha' ? `
                                 <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
                                     <input type="radio" name="simple-bebida" value="Coca Cola Zero 2L - R$15,00" class="mr-3 text-blue-600 focus:ring-blue-500">
                                     <img src="./assets/Coca Zero 2L.png" alt="Coca Cola Zero 2L" class="w-8 h-8 mr-3 rounded">
                                     <span>Coca Cola Zero 2L - R$15,00</span>
                                 </label>
                                 ` : ''}
-                                ${drinkType === 'guarana-lata' || drinkType === 'nenhum' ? `
+                                ${drinkType === 'guarana-lata' || drinkType === 'nenhum' || drinkType === 'escolha' ? `
                                 <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
                                     <input type="radio" name="simple-bebida" value="Guaraná Antártica Lata - R$5,00" class="mr-3 text-blue-600 focus:ring-blue-500">
                                     <img src="./assets/Guarana Lata.jpg" alt="Guaraná Antártica Lata" class="w-8 h-8 mr-3 rounded">
@@ -1229,7 +1219,11 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
                 
                 // substituir bebidas se existirem
                 try {
-                  const bebidas = ativos.filter(a => (a.category||'').toString().toLowerCase().includes('beb'));
+                  const bebidas = ativos.filter(a => {
+                    const cat = (a.category || '').toString().toLowerCase();
+                    const nome = (a.name || '').toString().toLowerCase().trim();
+                    return cat.includes('beb') && nome !== 'refrigerante a sua escolha';
+                  });
                   if (bebidas.length > 0) {
                     const bebidaList = modal.querySelector('.grid.grid-cols-1');
                     if (bebidaList) {
@@ -1515,7 +1509,11 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
                 } catch (e) { console.warn('erro ao popular adicionais do combo', e); }
                 // popular bebidas (continuar usando ativos completos para bebidas)
                 try {
-                  const bebidas = ativos.filter(a => (a.category||'').toString().toLowerCase().includes('beb'));
+                  const bebidas = ativos.filter(a => {
+                    const cat = (a.category || '').toString().toLowerCase();
+                    const nome = (a.name || '').toString().toLowerCase().trim();
+                    return cat.includes('beb') && nome !== 'refrigerante a sua escolha';
+                  });
                   if (bebidas.length > 0) {
                     const radiosContainer = modal.querySelector('#combo-bebida-radios');
                     if (radiosContainer) {
@@ -1588,9 +1586,7 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
             }
             
             // Pre-selecionar a bebida baseada no tipo
-            if (bebidaType === 'escolha') {
-              document.querySelector('#customization-modal input[name="bebida"][value="Refrigerante a sua escolha"]').checked = true;
-            } else if (bebidaType !== 'nenhum') {
+            if (bebidaType !== 'nenhum' && bebidaType !== 'escolha') {
               // Mapear os tipos para os valores dos radios
               const bebidaMap = {
                 'coca-lata': 'Coca Cola Lata - R$5,00',
@@ -1611,9 +1607,7 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
             adicionaisSection.style.display = allowAdicionais ? 'block' : 'none';
             
             // Pre-selecionar a bebida baseada no tipo do item
-            if (bebidaType === 'escolha') {
-              document.querySelector('#customization-modal input[name="bebida"][value="Refrigerante a sua escolha"]').checked = true;
-            } else if (bebidaType !== 'nenhum') {
+            if (bebidaType !== 'nenhum' && bebidaType !== 'escolha') {
               // Mapear os tipos para os valores dos radios
               const bebidaMap = {
                 'coca-lata': 'Coca Cola Lata - R$5,00',
@@ -1889,7 +1883,11 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
           const bebidaBurgerSection = document.getElementById('bebida-section-burger');
           if (!bebidaBurgerSection) return;
           const radiosContainer = bebidaBurgerSection.querySelector('.grid') || bebidaBurgerSection;
-          const bebidas = (addons || []).filter(a => (a.category || '').toString().toLowerCase().includes('beb') && a.ativo !== false);
+          const bebidas = (addons || []).filter(a => {
+            const cat = (a.category || '').toString().toLowerCase();
+            const nome = (a.name || '').toString().toLowerCase().trim();
+            return cat.includes('beb') && a.ativo !== false && nome !== 'refrigerante a sua escolha';
+          });
           if (!bebidas || bebidas.length === 0) {
             // deixar as opções estáticas originais intactas
             return;
