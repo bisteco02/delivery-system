@@ -1223,7 +1223,7 @@ app.post('/api/criar-assinatura', async (req, res) => {
           title: 'Plano Pro - Padoca Delivery',
           description: 'Assinatura mensal do painel administrativo',
           quantity: 1,
-          unit_price: parseFloat(process.env.MP_PLAN_PRICE || 200),
+          unit_price: parseFloat(process.env.MP_PLAN_PRICE || 280),
           currency_id: 'BRL'
         }
       ],
