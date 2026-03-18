@@ -1336,9 +1336,7 @@ function openSimpleModal(name, price, image) {
               container.innerHTML = arr.map(a => {
                 const nome = a.nome || a.name || a.nome || a;
                 const valor = `1/2 ${nome}`;
-                const fullPrice = Number(a.preco ?? a.price ?? 0) || 0;
-                const halfPrice = fullPrice / 2;
-                return `<label class="flex items-center justify-between cursor-pointer hover:bg-gray-100 p-2 rounded gap-3"><span class="flex items-center"><input type="checkbox" class="monte-sabores mr-3 text-blue-600 focus:ring-blue-500" value="${valor.replace(/\"/g,'&quot;')}" data-half-price="${halfPrice.toFixed(2)}"> <span>${valor}</span></span><span class="text-sm font-semibold text-gray-700">R$ ${halfPrice.toFixed(2).replace('.', ',')}</span></label>`;
+                return `<label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded"><input type="checkbox" class="monte-sabores mr-3 text-blue-600 focus:ring-blue-500" value="${valor.replace(/\"/g,'&quot;')}"> <span>${valor}</span></label>`;
               }).join('');
               const saboresCheckboxes = modal.querySelectorAll('.monte-sabores');
               saboresCheckboxes.forEach(checkbox => {
