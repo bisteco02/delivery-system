@@ -428,6 +428,14 @@
                                 });
 
         let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        // Normaliza estrutura antiga do carrinho para garantir cálculos numéricos estáveis.
+        cart = (Array.isArray(cart) ? cart : []).map(item => ({
+          ...item,
+          basePrice: Number(item?.basePrice ?? 0) || 0,
+          totalPrice: Number(item?.totalPrice ?? item?.basePrice ?? 0) || 0,
+          quantity: Number(item?.quantity ?? 1) || 1,
+          adicionais: Array.isArray(item?.adicionais) ? item.adicionais : []
+        }));
         const persistCart = () => localStorage.setItem('cart', JSON.stringify(cart));
         const BASE_CATEGORIES = new Set(['burguers', 'pizzas', 'monte-pizza', 'porcoes', 'sobremesas', 'bebidas']);
         let categoriasPublicasMeta = {};
@@ -1229,7 +1237,7 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
                     if (bebidaList) {
                       bebidaList.innerHTML = `<label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border"><input type="radio" name="burger-bebida" value="" class="mr-3 text-blue-600 focus:ring-blue-500" checked><span>Nenhuma</span></label>` + bebidas.map(b => {
                         const preco = Number(b.price || 0).toFixed(2).replace('.', ',');
-                        const value = `${b.name} - R$${preco}`;
+                        const value = `${b.name} - R$ ${preco}`;
                         return `
                           <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
                             <input type="radio" name="burger-bebida" value="${value.replace(/"/g, '&quot;')}" class="mr-3 text-blue-600 focus:ring-blue-500">
@@ -1517,7 +1525,7 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
                   if (bebidas.length > 0) {
                     const radiosContainer = modal.querySelector('#combo-bebida-radios');
                     if (radiosContainer) {
-                      const html = bebidas.map(b => `<label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border"><input type="radio" name="combo-bebida" value="${(b.name + ' - R$' + Number(b.price||0).toFixed(2)).replace(/"/g,'&quot;')}" class="mr-3 text-blue-600 focus:ring-blue-500"><img src="${(b.image||'./assets/default.jpg').replace(/^\/+/, './')}" alt="${b.name}" class="w-8 h-8 mr-3 rounded" onerror="this.src='./assets/default.jpg'"> <span>${b.name} - R$ ${Number(b.price||0).toFixed(2).replace('.',',')}</span></label>`).join('');
+                      const html = bebidas.map(b => `<label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border"><input type="radio" name="combo-bebida" value="${(b.name + ' - R$ ' + Number(b.price||0).toFixed(2).replace('.', ',')).replace(/"/g,'&quot;')}" class="mr-3 text-blue-600 focus:ring-blue-500"><img src="${(b.image||'./assets/default.jpg').replace(/^\/+/, './')}" alt="${b.name}" class="w-8 h-8 mr-3 rounded" onerror="this.src='./assets/default.jpg'"> <span>${b.name} - R$ ${Number(b.price||0).toFixed(2).replace('.',',')}</span></label>`).join('');
                       radiosContainer.innerHTML = `<label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border"><input type="radio" name="combo-bebida" value="" class="mr-3 text-blue-600 focus:ring-blue-500" checked><span>Nenhum</span></label>` + html;
                     }
                   }
@@ -1896,7 +1904,7 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
           // Substituir por opções dinâmicas
           const html = bebidas.map(b => {
             const preco = Number(b.price || 0).toFixed(2).replace('.', ',');
-            const value = `${b.name} - R$${preco}`;
+            const value = `${b.name} - R$ ${preco}`;
             return `
               <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
                 <input type="radio" name="bebida" value="${value.replace(/\"/g, '&quot;')}" class="mr-3 text-blue-600 focus:ring-blue-500">
@@ -2270,20 +2278,39 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
           addLock = true;
           setTimeout(() => { addLock = false; }, 250);
           const parseLinhaPreco = (linha = '') => {
-            const match = String(linha).match(/-\s*R\$\s*([\d.,]+)/i);
-            if (!match) return 0;
-            const valor = Number.parseFloat(match[1].replace('.', '').replace(',', '.'));
+            const texto = String(linha || '');
+            const matchComRotulo = texto.match(/R\$\s*([\d.,]+)/i);
+            const matchApenasNumero = texto.match(/([\d]+(?:[.,]\d{1,2})?)\s*$/);
+            const bruto = (matchComRotulo?.[1] || matchApenasNumero?.[1] || '').trim();
+            if (!bruto) return 0;
+
+            let normalizado = bruto;
+            const temVirgula = normalizado.includes(',');
+            const temPonto = normalizado.includes('.');
+
+            if (temVirgula && temPonto) {
+              if (normalizado.lastIndexOf(',') > normalizado.lastIndexOf('.')) {
+                normalizado = normalizado.replace(/\./g, '').replace(',', '.');
+              } else {
+                normalizado = normalizado.replace(/,/g, '');
+              }
+            } else if (temVirgula) {
+              normalizado = normalizado.replace(',', '.');
+            }
+
+            const valor = Number.parseFloat(normalizado);
             return Number.isFinite(valor) ? valor : 0;
           };
 
           const adicionaisList = Array.isArray(adicionais) ? adicionais : [];
+          const basePrice = Number(price) || 0;
           const fullName = bebida ? `${name} + ${bebida}` : name;
           const extraPrice = parseLinhaPreco(bebida) + adicionaisList.reduce((sum, add) => sum + parseLinhaPreco(add), 0);
-          const totalPrice = price + extraPrice;
+          const totalPrice = basePrice + extraPrice;
           
           const itemDetails = {
             name: fullName,
-            basePrice: price,
+            basePrice: basePrice,
             totalPrice: totalPrice,
             bebida: bebida,
             adicionais: adicionaisList,
@@ -2363,7 +2390,10 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
           cartItems.innerHTML = '';
           let total = 0;
           cart.forEach(item => {
-            const itemTotal = item.totalPrice * item.quantity;
+            const unitTotal = Number(item.totalPrice ?? item.basePrice ?? 0) || 0;
+            const unitBase = Number(item.basePrice ?? 0) || 0;
+            const qty = Number(item.quantity ?? 1) || 1;
+            const itemTotal = unitTotal * qty;
             total += itemTotal;
             
             // Buscar imagem - primeiro tenta do item, depois dos arrays de produtos
@@ -2383,8 +2413,8 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
                 ${item.bebida ? `<p class="text-sm">Bebida: ${item.bebida}</p>` : ''}
                 ${item.adicionais.length > 0 ? `<p class="text-sm">Adicionais: ${item.adicionais.join(', ')}</p>` : ''}
                 ${item.observacoes ? `<p class="text-sm">Obs: ${item.observacoes}</p>` : ''}
-                <p class="text-sm text-gray-600">Preço base: R$${item.basePrice.toFixed(2).replace('.', ',')}</p>
-                <p class="text-sm font-medium">Subtotal: R$${item.totalPrice.toFixed(2).replace('.', ',')}</p>
+                <p class="text-sm text-gray-600">Preço base: R$${unitBase.toFixed(2).replace('.', ',')}</p>
+                <p class="text-sm font-medium">Subtotal: R$${unitTotal.toFixed(2).replace('.', ',')}</p>
               </div>
               <div class="flex items-center gap-2 cart-item-actions">
                 <button class="decrease-btn bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-full transition duration-200" data-name="${item.name}" data-obs="${item.observacoes}">-</button>
