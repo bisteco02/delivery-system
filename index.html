@@ -435,6 +435,7 @@
         const persistCart = () => localStorage.setItem('cart', JSON.stringify(cart));
         const BASE_CATEGORIES = new Set(['burguers', 'pizzas', 'monte-pizza', 'porcoes', 'sobremesas', 'bebidas']);
         let categoriasPublicasMeta = {};
+        let catalogoItens = {};
         // Ensure modals are hidden on load
         document.addEventListener('DOMContentLoaded', async () => {
           // Verificar horário de funcionamento
@@ -668,13 +669,14 @@
             
             if (data.success && data.cardapio && Array.isArray(data.cardapio)) {
               const cardapioPorCategoria = {};
+              const novoCatalogo = {};
               data.cardapio.forEach(item => {
                 const cat = item.category || 'outros';
                 if (!cardapioPorCategoria[cat]) {
                   cardapioPorCategoria[cat] = [];
                 }
                 const itemAtivo = item.ativo !== false && item.disponivel !== false;
-                cardapioPorCategoria[cat].push({
+                const itemMapeado = {
                   nome: item.name || item.nome,
                   preco: Number(item.price || item.preco || 0),
                   imagem: resolveImage(item.image || item.imagem),
@@ -684,8 +686,11 @@
                   drinkType: item.drinkType || 'nenhum',
                   allowAddons: item.allowAddons !== false,
                   monteEnabled: item.monteEnabled === true
-                });
+                };
+                cardapioPorCategoria[cat].push(itemMapeado);
+                if (itemMapeado.nome) novoCatalogo[itemMapeado.nome] = itemMapeado;
               });
+              catalogoItens = novoCatalogo;
               
               // Atualizar arrays globais (mantém valores anteriores se a categoria não vier do backend)
               burguers = cardapioPorCategoria['burguers'] || burguers;
@@ -821,6 +826,7 @@
           const isBebida = bebidas.some(b => b.nome === name);
           const isSobremesa = sobremesas.some(s => s.nome === name);
           const isPorcao = porcoes.some(p => p.nome === name);
+          const itemCatalogo = catalogoItens[name] || null;
           
           if (isBurger) {
             // Verificar configurações do item individual
@@ -851,18 +857,24 @@
             const allowAddons = item?.allowAddons !== false;
             
             if (drinkType !== 'nenhum' || allowAddons) {
-              openSimpleModal(name, price, image);
+              openSimpleModal(name, price, image, drinkType, allowAddons);
             } else {
               addToCart(name, price, '', [], '', image);
             }
           } else {
-            // Adiciona direto ao carrinho sem personalização
-            addToCart(name, price, '', [], '', image);
+            // Categorias novas usam modal automático quando houver personalização habilitada
+            const drinkType = itemCatalogo?.drinkType || 'nenhum';
+            const allowAddons = itemCatalogo?.allowAddons !== false;
+            if (drinkType !== 'nenhum' || allowAddons) {
+              openSimpleModal(name, price, image, drinkType, allowAddons);
+            } else {
+              addToCart(name, price, '', [], '', image);
+            }
           }
         });
 
 // Modal simples para pizza 4 pedaços, bebidas e sobremesas
-function openSimpleModal(name, price, image) {
+function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAddons = null) {
   let modal = document.getElementById('simple-modal');
   if (!modal) {
     modal = document.createElement('div');
@@ -882,8 +894,8 @@ function openSimpleModal(name, price, image) {
   else if (isSobremesa) item = sobremesas.find(s => s.nome === name);
   else if (isPorcao) item = porcoes.find(p => p.nome === name);
   
-  const drinkType = item?.drinkType || 'nenhum';
-  const allowAddons = item?.allowAddons !== false;
+  const drinkType = forceDrinkType ?? (item?.drinkType || 'nenhum');
+  const allowAddons = forceAllowAddons ?? (item?.allowAddons !== false);
   
   modal.innerHTML = `
                     <div class="modal-content modal-narrow modal-scroll">
