@@ -1422,14 +1422,8 @@ function openSimpleModal(name, price, image) {
               return;
             }
 
-            // Preço da pizza meio a meio: soma dos dois preços de meia
-            const precoMetades = saboresSelecionados.reduce((sum, cb) => {
-              const half = Number.parseFloat(cb.dataset.halfPrice || '0');
-              return sum + (Number.isFinite(half) ? half : 0);
-            }, 0);
-            const precoFinalBase = precoMetades > 0 ? precoMetades : price;
-
-            addToCart('Monte sua pizza', precoFinalBase, bebida, sabores, observacoes, image);
+            // Preço fixo definido no painel admin (item da categoria monte-pizza)
+            addToCart('Monte sua pizza', Number(price) || 0, bebida, sabores, observacoes, image);
             modal.style.display = 'none';
             modal.remove();
           };
