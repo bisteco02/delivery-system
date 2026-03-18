@@ -1716,7 +1716,7 @@ function renderizarCardapioView() {
     
     container.innerHTML = itensFiltrados.map(item => `
         <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition flex">
-            <img src="${item.image}" alt="${item.name}" class="w-24 h-24 object-cover" onerror="this.src='./assets/default.jpg'">
+            <img src="${item.image}" alt="${item.name}" class="w-24 h-24 object-cover" onerror="this.onerror=null;this.src='./assets/default.jpg'">
             <div class="flex-1 p-3 flex flex-col justify-between">
                 <div>
                     <h3 class="font-bold text-sm mb-1">${item.name}</h3>
@@ -1740,7 +1740,7 @@ function renderizarCardapioEdit() {
     container.innerHTML = itensFiltrados.map(item => `
         <div class="bg-white rounded-lg shadow-lg overflow-hidden transition hover:shadow-xl ${!item.ativo ? 'opacity-60' : ''}">
             <div class="p-4 text-center">
-                <img src="${item.image}" alt="${item.name}" class="w-32 h-32 object-cover rounded mx-auto mb-3" onerror="this.src='./assets/default.jpg'">
+                <img src="${item.image}" alt="${item.name}" class="w-32 h-32 object-cover rounded mx-auto mb-3" onerror="this.onerror=null;this.src='./assets/default.jpg'">
                 <h3 class="font-bold text-base mb-1">${item.name}</h3>
                 <p class="text-xs text-gray-500 uppercase mb-2">${getCategoryName(item.category)}</p>
                 ${!item.ativo ? '<span class="text-xs text-red-600 font-bold bg-red-50 px-2 py-1 rounded inline-block mb-2">DESABILITADO</span>' : ''}
@@ -1929,7 +1929,7 @@ function renderizarPromotionsEdit() {
         return `
             <div class="bg-white rounded-lg shadow-lg overflow-hidden transition hover:shadow-xl ${!ativo ? 'opacity-60' : ''}">
                 <div class="p-4 flex gap-3">
-                    <img src="${promo.image || './assets/default.jpg'}" alt="${promo.name || 'Promoção'}" class="w-24 h-24 object-cover rounded" onerror="this.src='./assets/default.jpg'">
+                    <img src="${promo.image || './assets/default.jpg'}" alt="${promo.name || 'Promoção'}" class="w-24 h-24 object-cover rounded" onerror="this.onerror=null;this.src='./assets/default.jpg'">
                     <div class="flex-1">
                         <div class="flex items-center gap-2 mb-1">
                             <h3 class="font-bold text-lg">${promo.name || 'Sem nome'}</h3>
@@ -2190,7 +2190,7 @@ function renderizarChecklistCombo() {
                                ${isSelected ? 'checked' : ''} 
                                onchange="toggleComboItem({name: '${item.name.replace(/'/g, "\\'")}', price: ${item.price}, image: '${item.image.replace(/'/g, "\\'")}'}, this.checked); event.stopPropagation();"
                                class="w-5 h-5 rounded cursor-pointer accent-orange-500" />
-                        <img src="${imageSrc}" alt="${item.name}" class="w-full h-20 object-cover rounded" onerror="this.src='./assets/default.jpg'">
+                        <img src="${imageSrc}" alt="${item.name}" class="w-full h-20 object-cover rounded" onerror="this.onerror=null;this.src='./assets/default.jpg'">
                         <div class="text-center w-full px-1">
                             <div class="font-semibold text-gray-800 text-xs leading-tight mb-1" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${item.name}</div>
                             <div class="text-xs text-orange-600 font-bold">R$ ${Number(item.price).toFixed(2).replace('.', ',')}</div>
