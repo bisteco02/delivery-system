@@ -980,8 +980,9 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
                       // Para bebidas, não há bebida extra nem observações
                       addToCart(name, price, '', [], '', image);
                     } else {
-                      if (drinkType !== 'nenhum') {
-                        bebida = modal.querySelector('input[name="simple-bebida"]:checked').value;
+                      const bebidaSelecionada = modal.querySelector('input[name="simple-bebida"]:checked');
+                      if (bebidaSelecionada) {
+                        bebida = bebidaSelecionada.value || '';
                       }
                       if (!isBebida && allowAddons) {
                         observacoes = document.getElementById('simple-observacoes').value;
