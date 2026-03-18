@@ -1099,22 +1099,31 @@ async function verificarStatusPlano() {
         const subscriptions = localStorage.getItem('userSubscription');
         if (subscriptions) {
             const sub = JSON.parse(subscriptions);
+            const status = String(sub.status || '').toLowerCase();
+            const planoAtivo = status === 'active' || status === 'authorized';
             
-            // Mostrar plano ativo
-            document.getElementById('plan-status-active').classList.remove('hidden');
-            document.getElementById('plan-status-inactive').classList.add('hidden');
-            document.getElementById('btn-cancelar-plano').classList.remove('hidden');
+            if (planoAtivo) {
+                // Mostrar plano ativo
+                document.getElementById('plan-status-active').classList.remove('hidden');
+                document.getElementById('plan-status-inactive').classList.add('hidden');
+                document.getElementById('btn-cancelar-plano').classList.remove('hidden');
+            } else {
+                // Assinatura pendente/cancelada: mantém edição habilitada
+                document.getElementById('plan-status-inactive').classList.remove('hidden');
+                document.getElementById('plan-status-active').classList.add('hidden');
+                document.getElementById('btn-cancelar-plano').classList.add('hidden');
+            }
             
             // Atualizar próxima cobrança
             const nextBilling = new Date(sub.nextBilling);
             document.getElementById('next-billing').textContent = nextBilling.toLocaleDateString('pt-BR');
             
-            // Desabilitar inputs
-            document.getElementById('card-number').disabled = true;
-            document.getElementById('card-expiry').disabled = true;
-            document.getElementById('card-cvv').disabled = true;
-            document.getElementById('card-holder').disabled = true;
-            document.getElementById('billing-email').disabled = true;
+            // Só desabilita quando realmente ativo
+            document.getElementById('card-number').disabled = planoAtivo;
+            document.getElementById('card-expiry').disabled = planoAtivo;
+            document.getElementById('card-cvv').disabled = planoAtivo;
+            document.getElementById('card-holder').disabled = planoAtivo;
+            document.getElementById('billing-email').disabled = planoAtivo;
             
             // Preencher dados
             document.getElementById('card-holder').value = sub.cardHolder || '';
@@ -1163,49 +1172,6 @@ async function iniciarAssinatura() {
         return;
     }
     
-    if (!cardNumber || cardNumber.length < 13) {
-        erro('Número do cartão inválido (mínimo 13 dígitos)');
-        document.getElementById('card-number').focus();
-        return;
-    }
-    
-    // Validar com algoritmo de Luhn
-    if (!validarLuhn(cardNumber)) {
-        erro('Número do cartão inválido. Verifique os dígitos.');
-        document.getElementById('card-number').focus();
-        return;
-    }
-    
-    if (!cardExpiry || cardExpiry.length !== 5 || !cardExpiry.includes('/')) {
-        erro('Validade inválida (formato: MM/AA)');
-        document.getElementById('card-expiry').focus();
-        return;
-    }
-    
-    // Validar se a data não está expirada
-    const [mes, ano] = cardExpiry.split('/');
-    const mesNum = parseInt(mes);
-    const anoNum = parseInt('20' + ano);
-    if (mesNum < 1 || mesNum > 12) {
-        erro('Mês inválido (01-12)');
-        document.getElementById('card-expiry').focus();
-        return;
-    }
-    
-    const agora = new Date();
-    const dataCartao = new Date(anoNum, mesNum - 1);
-    if (dataCartao < agora) {
-        erro('Cartão expirado. Por favor, atualize.');
-        document.getElementById('card-expiry').focus();
-        return;
-    }
-    
-    if (!cardCvv || cardCvv.length < 3 || cardCvv.length > 4) {
-        erro('CVV inválido (3-4 dígitos)');
-        document.getElementById('card-cvv').focus();
-        return;
-    }
-    
     if (!cardHolder || cardHolder.length < 3) {
         erro('Nome do titular inválido');
         document.getElementById('card-holder').focus();
@@ -1237,8 +1203,8 @@ async function iniciarAssinatura() {
             localStorage.setItem('userSubscription', JSON.stringify({
                 email: billingEmail,
                 cardHolder: cardHolder,
-                    amount: 280,
-                status: 'active',
+                amount: 280,
+                status: 'pending',
                 createdAt: new Date().toISOString(),
                 nextBilling: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
             }));

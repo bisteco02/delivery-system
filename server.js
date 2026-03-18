@@ -1199,118 +1199,143 @@ app.delete('/api/item-promotions/:itemName', async (req, res) => {
 
 // ==================== MERCADO PAGO - ASSINATURA ====================
 
-// Criar preferência de assinatura no Mercado Pago
+const subscriptionsFile = path.join(__dirname, 'subscriptions.json');
+
+function lerSubscriptions() {
+  try {
+    if (!fsSync.existsSync(subscriptionsFile)) return [];
+    const raw = fsSync.readFileSync(subscriptionsFile, 'utf-8');
+    return JSON.parse(raw || '[]');
+  } catch (error) {
+    console.error('Erro ao ler subscriptions.json:', error.message);
+    return [];
+  }
+}
+
+function salvarSubscriptions(subscriptions) {
+  fsSync.writeFileSync(subscriptionsFile, JSON.stringify(subscriptions, null, 2));
+}
+
+function upsertSubscription(subscriptionData) {
+  const subscriptions = lerSubscriptions();
+  const idx = subscriptions.findIndex((s) => String(s.id) === String(subscriptionData.id));
+
+  if (idx >= 0) {
+    subscriptions[idx] = { ...subscriptions[idx], ...subscriptionData, updatedAt: new Date().toISOString() };
+  } else {
+    subscriptions.push({ ...subscriptionData, createdAt: new Date().toISOString() });
+  }
+
+  salvarSubscriptions(subscriptions);
+}
+
+function requestMercadoPago(method, apiPath, accessToken, body = null) {
+  return new Promise((resolve, reject) => {
+    const payload = body ? JSON.stringify(body) : null;
+    const options = {
+      hostname: 'api.mercadopago.com',
+      path: apiPath,
+      method,
+      headers: {
+        Authorization: `Bearer ${accessToken}`
+      }
+    };
+
+    if (payload) {
+      options.headers['Content-Type'] = 'application/json';
+      options.headers['Content-Length'] = Buffer.byteLength(payload);
+    }
+
+    const reqMp = https.request(options, (mpRes) => {
+      let data = '';
+      mpRes.on('data', (chunk) => {
+        data += chunk;
+      });
+      mpRes.on('end', () => {
+        try {
+          const parsed = data ? JSON.parse(data) : {};
+          if (mpRes.statusCode >= 200 && mpRes.statusCode < 300) {
+            resolve(parsed);
+            return;
+          }
+
+          const msg = parsed?.message || parsed?.error || `Mercado Pago HTTP ${mpRes.statusCode}`;
+          reject(new Error(msg));
+        } catch (err) {
+          reject(new Error(`Falha ao interpretar resposta do Mercado Pago: ${err.message}`));
+        }
+      });
+    });
+
+    reqMp.on('error', (err) => reject(err));
+
+    if (payload) reqMp.write(payload);
+    reqMp.end();
+  });
+}
+
+// Criar assinatura recorrente no Mercado Pago
 app.post('/api/criar-assinatura', async (req, res) => {
   try {
-    const { email, cardNumber, cardExpiry, cardCvv, cardHolder } = req.body;
+    const { email, cardHolder } = req.body;
     const accessToken = process.env.MP_ACCESS_TOKEN;
+    const planPrice = Number(process.env.MP_PLAN_PRICE || 280);
     
-    if (!email || !cardNumber || !cardExpiry || !cardCvv || !cardHolder) {
-      return res.status(400).json({ success: false, error: 'Dados incompletos' });
+    if (!email) {
+      return res.status(400).json({ success: false, error: 'Email é obrigatório' });
+    }
+
+    if (!Number.isFinite(planPrice) || planPrice <= 0) {
+      return res.status(500).json({ success: false, error: 'MP_PLAN_PRICE inválido' });
     }
     
     if (!accessToken) {
       return res.status(500).json({ success: false, error: 'Credenciais Mercado Pago não configuradas' });
     }
 
-    console.log('💳 Criando preferência recorrente para:', email);
+    console.log('💳 Criando assinatura recorrente para:', email, 'valor:', planPrice);
     
-    // Criar preferência recorrente (assinatura mensal)
-    const preferenceData = {
-      items: [
-        {
-          id: 'plan_pro',
-          title: 'Plano Pro - Padoca Delivery',
-          description: 'Assinatura mensal do painel administrativo',
-          quantity: 1,
-          unit_price: parseFloat(process.env.MP_PLAN_PRICE || 280),
-          currency_id: 'BRL'
-        }
-      ],
-      payer: {
-        name: cardHolder,
-        email: email
+    // Assinatura mensal recorrente via preapproval
+    const preapprovalData = {
+      reason: 'Plano Pro - Padoca Delivery',
+      external_reference: `padoca-plan-${Date.now()}`,
+      payer_email: email,
+      back_url: `https://${DOMAIN}/painel-admin.html?subscription=success`,
+      notification_url: `https://${DOMAIN}/api/mercadopago/webhook`,
+      auto_recurring: {
+        frequency: 1,
+        frequency_type: 'months',
+        transaction_amount: planPrice,
+        currency_id: 'BRL'
       },
-      back_urls: {
-        success: `https://${DOMAIN}/painel-admin.html?payment=success`,
-        failure: `https://${DOMAIN}/painel-admin.html?payment=failure`,
-        pending: `https://${DOMAIN}/painel-admin.html?payment=pending`
-      },
-      auto_return: 'approved'
+      status: 'pending'
     };
 
-    // Fazer chamada HTTP para API do Mercado Pago
-    const https = require('https');
-    const url = new URL('https://api.mercadopago.com/checkout/preferences');
-    
-    const postData = JSON.stringify(preferenceData);
-    
-    const options = {
-      hostname: 'api.mercadopago.com',
-      path: '/checkout/preferences',
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Content-Length': postData.length,
-        'Authorization': `Bearer ${accessToken}`
-      }
-    };
+    const result = await requestMercadoPago('POST', '/preapproval', accessToken, preapprovalData);
 
-    const httpReq = https.request(options, (httpRes) => {
-      let data = '';
+    if (!result?.id || !result?.init_point) {
+      throw new Error('Mercado Pago não retornou init_point da assinatura');
+    }
 
-      httpRes.on('data', (chunk) => {
-        data += chunk;
-      });
-
-      httpRes.on('end', () => {
-        try {
-          const result = JSON.parse(data);
-          
-          if (result.id) {
-            console.log('✅ Preferência criada:', result.id);
-            
-            // Salvar dados da assinatura
-            const subscriptionsFile = path.join(__dirname, 'subscriptions.json');
-            let subscriptions = [];
-            
-            if (fsSync.existsSync(subscriptionsFile)) {
-              const fileData = fsSync.readFileSync(subscriptionsFile, 'utf-8');
-              subscriptions = JSON.parse(fileData || '[]');
-            }
-            
-            subscriptions.push({
-              id: result.id,
-              email,
-              cardHolder,
-              amount: 200,
-              status: 'pending',
-              createdAt: new Date().toISOString()
-            });
-            
-            fsSync.writeFileSync(subscriptionsFile, JSON.stringify(subscriptions, null, 2));
-            
-            res.json({ 
-              success: true,
-              init_point: result.init_point
-            });
-          } else {
-            throw new Error(result.message || 'Erro ao criar preferência');
-          }
-        } catch (err) {
-          console.error('❌ Erro ao processar resposta:', err.message);
-          res.status(500).json({ success: false, error: err.message });
-        }
-      });
+    upsertSubscription({
+      id: result.id,
+      email,
+      cardHolder: cardHolder || '',
+      amount: planPrice,
+      status: result.status || 'pending',
+      nextPaymentDate: result.next_payment_date || null,
+      initPoint: result.init_point,
+      type: 'recorrente'
     });
 
-    httpReq.on('error', (error) => {
-      console.error('❌ Erro na requisição:', error.message);
-      res.status(500).json({ success: false, error: error.message });
-    });
+    console.log('✅ Assinatura recorrente criada:', result.id);
 
-    httpReq.write(postData);
-    httpReq.end();
+    res.json({
+      success: true,
+      init_point: result.init_point,
+      subscription_id: result.id,
+      recurring: true
+    });
     
   } catch (error) {
     console.error('❌ Erro ao criar assinatura:', error.message);
@@ -1330,17 +1355,39 @@ app.get('/api/mercadopago/webhook', (req, res) => {
 app.post('/api/mercadopago/webhook', async (req, res) => {
   try {
     const { type, data, action } = req.body;
+    const accessToken = process.env.MP_ACCESS_TOKEN;
     
     console.log('📬 Webhook Mercado Pago recebido:', { type, action, dataId: data?.id });
     
-    // Processar notificação
+    // Atualizar status local da assinatura com dados oficiais do MP
+    const isSubscriptionEvent = (
+      type === 'subscription' ||
+      type === 'preapproval' ||
+      type === 'subscription_preapproval' ||
+      String(action || '').toLowerCase().includes('preapproval')
+    );
+
+    if (isSubscriptionEvent && data?.id && accessToken) {
+      try {
+        const sub = await requestMercadoPago('GET', `/preapproval/${data.id}`, accessToken);
+        upsertSubscription({
+          id: sub.id,
+          email: sub.payer_email,
+          amount: sub.auto_recurring?.transaction_amount,
+          status: sub.status,
+          nextPaymentDate: sub.next_payment_date || null,
+          externalReference: sub.external_reference || null,
+          lastWebhookAt: new Date().toISOString(),
+          type: 'recorrente'
+        });
+        console.log(`🔄 Assinatura atualizada via webhook: ${sub.id} -> ${sub.status}`);
+      } catch (subError) {
+        console.error('❌ Falha ao sincronizar assinatura no webhook:', subError.message);
+      }
+    }
+
     if (type === 'payment' && data?.id) {
       console.log(`✅ Pagamento notificado: ${data.id}`);
-      // Aqui você pode salvar no banco ou arquivo
-    } else if (type === 'plan' && data?.id) {
-      console.log(`📋 Plano notificado: ${data.id}`);
-    } else if (type === 'subscription' && data?.id) {
-      console.log(`🔄 Assinatura notificada: ${data.id}`);
     }
     
     // Sempre responder com 200 OK
@@ -1355,13 +1402,26 @@ app.post('/api/mercadopago/webhook', async (req, res) => {
 // Verificar status de assinatura
 app.get('/api/verificar-assinatura', async (req, res) => {
   try {
-    // Por enquanto retorna sempre ativo
-    // Futuramente verificar no Mercado Pago
+    const subscriptions = lerSubscriptions();
+    const latest = subscriptions.length > 0 ? subscriptions[subscriptions.length - 1] : null;
+    const status = String(latest?.status || '').toLowerCase();
+    const active = status === 'authorized' || status === 'active';
+
+    let nextBilling = null;
+    if (latest?.nextPaymentDate) {
+      const dt = new Date(latest.nextPaymentDate);
+      if (!Number.isNaN(dt.getTime())) {
+        nextBilling = dt.toLocaleDateString('pt-BR');
+      }
+    }
+
     res.json({ 
-      active: true,
+      active,
       planName: 'Plano Pro',
-      price: process.env.MP_PLAN_PRICE || 200,
-      nextBilling: '21 de março de 2026'
+      price: Number(process.env.MP_PLAN_PRICE || 280),
+      nextBilling,
+      status: latest?.status || 'none',
+      recurring: true
     });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
