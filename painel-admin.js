@@ -1237,7 +1237,7 @@ async function iniciarAssinatura() {
             localStorage.setItem('userSubscription', JSON.stringify({
                 email: billingEmail,
                 cardHolder: cardHolder,
-                amount: 200,
+                    amount: 280,
                 status: 'active',
                 createdAt: new Date().toISOString(),
                 nextBilling: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
