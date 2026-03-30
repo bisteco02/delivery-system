@@ -79,7 +79,7 @@
                 Padoca do Dedé
             </h1>
             <div class="flex flex-col sm:flex-row gap-2 sm:gap-3 mt-1">
-              <a id="btn-whatsapp" href="https://wa.me/5563999999999" target="_blank" rel="noopener" class="px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold shadow-md flex items-center gap-2 justify-center">
+              <a id="btn-whatsapp" href="https://wa.me/556398421031" target="_blank" rel="noopener" class="px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold shadow-md flex items-center gap-2 justify-center">
                 <i class="fab fa-whatsapp text-lg"></i>
                 Falar no WhatsApp
               </a>
@@ -582,8 +582,10 @@
           if (companyName && titulo) titulo.textContent = companyName;
 
           const btnZap = document.getElementById('btn-whatsapp');
-          if (contactWhatsapp && btnZap) {
-            const numero = (contactWhatsapp || '').replace(/\D/g, '');
+          // Usar companyWhatsapp se existir, senão tentar contactWhatsapp
+          const whatsappNumber = companyData.companyWhatsapp || contactWhatsapp;
+          if (whatsappNumber && btnZap) {
+            const numero = (whatsappNumber || '').replace(/\D/g, '');
             const linkZap = numero ? `https://wa.me/55${numero}` : null;
             if (linkZap) btnZap.href = linkZap;
           }
