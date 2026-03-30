@@ -1006,6 +1006,16 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
           return key;
         }
 
+        function isAddonActive(addon) {
+          const v = addon?.ativo;
+          if (typeof v === 'string') {
+            const s = v.trim().toLowerCase();
+            if (s === 'true' || s === '1' || s === 'yes' || s === 'sim') return true;
+            if (s === 'false' || s === '0' || s === 'no' || s === 'nao' || s === 'não') return false;
+          }
+          return v === true || v === 1;
+        }
+
         function isDrinkAddonCategory(categoryKey) {
           const key = normalizeAddonCategoryKey(categoryKey);
           return key.includes('beb') || key.includes('drink');
@@ -1014,7 +1024,7 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
         function filterAddonsByTargetCategory(addons, targetCategory) {
           const target = normalizeAddonCategoryKey(targetCategory);
           return (addons || []).filter(a => {
-            if (a?.ativo === false) return false;
+            if (!isAddonActive(a)) return false;
             const cat = normalizeAddonCategoryKey(a?.category);
             if (isDrinkAddonCategory(cat)) return false;
             return cat === 'geral' || cat === target;
@@ -1095,7 +1105,7 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
               const resp = await fetchTenant('/addons');
               const json = await resp.json();
               const lista = (json && Array.isArray(json.addons)) ? json.addons : (Array.isArray(json) ? json : []);
-              const ativos = lista.filter(a => a.ativo !== false);
+              const ativos = lista.filter(isAddonActive);
               if (ativos.length === 0) return;
               
               // Popular adicionais (não bebidas)
@@ -1218,7 +1228,7 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
                 const resp = await fetchTenant('/addons');
                 const json = await resp.json();
                 const lista = (json && Array.isArray(json.addons)) ? json.addons : (Array.isArray(json) ? json : []);
-                const ativos = lista.filter(a => a.ativo !== false);
+                const ativos = lista.filter(isAddonActive);
                 if (ativos.length === 0) return;
                 
                 // Popular adicionais (não bebidas)
@@ -1521,7 +1531,7 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
                 const resp = await fetchTenant('/addons');
                 const json = await resp.json();
                 const lista = (json && Array.isArray(json.addons)) ? json.addons : (Array.isArray(json) ? json : []);
-                const ativos = lista.filter(a => a.ativo !== false);
+                const ativos = lista.filter(isAddonActive);
                 const comboTargetCategory = /pizza/i.test(String(name || '')) ? 'pizzas' : 'burguers';
                 let adicionaisForModal = filterAddonsByTargetCategory(ativos, comboTargetCategory);
                 // popular adicionais
@@ -1863,7 +1873,7 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
             return;
           }
           // Filtrar apenas adicionais ativos (não bebidas)
-          const ativos = addons.filter(a => a?.ativo !== false && !isDrinkAddonCategory(a?.category));
+          const ativos = addons.filter(a => isAddonActive(a) && !isDrinkAddonCategory(a?.category));
           if (!ativos || ativos.length === 0) {
             container.innerHTML = '<p class="text-gray-500 text-sm">Nenhum adicional ativo.</p>';
             return;
@@ -1904,7 +1914,7 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
           const bebidas = (addons || []).filter(a => {
             const cat = (a.category || '').toString().toLowerCase();
             const nome = (a.name || '').toString().toLowerCase().trim();
-            return cat.includes('beb') && a.ativo !== false && nome !== 'refrigerante a sua escolha';
+            return cat.includes('beb') && isAddonActive(a) && nome !== 'refrigerante a sua escolha';
           });
           if (!bebidas || bebidas.length === 0) {
             // deixar as opções estáticas originais intactas

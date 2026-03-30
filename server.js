@@ -540,6 +540,18 @@ async function salvarAddons(addons) {
   await fs.writeFile(ADDONS_FILE, JSON.stringify(addons || [], null, 2));
 }
 
+function parseAtivo(value, defaultValue = true) {
+  if (value === undefined || value === null) return defaultValue;
+  if (typeof value === 'boolean') return value;
+  if (typeof value === 'number') return value === 1;
+  if (typeof value === 'string') {
+    const s = value.trim().toLowerCase();
+    if (['true', '1', 'yes', 'sim'].includes(s)) return true;
+    if (['false', '0', 'no', 'nao', 'não'].includes(s)) return false;
+  }
+  return defaultValue;
+}
+
 // Utilidades
 const normalizarWhatsapp = (valor = '') => (valor || '').replace(/\D/g, '');
 
@@ -1061,7 +1073,10 @@ app.get('/api/categories-merged', async (req, res) => {
 
 app.get('/api/addons', async (req, res) => {
   try {
-    const addons = await lerAddons();
+    const addons = (await lerAddons()).map(a => ({
+      ...a,
+      ativo: parseAtivo(a?.ativo, false)
+    }));
     res.json({ success: true, addons });
   } catch (error) {
     console.error('Erro ao buscar addons:', error);
@@ -1089,7 +1104,7 @@ app.post('/api/addons', async (req, res) => {
     if (!allowed.has(chosen)) return res.status(400).json({ success: false, message: 'Categoria inválida' });
 
     const addons = await lerAddons();
-    addons.push({ name, price: Number(price) || 0, category: chosen, ativo: ativo !== false });
+    addons.push({ name, price: Number(price) || 0, category: chosen, ativo: parseAtivo(ativo, true) });
     await salvarAddons(addons);
     res.json({ success: true, message: 'Adicional criado', addons });
   } catch (error) {
@@ -1121,7 +1136,13 @@ app.put('/api/addons/:name', async (req, res) => {
       if (!allowed.has(body.category)) return res.status(400).json({ success: false, message: 'Categoria inválida' });
     }
 
-    addons[idx] = { ...addons[idx], ...body };
+    addons[idx] = {
+      ...addons[idx],
+      ...body,
+      ativo: body && Object.prototype.hasOwnProperty.call(body, 'ativo')
+        ? parseAtivo(body.ativo, addons[idx].ativo !== false)
+        : addons[idx].ativo
+    };
     await salvarAddons(addons);
     res.json({ success: true, message: 'Adicional atualizado', addons });
   } catch (error) {
