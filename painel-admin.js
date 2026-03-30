@@ -1492,7 +1492,12 @@ function gerarHTMLImpressaoPedido(pedido, autoClose = false) {
             const subtotal = Number(item.precoTotal ?? (precoUnitario * Number(item.quantidade || 0)));
             const adicionais = Array.isArray(item.adicionais) ? item.adicionais.filter(Boolean) : [];
             const adicionaisHtml = adicionais.length > 0
-                ? `<div class="addon-line"><strong>ADICIONAIS:</strong> <strong>${adicionais.join(' | ')}</strong></div>`
+                ? `
+                    <div class="addon-block">
+                        <div class="addon-title">ADICIONAIS</div>
+                        ${adicionais.map(addon => `<div class="addon-item">+ ${addon}</div>`).join('')}
+                    </div>
+                  `
                 : '';
             const itemObs = item.observacoes ? `<div class="item-obs"><strong>Obs item:</strong> ${item.observacoes}</div>` : '';
 
@@ -1546,8 +1551,10 @@ function gerarHTMLImpressaoPedido(pedido, autoClose = false) {
                 .desc { white-space: normal; word-break: break-word; overflow-wrap: anywhere; }
                 .item-name { font-weight: bold; }
                 .category-row { border-bottom: 1px solid #000; font-weight: bold; text-transform: uppercase; background: #f2f2f2; }
-                .addon-line { margin-top: 2px; font-size: 10px; white-space: normal; word-break: break-word; overflow-wrap: anywhere; }
-                .item-obs { margin-top: 1px; font-size: 10px; white-space: normal; word-break: break-word; overflow-wrap: anywhere; }
+                .addon-block { margin-top: 6px; margin-bottom: 5px; padding: 5px 6px; border: 1px dashed #000; background: #f6f6f6; white-space: normal; word-break: break-word; overflow-wrap: anywhere; }
+                .addon-title { font-size: 10px; font-weight: 800; letter-spacing: 0.4px; margin-bottom: 2px; }
+                .addon-item { font-size: 12px; font-weight: 700; line-height: 1.35; margin-top: 2px; }
+                .item-obs { margin-top: 3px; font-size: 10px; white-space: normal; word-break: break-word; overflow-wrap: anywhere; }
                 .obs { margin-top: 7px; padding-top: 6px; border-top: 1px dashed #000; }
                 .total { margin-top: 9px; padding-top: 6px; border-top: 2px solid #000; text-align: right; font-size: 16px; font-weight: bold; }
                 .footer { text-align: center; margin-top: 6px; font-size: 10px; color: #444; }
