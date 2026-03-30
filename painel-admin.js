@@ -4409,7 +4409,9 @@ async function salvarAddon() {
     try {
         if (editingAddonIndex >= 0) {
             // Editar existente
-            const response = await fetchTenant(`/addons/${encodeURIComponent(addons[editingAddonIndex].name)}`, {
+            const currentAddon = addons[editingAddonIndex] || {};
+            const categoryQuery = encodeURIComponent(currentAddon.category || '');
+            const response = await fetchTenant(`/addons/${encodeURIComponent(currentAddon.name)}?category=${categoryQuery}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(addonData)
@@ -4454,7 +4456,8 @@ async function toggleAddonAtivo(index) {
     const novoStatus = !addon.ativo;
     
     try {
-        const response = await fetchTenant(`/addons/${encodeURIComponent(addon.name)}`, {
+        const categoryQuery = encodeURIComponent(addon.category || '');
+        const response = await fetchTenant(`/addons/${encodeURIComponent(addon.name)}?category=${categoryQuery}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ ...addon, ativo: novoStatus })
@@ -4484,7 +4487,8 @@ async function deletarAddon(index) {
     }
     
     try {
-        const response = await fetchTenant(`/addons/${encodeURIComponent(addon.name)}`, {
+        const categoryQuery = encodeURIComponent(addon.category || '');
+        const response = await fetchTenant(`/addons/${encodeURIComponent(addon.name)}?category=${categoryQuery}`, {
             method: 'DELETE'
         });
         const data = await parseJSONResponse(response);

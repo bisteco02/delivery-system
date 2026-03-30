@@ -552,6 +552,34 @@ function parseAtivo(value, defaultValue = true) {
   return defaultValue;
 }
 
+function normalizeAddonText(value = '') {
+  return String(value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase();
+}
+
+function normalizeAddonCategory(value = '') {
+  const key = normalizeAddonText(value || 'geral');
+  if (key === 'burger' || key === 'burgers') return 'burguers';
+  if (key === 'pizza') return 'pizzas';
+  return key;
+}
+
+function findAddonIndex(addons, name, categoryHint = '') {
+  const wantedName = normalizeAddonText(name);
+  const wantedCat = normalizeAddonCategory(categoryHint || '');
+
+  if (wantedCat) {
+    const exact = addons.findIndex(a => normalizeAddonText(a?.name) === wantedName && normalizeAddonCategory(a?.category) === wantedCat);
+    if (exact >= 0) return exact;
+  }
+
+  return addons.findIndex(a => normalizeAddonText(a?.name) === wantedName);
+}
+
 // Utilidades
 const normalizarWhatsapp = (valor = '') => (valor || '').replace(/\D/g, '');
 
@@ -1116,9 +1144,10 @@ app.post('/api/addons', async (req, res) => {
 app.put('/api/addons/:name', async (req, res) => {
   try {
     const { name } = req.params;
+    const categoryHint = req.query.category || req.body?.category || '';
     const body = req.body;
     const addons = await lerAddons();
-    const idx = addons.findIndex(a => a.name === name);
+    const idx = findAddonIndex(addons, name, categoryHint);
     if (idx === -1) return res.status(404).json({ success: false, message: 'Adicional não encontrado' });
     // Se categoria for alterada, validar
     if (body && body.category) {
@@ -1154,9 +1183,11 @@ app.put('/api/addons/:name', async (req, res) => {
 app.delete('/api/addons/:name', async (req, res) => {
   try {
     const { name } = req.params;
+    const categoryHint = req.query.category || '';
     let addons = await lerAddons();
-    const novo = addons.filter(a => a.name !== name);
-    if (novo.length === addons.length) return res.status(404).json({ success: false, message: 'Adicional não encontrado' });
+    const idx = findAddonIndex(addons, name, categoryHint);
+    if (idx === -1) return res.status(404).json({ success: false, message: 'Adicional não encontrado' });
+    const novo = addons.slice(0, idx).concat(addons.slice(idx + 1));
     await salvarAddons(novo);
     res.json({ success: true, message: 'Adicional deletado', addons: novo });
   } catch (error) {
