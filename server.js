@@ -119,7 +119,7 @@ app.use(express.static('.'));
 app.use('/uploads', express.static(uploadsDir));
 
 app.get('/favicon.ico', (req, res) => {
-  res.status(204).end();
+  res.sendFile(path.join(__dirname, 'assets', 'padoca-logo.jpg'));
 });
 
 // Login e autenticação
