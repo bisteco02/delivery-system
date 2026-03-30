@@ -1021,13 +1021,14 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
           return key.includes('beb') || key.includes('drink');
         }
 
-        function filterAddonsByTargetCategory(addons, targetCategory) {
+        function filterAddonsByTargetCategory(addons, targetCategory, includeGeneral = false) {
           const target = normalizeAddonCategoryKey(targetCategory);
           return (addons || []).filter(a => {
             if (!isAddonActive(a)) return false;
             const cat = normalizeAddonCategoryKey(a?.category);
             if (isDrinkAddonCategory(cat)) return false;
-            return cat === 'geral' || cat === target;
+            if (includeGeneral && cat === 'geral') return true;
+            return cat === target;
           });
         }
 
@@ -1110,7 +1111,7 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
               
               // Popular adicionais (não bebidas)
               try {
-                const adicionaisForModal = filterAddonsByTargetCategory(ativos, 'pizzas');
+                const adicionaisForModal = filterAddonsByTargetCategory(ativos, 'pizzas', false);
                 const adicionaisList = modal.querySelector('#pizza8-adicionais-list');
                 if (adicionaisList && adicionaisForModal.length > 0) {
                   adicionaisList.innerHTML = adicionaisForModal.map(a => {
@@ -1233,7 +1234,7 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
                 
                 // Popular adicionais (não bebidas)
                 try {
-                  const adicionaisForModal = filterAddonsByTargetCategory(ativos, 'burguers');
+                  const adicionaisForModal = filterAddonsByTargetCategory(ativos, 'burguers', false);
                   const adicionaisList = document.getElementById('burger-adicionais-list');
                   if (adicionaisList && adicionaisForModal.length > 0) {
                     adicionaisList.innerHTML = adicionaisForModal.map(a => {
@@ -1533,7 +1534,7 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
                 const lista = (json && Array.isArray(json.addons)) ? json.addons : (Array.isArray(json) ? json : []);
                 const ativos = lista.filter(isAddonActive);
                 const comboTargetCategory = /pizza/i.test(String(name || '')) ? 'pizzas' : 'burguers';
-                let adicionaisForModal = filterAddonsByTargetCategory(ativos, comboTargetCategory);
+                let adicionaisForModal = filterAddonsByTargetCategory(ativos, comboTargetCategory, false);
                 // popular adicionais
                 try {
                   const adicionaisList = modal.querySelector('#combo-adicionais-list');

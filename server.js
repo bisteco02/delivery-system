@@ -1128,7 +1128,7 @@ app.post('/api/addons', async (req, res) => {
       if (Array.isArray(custom)) custom.forEach(c => c.key && allowed.add(c.key));
     } catch (e) {}
 
-    const chosen = category || 'geral';
+    const chosen = normalizeAddonCategory(category || 'geral');
     if (!allowed.has(chosen)) return res.status(400).json({ success: false, message: 'Categoria inválida' });
 
     const addons = await lerAddons();
@@ -1162,7 +1162,9 @@ app.put('/api/addons/:name', async (req, res) => {
         if (Array.isArray(custom)) custom.forEach(c => c.key && allowed.add(c.key));
       } catch (e) {}
 
-      if (!allowed.has(body.category)) return res.status(400).json({ success: false, message: 'Categoria inválida' });
+      const normalizedBodyCategory = normalizeAddonCategory(body.category);
+      if (!allowed.has(normalizedBodyCategory)) return res.status(400).json({ success: false, message: 'Categoria inválida' });
+      body.category = normalizedBodyCategory;
     }
 
     addons[idx] = {
