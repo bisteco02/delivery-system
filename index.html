@@ -998,6 +998,29 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
                   };
         }
 
+        function normalizeAddonCategoryKey(category) {
+          let key = (category || 'geral').toString().toLowerCase().trim();
+          if (key === 'burger' || key === 'burgers') key = 'burguers';
+          if (key === 'pizza') key = 'pizzas';
+          if (key === 'drink' || key === 'drinks' || key === 'bebida') key = 'bebidas';
+          return key;
+        }
+
+        function isDrinkAddonCategory(categoryKey) {
+          const key = normalizeAddonCategoryKey(categoryKey);
+          return key.includes('beb') || key.includes('drink');
+        }
+
+        function filterAddonsByTargetCategory(addons, targetCategory) {
+          const target = normalizeAddonCategoryKey(targetCategory);
+          return (addons || []).filter(a => {
+            if (a?.ativo === false) return false;
+            const cat = normalizeAddonCategoryKey(a?.category);
+            if (isDrinkAddonCategory(cat)) return false;
+            return cat === 'geral' || cat === target;
+          });
+        }
+
         // Modal de personalização para pizza 8 pedaços (estilo hambúrguer)
         function openPizza8Modal(name, price, image) {
             let modal = document.getElementById('pizza8-modal');
@@ -1077,10 +1100,7 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
               
               // Popular adicionais (não bebidas)
               try {
-                const adicionaisForModal = ativos.filter(a => {
-                  const cat = (a.category || '').toString().toLowerCase();
-                  return !cat.includes('beb') && !cat.includes('drink');
-                });
+                const adicionaisForModal = filterAddonsByTargetCategory(ativos, 'pizzas');
                 const adicionaisList = modal.querySelector('#pizza8-adicionais-list');
                 if (adicionaisList && adicionaisForModal.length > 0) {
                   adicionaisList.innerHTML = adicionaisForModal.map(a => {
@@ -1203,10 +1223,7 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
                 
                 // Popular adicionais (não bebidas)
                 try {
-                  const adicionaisForModal = ativos.filter(a => {
-                    const cat = (a.category || '').toString().toLowerCase();
-                    return !cat.includes('beb') && !cat.includes('drink');
-                  });
+                  const adicionaisForModal = filterAddonsByTargetCategory(ativos, 'burguers');
                   const adicionaisList = document.getElementById('burger-adicionais-list');
                   if (adicionaisList && adicionaisForModal.length > 0) {
                     adicionaisList.innerHTML = adicionaisForModal.map(a => {
@@ -1505,10 +1522,8 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
                 const json = await resp.json();
                 const lista = (json && Array.isArray(json.addons)) ? json.addons : (Array.isArray(json) ? json : []);
                 const ativos = lista.filter(a => a.ativo !== false);
-                let adicionaisForModal = ativos.filter(a => {
-                  const cat = (a.category || '').toString().toLowerCase();
-                  return !cat.includes('beb') && !cat.includes('drink');
-                });
+                const comboTargetCategory = /pizza/i.test(String(name || '')) ? 'pizzas' : 'burguers';
+                let adicionaisForModal = filterAddonsByTargetCategory(ativos, comboTargetCategory);
                 // popular adicionais
                 try {
                   const adicionaisList = modal.querySelector('#combo-adicionais-list');
@@ -1848,21 +1863,15 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
             return;
           }
           // Filtrar apenas adicionais ativos (não bebidas)
-          const ativos = addons.filter(a => {
-            if (a.ativo === false) return false;
-            const cat = (a.category || '').toString().toLowerCase();
-            return !cat.includes('beb') && !cat.includes('drink');
-          });
+          const ativos = addons.filter(a => a?.ativo !== false && !isDrinkAddonCategory(a?.category));
           if (!ativos || ativos.length === 0) {
             container.innerHTML = '<p class="text-gray-500 text-sm">Nenhum adicional ativo.</p>';
             return;
           }
           // Agrupar por categoria e renderizar seções
-          const normalize = (s) => (s || 'geral').toString().toLowerCase().trim();
           const groups = {};
           ativos.forEach(a => {
-            let key = normalize(a.category);
-            if (key === 'burgers' || key === 'burger') key = 'burguers';
+            let key = normalizeAddonCategoryKey(a.category);
             if (!groups[key]) groups[key] = { key, display: a.category || 'geral', items: [] };
             groups[key].items.push(a);
           });
