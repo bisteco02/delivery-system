@@ -195,9 +195,20 @@ function iniciarAutoRefresh() {
         const tab = document.getElementById('tab-pedidos');
         const visivel = tab && !tab.classList.contains('hidden');
         if (visivel) {
-            carregarPedidos({ preserveScroll: true });
+            carregarPedidos({ preserveScroll: true, preserveDetails: true });
         }
     }, AUTO_REFRESH_MS);
+}
+
+function capturarPedidosMinimizadosNaTela() {
+    const minimized = new Set();
+    document.querySelectorAll('[id^="pedido-detalhes-"]').forEach(el => {
+        if (el.classList.contains('hidden')) {
+            const id = el.id.replace('pedido-detalhes-', '');
+            minimized.add(String(id));
+        }
+    });
+    return minimized;
 }
 
 function capturarEstadoScrollPedidos() {
@@ -473,7 +484,9 @@ function setTab(tabId, addon = null, index = -1) {
 // Definição global de carregarPedidos — garante que a chamada esteja disponível
 async function carregarPedidos(options = {}) {
     const preserveScroll = !!options.preserveScroll;
+    const preserveDetails = !!options.preserveDetails;
     const scrollState = preserveScroll ? capturarEstadoScrollPedidos() : null;
+    const minimizedSnapshot = preserveDetails ? capturarPedidosMinimizadosNaTela() : null;
 
     try {
         console.log('🔍 Auto-refresh interval ID:', autoRefreshInterval);
@@ -501,6 +514,11 @@ async function carregarPedidos(options = {}) {
         if (result.success) {
             const anteriores = new Set(pedidos.map(p => p.id));
             pedidos = result.pedidos.sort((a, b) => new Date(b.data) - new Date(a.data));
+
+            // Mantém estado expandido/minimizado dos cards no auto-refresh.
+            if (minimizedSnapshot) {
+                saveMinimizedSet(minimizedSnapshot);
+            }
 
             // Sempre renderizar e atualizar KPIs
             renderizarPedidos();
