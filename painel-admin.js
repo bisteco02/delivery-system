@@ -195,9 +195,40 @@ function iniciarAutoRefresh() {
         const tab = document.getElementById('tab-pedidos');
         const visivel = tab && !tab.classList.contains('hidden');
         if (visivel) {
-            carregarPedidos();
+            carregarPedidos({ preserveScroll: true });
         }
     }, AUTO_REFRESH_MS);
+}
+
+function capturarEstadoScrollPedidos() {
+    const tabPedidos = document.getElementById('tab-pedidos');
+    const pedidosContainer = document.getElementById('pedidos-container');
+
+    return {
+        windowScrollY: window.scrollY || window.pageYOffset || 0,
+        tabScrollTop: tabPedidos ? tabPedidos.scrollTop : null,
+        containerScrollTop: pedidosContainer ? pedidosContainer.scrollTop : null
+    };
+}
+
+function restaurarEstadoScrollPedidos(scrollState) {
+    if (!scrollState) return;
+
+    const tabPedidos = document.getElementById('tab-pedidos');
+    const pedidosContainer = document.getElementById('pedidos-container');
+
+    // Duplo RAF ajuda a esperar o repaint após re-render dos cards
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            window.scrollTo(0, scrollState.windowScrollY || 0);
+            if (tabPedidos && typeof scrollState.tabScrollTop === 'number') {
+                tabPedidos.scrollTop = scrollState.tabScrollTop;
+            }
+            if (pedidosContainer && typeof scrollState.containerScrollTop === 'number') {
+                pedidosContainer.scrollTop = scrollState.containerScrollTop;
+            }
+        });
+    });
 }
 
 function pararAutoRefresh() {
@@ -440,14 +471,19 @@ function setTab(tabId, addon = null, index = -1) {
 }
 
 // Definição global de carregarPedidos — garante que a chamada esteja disponível
-async function carregarPedidos() {
+async function carregarPedidos(options = {}) {
+    const preserveScroll = !!options.preserveScroll;
+    const scrollState = preserveScroll ? capturarEstadoScrollPedidos() : null;
+
     try {
         console.log('🔍 Auto-refresh interval ID:', autoRefreshInterval);
         console.trace('📍 Chamado de:'); // Mostra de onde foi chamado
 
-        document.getElementById('loading').classList.remove('hidden');
-        document.getElementById('pedidos-container').classList.add('hidden');
-        document.getElementById('empty-state').classList.add('hidden');
+        if (!preserveScroll) {
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('pedidos-container').classList.add('hidden');
+            document.getElementById('empty-state').classList.add('hidden');
+        }
 
         console.log('📡 Fazendo requisição para:', `${API_BASE}/pedidos`);
         console.log('📋 Headers:', tenantHeaders);
@@ -520,6 +556,9 @@ async function carregarPedidos() {
         mostrarConfirmacao('❌ Erro', `Erro ao conectar: ${error.message}`);
     } finally {
         document.getElementById('loading').classList.add('hidden');
+        if (preserveScroll) {
+            restaurarEstadoScrollPedidos(scrollState);
+        }
     }
 }
 
