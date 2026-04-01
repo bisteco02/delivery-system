@@ -1656,7 +1656,6 @@ function gerarHTMLImpressaoPedido(pedido, autoClose = false) {
             ${pagamentoHtml}
 
             <div class="total">TOTAL: R$ ${(pedido.total || 0).toFixed(2).replace('.', ',')}</div>
-            <div class="footer">Impresso automaticamente</div>
             ${scriptAutoClose}
         </body>
         </html>`;
