@@ -67,6 +67,18 @@ body {
     overflow-y: auto;
 }
 
+/* Botões fixos no final do modal */
+.modal-actions {
+    position: sticky;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    padding-top: 12px;
+    border-top: 1px solid #e5e7eb;
+    z-index: 100;
+}
+
 #cart-modal .modal-content {
     padding: 24px;
     max-height: 85vh;
