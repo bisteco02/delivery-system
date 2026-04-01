@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Exemplo Impressao Pedido</title>
+  <style>
+    body {
+      margin: 0;
+      background: #e5e7eb;
+      font-family: Arial, sans-serif;
+      color: #111;
+      display: flex;
+      justify-content: center;
+      padding: 24px;
+    }
+    .paper {
+      width: 76mm;
+      background: #fff;
+      padding: 5px;
+      box-shadow: 0 2px 14px rgba(0, 0, 0, 0.15);
+      font-size: 11px;
+    }
+    .header { text-align: center; border-bottom: 2px dashed #000; padding-bottom: 4px; margin-bottom: 6px; }
+    .header h1 { margin: 0; font-size: 15px; letter-spacing: 0.3px; }
+    .order-main { font-size: 20px; font-weight: 800; line-height: 1.05; }
+    .badge { display: inline-block; margin-top: 3px; border: 1px solid #000; padding: 1px 7px; font-weight: bold; font-size: 10px; }
+    .meta { margin-top: 3px; font-size: 10px; }
+    .section-title { margin: 7px 0 4px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
+    .line { margin: 1px 0; white-space: normal; word-break: break-word; overflow-wrap: anywhere; }
+    table { width: 100%; border-collapse: collapse; margin-top: 6px; }
+    th { border-top: 1px solid #000; border-bottom: 1px solid #000; text-align: left; padding: 4px 3px; font-size: 10px; }
+    td { padding: 4px 3px; border-bottom: 1px dashed #bbb; vertical-align: top; }
+    .qty { width: 34px; }
+    .price { width: 90px; text-align: right; white-space: nowrap; font-weight: bold; }
+    .desc { white-space: normal; word-break: break-word; overflow-wrap: anywhere; }
+    .item-name { font-weight: bold; }
+    .addon-block { margin-top: 6px; margin-bottom: 5px; padding: 5px 6px; border: 1px dashed #000; background: #f6f6f6; white-space: normal; word-break: break-word; overflow-wrap: anywhere; }
+    .addon-title { font-size: 10px; font-weight: 800; letter-spacing: 0.4px; margin-bottom: 2px; }
+    .addon-item { font-size: 12px; font-weight: 700; line-height: 1.35; margin-top: 2px; }
+    .item-obs { margin-top: 4px; padding: 3px 5px; border-left: 2px solid #000; background: #efefef; font-size: 12px; font-weight: 700; line-height: 1.35; white-space: normal; word-break: break-word; overflow-wrap: anywhere; }
+    .obs { margin-top: 6px; margin-bottom: 6px; padding: 4px 5px; border: 1px dashed #666; background: #fafafa; font-size: 10px; line-height: 1.3; }
+    .obs > div:first-child { font-weight: 700; font-size: 10.5px; margin-bottom: 2px; text-transform: uppercase; }
+    .obs > div:last-child { font-weight: 500; word-break: break-word; overflow-wrap: anywhere; }
+    .total { margin-top: 12px; padding-top: 6px; border-top: 2px solid #000; text-align: right; font-size: 16px; font-weight: bold; }
+    .footer { text-align: center; margin-top: 6px; font-size: 10px; color: #444; }
+    .actions {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 14px;
+    }
+    button {
+      border: 1px solid #111;
+      background: #fff;
+      color: #111;
+      font-size: 12px;
+      font-weight: bold;
+      padding: 6px 10px;
+      cursor: pointer;
+    }
+    @media print {
+      @page { size: 80mm auto; margin: 0; }
+      body { background: #fff; padding: 0; }
+      .paper { box-shadow: none; width: 76mm; }
+      .actions { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div>
+    <div class="paper">
+      <div class="header">
+        <h1>Padoca do Dede</h1>
+        <div class="order-main">#123456</div>
+        <div class="badge">DELIVERY</div>
+        <div class="meta">19:42 | 31/03/2026 19:42:10</div>
+      </div>
+
+      <div class="section-title">Informacoes do Cliente</div>
+      <div class="line"><strong>Nome:</strong> Joao Silva</div>
+      <div class="line"><strong>WhatsApp:</strong> (63) 98144-3459</div>
+
+      <div class="section-title">Tipo de Entrega</div>
+      <div class="line"><strong>Delivery</strong></div>
+      <div class="line">Rua Exemplo, 123 - Centro</div>
+
+      <div class="obs">
+        <div>Observacoes:</div>
+        <div>Entregar sem bater no portao, chamar no WhatsApp.</div>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 34px;">Qtd</th>
+            <th>Item</th>
+            <th style="width: 90px; text-align: right;">Subtotal</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="qty">1x</td>
+            <td class="desc">
+              <div class="item-name">CORINGA</div>
+              <div class="addon-block">
+                <div class="addon-title">ADICIONAIS</div>
+                <div class="addon-item">+ Bacon extra</div>
+                <div class="addon-item">+ Cheddar</div>
+              </div>
+              <div class="item-obs"><strong>Obs item:</strong> sem cebola</div>
+            </td>
+            <td class="price">R$ 33,00</td>
+          </tr>
+          <tr>
+            <td class="qty">2x</td>
+            <td class="desc">
+              <div class="item-name">Coca Cola Lata</div>
+            </td>
+            <td class="price">R$ 10,00</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="line" style="margin-top: 7px;"><strong>Pagamento:</strong> PIX | Troco: R$ 0,00</div>
+
+      <div class="total">TOTAL: R$ 43,00</div>
+      <div class="footer">Impresso automaticamente</div>
+    </div>
+
+    <div class="actions">
+      <button onclick="window.print()">Imprimir Exemplo</button>
+    </div>
+  </div>
+</body>
+</html>

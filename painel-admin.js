@@ -1622,7 +1622,7 @@ function gerarHTMLImpressaoPedido(pedido, autoClose = false) {
         </head>
         <body>
             <div class="header">
-                <h1>PADoca do Dede</h1>
+                <h1>Padoca do Dede</h1>
                 <div class="order-main">#${pedidoShort}</div>
                 <div class="badge">${tipoEntregaLabel}</div>
                 <div class="meta">${horaPedido} | ${dataFormatada}</div>
