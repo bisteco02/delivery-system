@@ -1611,10 +1611,10 @@ function gerarHTMLImpressaoPedido(pedido, autoClose = false) {
                 .addon-block { margin-top: 6px; margin-bottom: 5px; padding: 5px 6px; border: 1px dashed #000; background: #f6f6f6; white-space: normal; word-break: break-word; overflow-wrap: anywhere; }
                 .addon-title { font-size: 10px; font-weight: 800; letter-spacing: 0.4px; margin-bottom: 2px; }
                 .addon-item { font-size: 12px; font-weight: 700; line-height: 1.35; margin-top: 2px; }
-                .item-obs { margin-top: 3px; font-size: 10px; white-space: normal; word-break: break-word; overflow-wrap: anywhere; }
-                .obs { margin-top: 15px; padding: 10px; border-top: 2px solid #000; border-bottom: 2px solid #000; background: #fff9e6; font-size: 13px; line-height: 1.5; }
-                .obs > div:first-child { font-weight: 900; font-size: 14px; letter-spacing: 0.5px; margin-bottom: 6px; text-transform: uppercase; }
-                .obs > div:last-child { font-weight: 600; word-break: break-word; overflow-wrap: anywhere; }
+                .item-obs { margin-top: 4px; padding: 3px 5px; border-left: 2px solid #000; background: #efefef; font-size: 12px; font-weight: 700; line-height: 1.35; white-space: normal; word-break: break-word; overflow-wrap: anywhere; }
+                .obs { margin-top: 6px; margin-bottom: 6px; padding: 4px 5px; border: 1px dashed #666; background: #fafafa; font-size: 10px; line-height: 1.3; }
+                .obs > div:first-child { font-weight: 700; font-size: 10.5px; margin-bottom: 2px; text-transform: uppercase; }
+                .obs > div:last-child { font-weight: 500; word-break: break-word; overflow-wrap: anywhere; }
                 .total { margin-top: 12px; padding-top: 6px; border-top: 2px solid #000; text-align: right; font-size: 16px; font-weight: bold; }
                 .footer { text-align: center; margin-top: 6px; font-size: 10px; color: #444; }
                 @media print { body { width: 76mm; padding: 5px; } }
@@ -1636,6 +1636,12 @@ function gerarHTMLImpressaoPedido(pedido, autoClose = false) {
             <div class="line"><strong>${pedido.tipoEntrega === 'delivery' ? 'Delivery' : 'Retirada'}</strong></div>
             <div class="line">${enderecoTexto}</div>
 
+            ${pedido.observacoes ? `
+                <div class="obs">
+                    <div>Observacoes:</div>
+                    <div>${pedido.observacoes}</div>
+                </div>` : ''}
+
             <table>
                 <thead>
                     <tr>
@@ -1646,12 +1652,6 @@ function gerarHTMLImpressaoPedido(pedido, autoClose = false) {
                 </thead>
                 <tbody>${itensHtml}</tbody>
             </table>
-
-            ${pedido.observacoes ? `
-                <div class="obs">
-                    <div><strong>Observacoes:</strong></div>
-                    <div>${pedido.observacoes}</div>
-                </div>` : ''}
 
             ${pagamentoHtml}
 
