@@ -87,6 +87,7 @@ const ADMIN_USUARIO = process.env.ADMIN_USER || 'admin';
 const ADMIN_SENHA_HASH = bcrypt.hashSync(process.env.ADMIN_PASS || 'admin123', 10);
 const ADMIN_DOMAIN = process.env.ADMIN_DOMAIN || '';
 const ADMIN_BYPASS_TOKEN = process.env.ADMIN_TOKEN || '';
+const BUSINESS_TIMEZONE = process.env.BUSINESS_TIMEZONE || 'America/Araguaina';
 
 app.use((req, res, next) => {
   const adminPaths = ['/painel-admin.html', '/painel-admin.js', '/painel-admin.css', '/painel-admin'];
@@ -608,14 +609,39 @@ function obterHorarioDia(dia, schedule = null) {
   return horarios[dia] || null;
 }
 
+function obterDataLocal(agora = new Date(), timeZone = BUSINESS_TIMEZONE) {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone,
+    hour12: false,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    weekday: 'short'
+  }).formatToParts(agora);
+
+  const map = Object.fromEntries(parts.map(p => [p.type, p.value]));
+  const weekdayMap = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+
+  return {
+    day: weekdayMap[map.weekday] ?? agora.getDay(),
+    hour: Number(map.hour || 0),
+    minute: Number(map.minute || 0),
+    second: Number(map.second || 0)
+  };
+}
+
 function expedienteFechado(agora = new Date(), schedule = null) {
-  const dia = agora.getDay();
+  const local = obterDataLocal(agora);
+  const dia = local.day;
   const horarioDia = obterHorarioDia(dia, schedule);
   if (!horarioDia || horarioDia.fechado || !horarioDia.abertura || !horarioDia.fechamento) return true;
 
   const [abHora, abMin] = horarioDia.abertura.split(':').map(Number);
   const [fechHora, fechMin] = horarioDia.fechamento.split(':').map(Number);
-  const horaAtual = agora.getHours() + agora.getMinutes() / 60 + agora.getSeconds() / 3600;
+  const horaAtual = local.hour + local.minute / 60 + local.second / 3600;
   const horaAbertura = abHora + abMin / 60;
   const horaFechamento = fechHora + fechMin / 60;
 
@@ -623,7 +649,7 @@ function expedienteFechado(agora = new Date(), schedule = null) {
     return horaAtual < horaAbertura || horaAtual >= horaFechamento;
   }
 
-  return horaAtual < horaAbertura && horaAtual >= horaFechamento;
+  return horaAtual < horaAbertura || horaAtual >= horaFechamento;
 }
 
 // API - Login

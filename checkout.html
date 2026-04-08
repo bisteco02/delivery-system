@@ -1124,6 +1124,7 @@
         let pixExpiraEm = null;
         let bairrosTaxas = siteConfig.deliveryFeesByNeighborhood;
         let taxaEntrega = 0;
+        const BUSINESS_TIMEZONE = 'America/Araguaina';
 
         // Carregar configurações
         async function carregarConfiguracoes() {
@@ -1175,6 +1176,30 @@
             };
         }
 
+        function obterDataLocal(agora = new Date(), timeZone = BUSINESS_TIMEZONE) {
+            const parts = new Intl.DateTimeFormat('en-CA', {
+                timeZone,
+                hour12: false,
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                weekday: 'short'
+            }).formatToParts(agora);
+
+            const map = Object.fromEntries(parts.map(p => [p.type, p.value]));
+            const weekdayMap = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+
+            return {
+                day: weekdayMap[map.weekday] ?? agora.getDay(),
+                hour: Number(map.hour || 0),
+                minute: Number(map.minute || 0),
+                second: Number(map.second || 0)
+            };
+        }
+
         function pedidoForaDoHorario() {
             const padrao = [
                 { dayIndex: 0, open: '18:30', close: '23:00', closed: false },
@@ -1186,12 +1211,13 @@
                 { dayIndex: 6, open: '18:30', close: '23:00', closed: false }
             ];
             const agora = new Date();
-            const horario = normalizarHorarioDia(agora.getDay(), siteConfig.businessHoursSchedule.length ? siteConfig.businessHoursSchedule : padrao);
+            const local = obterDataLocal(agora);
+            const horario = normalizarHorarioDia(local.day, siteConfig.businessHoursSchedule.length ? siteConfig.businessHoursSchedule : padrao);
             if (!horario || horario.fechado || !horario.abertura || !horario.fechamento) return true;
 
             const [abHora, abMin] = horario.abertura.split(':').map(Number);
             const [fechHora, fechMin] = horario.fechamento.split(':').map(Number);
-            const horaAtual = agora.getHours() + agora.getMinutes() / 60 + agora.getSeconds() / 3600;
+            const horaAtual = local.hour + local.minute / 60 + local.second / 3600;
             const horaAbertura = abHora + abMin / 60;
             const horaFechamento = fechHora + fechMin / 60;
 
@@ -1199,7 +1225,7 @@
                 return horaAtual < horaAbertura || horaAtual >= horaFechamento;
             }
 
-            return horaAtual < horaAbertura && horaAtual >= horaFechamento;
+            return horaAtual < horaAbertura || horaAtual >= horaFechamento;
         }
 
 
