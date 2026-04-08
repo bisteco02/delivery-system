@@ -1672,6 +1672,100 @@ function abrirPopupImpressao(html) {
     return true;
 }
 
+function gerarHTMLFechamentoCaixa(pedidosDia, dataReferencia) {
+    const escapeHtml = (valor = '') => String(valor)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/\"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+
+    const formatarMoeda = (valor = 0) => `R$ ${Number(valor || 0).toFixed(2).replace('.', ',')}`;
+
+    const totalGeral = pedidosDia.reduce((acc, pedido) => acc + Number(pedido.total || 0), 0);
+
+    const pedidosHtml = pedidosDia.map((pedido, index) => {
+        const dataPedido = new Date(pedido.data);
+        const hora = dataPedido.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        const nomeCliente = escapeHtml(pedido?.cliente?.nome || 'Nao informado');
+        const itens = Array.isArray(pedido.itens) ? pedido.itens : [];
+
+        const itensHtml = itens.map(item => {
+            const nomeItem = escapeHtml(item?.nome || 'Item');
+            const quantidade = Number(item?.quantidade || 0);
+            return `<li>${quantidade}x ${nomeItem}</li>`;
+        }).join('');
+
+        return `
+            <div class="pedido">
+                <div class="pedido-header">
+                    <div><strong>${index + 1}. ${nomeCliente}</strong></div>
+                    <div>#${escapeHtml(pedido.id || '')} | ${hora}</div>
+                </div>
+                <ul class="itens">${itensHtml || '<li>Sem itens</li>'}</ul>
+                <div class="pedido-total">Total do pedido: <strong>${formatarMoeda(pedido.total || 0)}</strong></div>
+            </div>
+        `;
+    }).join('');
+
+    return `<!DOCTYPE html>
+    <html lang="pt-br">
+    <head>
+        <meta charset="UTF-8">
+        <title>Fechamento de Caixa - ${dataReferencia}</title>
+        <style>
+            @page { size: 80mm auto; margin: 0; }
+            body { font-family: Arial, sans-serif; font-size: 11px; padding: 6px; margin: 0; color: #111; width: 76mm; }
+            .header { text-align: center; border-bottom: 2px dashed #000; padding-bottom: 6px; margin-bottom: 8px; }
+            .header h1 { margin: 0; font-size: 15px; }
+            .meta { margin-top: 4px; font-size: 10px; }
+            .pedido { border-bottom: 1px dashed #bbb; padding: 6px 0; }
+            .pedido-header { display: flex; justify-content: space-between; gap: 8px; font-size: 10px; margin-bottom: 4px; }
+            .itens { margin: 0; padding-left: 14px; }
+            .itens li { margin: 2px 0; line-height: 1.3; }
+            .pedido-total { margin-top: 4px; font-size: 11px; }
+            .footer-total { margin-top: 8px; padding-top: 6px; border-top: 2px solid #000; text-align: right; font-size: 14px; font-weight: 700; }
+            .resumo { margin-top: 6px; font-size: 11px; }
+        </style>
+        <script>
+            window.onload = function() {
+                window.print();
+            };
+        </script>
+    </head>
+    <body>
+        <div class="header">
+            <h1>Padoca do Dede</h1>
+            <div><strong>Fechamento do Caixa</strong></div>
+            <div class="meta">Data: ${dataReferencia}</div>
+        </div>
+
+        <div class="resumo"><strong>Total de pedidos:</strong> ${pedidosDia.length}</div>
+
+        ${pedidosHtml}
+
+        <div class="footer-total">TOTAL DO DIA: ${formatarMoeda(totalGeral)}</div>
+    </body>
+    </html>`;
+}
+
+function imprimirFechamentoCaixaDia() {
+    const dataHoje = new Date().toLocaleDateString('pt-BR');
+    const pedidosDia = (pedidos || []).filter(p => new Date(p.data).toLocaleDateString('pt-BR') === dataHoje);
+
+    if (!pedidosDia.length) {
+        mostrarModal('aviso', 'Fechamento do caixa', 'Nao ha pedidos para hoje.');
+        return;
+    }
+
+    const html = gerarHTMLFechamentoCaixa(pedidosDia, dataHoje);
+    const abriu = abrirPopupImpressao(html);
+
+    if (!abriu) {
+        mostrarModal('erro', 'Impressao bloqueada', 'Permita pop-ups para imprimir o fechamento de caixa.');
+    }
+}
+
 async function obterConfigImpressora() {
     try {
         const response = await fetch('/api/printer/config');
@@ -3173,6 +3267,11 @@ document.addEventListener('DOMContentLoaded', async function() {
             
             atualizarRelatoriosPorData(dataInicio, dataFim);
         });
+    }
+
+    const btnFechamentoCaixa = document.getElementById('btn-fechamento-caixa');
+    if (btnFechamentoCaixa) {
+        btnFechamentoCaixa.addEventListener('click', imprimirFechamentoCaixaDia);
     }
 
     const addPromotionManualBtn = document.getElementById('add-promotion-manual-btn');
