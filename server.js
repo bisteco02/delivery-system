@@ -593,15 +593,37 @@ const horarios = {
   6: { nome: 'Sábado', abertura: '18:30', fechamento: '23:00' }
 };
 
-function expedienteFechado(agora = new Date()) {
-  const dia = agora.getDay();
-  const horarioDia = horarios[dia];
-  if (!horarioDia || horarioDia.fechado) return true;
+function obterHorarioDia(dia, schedule = null) {
+  if (Array.isArray(schedule)) {
+    const item = schedule.find(h => Number(h?.dayIndex) === dia);
+    if (item) {
+      return {
+        abertura: item.open || null,
+        fechamento: item.close || null,
+        fechado: !!item.closed
+      };
+    }
+  }
 
+  return horarios[dia] || null;
+}
+
+function expedienteFechado(agora = new Date(), schedule = null) {
+  const dia = agora.getDay();
+  const horarioDia = obterHorarioDia(dia, schedule);
+  if (!horarioDia || horarioDia.fechado || !horarioDia.abertura || !horarioDia.fechamento) return true;
+
+  const [abHora, abMin] = horarioDia.abertura.split(':').map(Number);
   const [fechHora, fechMin] = horarioDia.fechamento.split(':').map(Number);
-  const horaAtual = agora.getHours() + agora.getMinutes() / 60;
+  const horaAtual = agora.getHours() + agora.getMinutes() / 60 + agora.getSeconds() / 3600;
+  const horaAbertura = abHora + abMin / 60;
   const horaFechamento = fechHora + fechMin / 60;
-  return horaAtual > horaFechamento;
+
+  if (horaAbertura <= horaFechamento) {
+    return horaAtual < horaAbertura || horaAtual >= horaFechamento;
+  }
+
+  return horaAtual < horaAbertura && horaAtual >= horaFechamento;
 }
 
 // API - Login
@@ -626,6 +648,19 @@ app.post('/api/login', (req, res) => {
 app.post('/api/pedidos', async (req, res) => {
   try {
     const { cliente, itens, total, endereco, bairro, taxaEntrega, tipoEntrega, observacoes, pagamento } = req.body;
+
+    const agora = new Date();
+    const companyData = await lerCompanyData();
+    const schedule = Array.isArray(companyData.businessHoursSchedule) && companyData.businessHoursSchedule.length > 0
+      ? companyData.businessHoursSchedule
+      : null;
+
+    if (expedienteFechado(agora, schedule)) {
+      return res.status(403).json({
+        success: false,
+        message: 'Fora do horário de funcionamento. Os pedidos abrem a partir das 18:30.'
+      });
+    }
 
     if (!cliente || !cliente.whatsapp || !cliente.nome || !itens || itens.length === 0) {
       return res.status(400).json({ 
@@ -823,7 +858,12 @@ app.get('/api/pedidos/:whatsapp', async (req, res) => {
     const pedidos = await lerPedidos();
     const agora = new Date();
 
-    if (expedienteFechado(agora)) {
+    const companyData = await lerCompanyData();
+    const schedule = Array.isArray(companyData.businessHoursSchedule) && companyData.businessHoursSchedule.length > 0
+      ? companyData.businessHoursSchedule
+      : null;
+
+    if (expedienteFechado(agora, schedule)) {
       return res.json({ success: true, pedidos: [], fechado: true });
     }
 

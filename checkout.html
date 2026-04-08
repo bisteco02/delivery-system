@@ -1115,7 +1115,8 @@
             pixName: '',
             pixCodigo: '',
             mpAccessToken: '',
-            companyWhatsapp: ''
+            companyWhatsapp: '',
+            businessHoursSchedule: []
         };
 
         let PIX_CODIGO = siteConfig.pixKey;
@@ -1136,7 +1137,8 @@
                         pixCodigo: json.companyData.pixCodigo || '',
                         pixName: json.companyData.pixName || '',
                         mpAccessToken: json.companyData.mpAccessToken || '',
-                        companyWhatsapp: json.companyData.companyWhatsapp || ''
+                        companyWhatsapp: json.companyData.companyWhatsapp || '',
+                        businessHoursSchedule: Array.isArray(json.companyData.businessHoursSchedule) ? json.companyData.businessHoursSchedule : []
                     };
                     PIX_CODIGO = siteConfig.pixCodigo || siteConfig.pixKey;
                     bairrosTaxas = siteConfig.deliveryFeesByNeighborhood;
@@ -1147,6 +1149,7 @@
                     siteConfig.pixCodigo = '00020126580014BR.GOV.BCB.PIX01146399999999952040000530398654040.005802BR5925Padoca do Dedé6009SAO PAULO61080540900062290525TESTEPIX0014BR.GOV.BCB.PIX6304ABCD';
                     siteConfig.pixName = 'Padoca do Dedé';
                     siteConfig.companyWhatsapp = '';
+                    siteConfig.businessHoursSchedule = [];
                     PIX_CODIGO = siteConfig.pixCodigo;
                     aplicarPixDisponibilidade();
                 }
@@ -1155,9 +1158,48 @@
                 siteConfig.pixCodigo = '00020126580014BR.GOV.BCB.PIX01146399999999952040000530398654040.005802BR5925Padoca do Dedé6009SAO PAULO61080540900062290525TESTEPIX0014BR.GOV.BCB.PIX6304ABCD';
                 siteConfig.pixName = 'Padoca do Dedé';
                 siteConfig.companyWhatsapp = '';
+                siteConfig.businessHoursSchedule = [];
                 PIX_CODIGO = siteConfig.pixCodigo;
                 aplicarPixDisponibilidade();
             }
+        }
+
+        function normalizarHorarioDia(dia, schedule = []) {
+            if (!Array.isArray(schedule)) return null;
+            const item = schedule.find(h => Number(h?.dayIndex) === dia);
+            if (!item) return null;
+            return {
+                abertura: item.open || '',
+                fechamento: item.close || '',
+                fechado: !!item.closed
+            };
+        }
+
+        function pedidoForaDoHorario() {
+            const padrao = [
+                { dayIndex: 0, open: '18:30', close: '23:00', closed: false },
+                { dayIndex: 1, open: '18:30', close: '23:00', closed: false },
+                { dayIndex: 2, open: '18:30', close: '23:00', closed: false },
+                { dayIndex: 3, open: '', close: '', closed: true },
+                { dayIndex: 4, open: '18:30', close: '23:00', closed: false },
+                { dayIndex: 5, open: '18:30', close: '23:00', closed: false },
+                { dayIndex: 6, open: '18:30', close: '23:00', closed: false }
+            ];
+            const agora = new Date();
+            const horario = normalizarHorarioDia(agora.getDay(), siteConfig.businessHoursSchedule.length ? siteConfig.businessHoursSchedule : padrao);
+            if (!horario || horario.fechado || !horario.abertura || !horario.fechamento) return true;
+
+            const [abHora, abMin] = horario.abertura.split(':').map(Number);
+            const [fechHora, fechMin] = horario.fechamento.split(':').map(Number);
+            const horaAtual = agora.getHours() + agora.getMinutes() / 60 + agora.getSeconds() / 3600;
+            const horaAbertura = abHora + abMin / 60;
+            const horaFechamento = fechHora + fechMin / 60;
+
+            if (horaAbertura <= horaFechamento) {
+                return horaAtual < horaAbertura || horaAtual >= horaFechamento;
+            }
+
+            return horaAtual < horaAbertura && horaAtual >= horaFechamento;
         }
 
 
@@ -1658,6 +1700,10 @@
                 const complemento = formData.get('complemento');
                 const observacoes = formData.get('observacoes');
                 const formaPagamento = formData.get('forma_pagamento');
+
+                if (pedidoForaDoHorario()) {
+                    throw new Error('Fora do horário de funcionamento. Os pedidos abrem a partir das 18:30.');
+                }
 
                 // Calcular totais
                 let subtotal = 0;
