@@ -1537,6 +1537,8 @@
         // Mostrar/esconder campos de endereço
         function toggleEnderecoFields() {
             const enderecoFields = document.querySelectorAll('#bairro, #rua, #numero, #complemento');
+            const obrigatoriosEntrega = document.querySelectorAll('#bairro, #rua, #numero');
+            const complementoField = document.getElementById('complemento');
             const tipoEntregaRadio = document.querySelector('input[name="tipo_entrega"]:checked');
 
             if (!tipoEntregaRadio || enderecoFields.length === 0) return;
@@ -1544,9 +1546,16 @@
             const isDelivery = tipoEntregaRadio.value === 'delivery';
 
             enderecoFields.forEach(field => {
-                field.required = isDelivery;
                 field.parentElement.style.display = isDelivery ? 'block' : 'none';
             });
+
+            obrigatoriosEntrega.forEach(field => {
+                field.required = isDelivery;
+            });
+
+            if (complementoField) {
+                complementoField.required = false;
+            }
 
             updateCheckout();
         }
