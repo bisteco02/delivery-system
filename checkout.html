@@ -1710,6 +1710,7 @@
             const btnText = document.getElementById('btn-text');
             const btnLoading = document.getElementById('btn-loading');
             const finalizarBtn = document.getElementById('finalizar-btn');
+            const whatsappPopup = window.open('about:blank', '_blank');
 
             finalizarBtn.disabled = true;
             btnText.style.display = 'none';
@@ -1891,7 +1892,11 @@
                         : '6381443459';
                     const encodedMessage = encodeURIComponent(mensagem);
                     const whatsappUrl = `https://wa.me/55${whatsappNumber}?text=${encodedMessage}`;
-                    window.open(whatsappUrl, '_blank');
+                    if (whatsappPopup && !whatsappPopup.closed) {
+                        whatsappPopup.location.href = whatsappUrl;
+                    } else {
+                        window.location.href = whatsappUrl;
+                    }
 
                     // Redirecionar
                     setTimeout(() => {
@@ -1905,6 +1910,9 @@
             } catch (error) {
                 console.error('Erro ao enviar pedido:', error);
                 erro('Erro ao processar pedido: ' + error.message);
+                if (whatsappPopup && !whatsappPopup.closed) {
+                    whatsappPopup.close();
+                }
             } finally {
                 finalizarBtn.disabled = false;
                 btnText.style.display = 'inline';
