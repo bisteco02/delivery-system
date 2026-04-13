@@ -1682,6 +1682,39 @@ function gerarHTMLFechamentoCaixa(pedidosDia, dataReferencia) {
 
     const formatarMoeda = (valor = 0) => `R$ ${Number(valor || 0).toFixed(2).replace('.', ',')}`;
 
+    const normalizarTexto = (valor = '') => String(valor)
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase();
+
+    const categoriaDoItem = (item) => {
+        const categoriaBruta = normalizarTexto(item?.categoria || item?.category || '');
+        const nome = normalizarTexto(item?.nome || '');
+        const base = `${categoriaBruta} ${nome}`;
+
+        if (base.includes('pizza') || base.includes('calabresa') || base.includes('marg')) return 'PIZZA';
+        if (base.includes('hamb') || base.includes('burger') || base.includes('x-')) return 'HAMBURGUER';
+        if (base.includes('porcao') || base.includes('batata') || base.includes('onion') || base.includes('bolinho')) return 'PORCAO';
+        if (base.includes('sobremesa') || base.includes('bolo de pote') || base.includes('doce')) return 'SOBREMESA';
+        if (base.includes('bebida') || base.includes('refrigerante') || base.includes('coca') || base.includes('guarana') || base.includes('lata') || base.includes('2l')) return 'BEBIDA';
+        return 'OUTROS';
+    };
+
+    const categoriaPrincipalPedido = (itens = []) => {
+        const contador = {};
+        (itens || []).forEach(item => {
+            const cat = categoriaDoItem(item);
+            const qtd = Number(item?.quantidade || 1) || 1;
+            contador[cat] = (contador[cat] || 0) + qtd;
+        });
+
+        const prioridade = ['HAMBURGUER', 'PIZZA', 'PORCAO', 'SOBREMESA', 'BEBIDA', 'OUTROS'];
+        const lista = Object.entries(contador)
+            .sort((a, b) => (b[1] - a[1]) || (prioridade.indexOf(a[0]) - prioridade.indexOf(b[0])));
+
+        return lista.length ? lista[0][0] : 'OUTROS';
+    };
+
     const totalGeral = pedidosDia.reduce((acc, pedido) => acc + Number(pedido.total || 0), 0);
 
     const pedidosHtml = pedidosDia.map((pedido, index) => {
@@ -1689,6 +1722,8 @@ function gerarHTMLFechamentoCaixa(pedidosDia, dataReferencia) {
         const hora = dataPedido.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
         const nomeCliente = escapeHtml(pedido?.cliente?.nome || 'Nao informado');
         const itens = Array.isArray(pedido.itens) ? pedido.itens : [];
+        const tipoEntrega = pedido?.tipoEntrega === 'delivery' ? 'DELIVERY' : 'RETIRADA';
+        const categoriaPrincipal = categoriaPrincipalPedido(itens);
 
         const itensHtml = itens.map(item => {
             const nomeItem = escapeHtml(item?.nome || 'Item');
@@ -1701,6 +1736,10 @@ function gerarHTMLFechamentoCaixa(pedidosDia, dataReferencia) {
                 <div class="pedido-header">
                     <div><strong>${index + 1}. ${nomeCliente}</strong></div>
                     <div>#${escapeHtml(pedido.id || '')} | ${hora}</div>
+                </div>
+                <div class="pedido-badges">
+                    <span class="badge badge-entrega">${tipoEntrega}</span>
+                    <span class="badge badge-categoria">${categoriaPrincipal}</span>
                 </div>
                 <ul class="itens">${itensHtml || '<li>Sem itens</li>'}</ul>
                 <div class="pedido-total">Total do pedido: <strong>${formatarMoeda(pedido.total || 0)}</strong></div>
@@ -1719,11 +1758,16 @@ function gerarHTMLFechamentoCaixa(pedidosDia, dataReferencia) {
             .header { text-align: center; border-bottom: 2px dashed #000; padding-bottom: 6px; margin-bottom: 8px; }
             .header h1 { margin: 0; font-size: 15px; }
             .meta { margin-top: 4px; font-size: 10px; }
-            .pedido { border-bottom: 1px dashed #bbb; padding: 6px 0; }
+            .pedido { border: 2px solid #000; padding: 6px; margin-top: 8px; background: #fff; }
+            .pedido:first-of-type { margin-top: 6px; }
             .pedido-header { display: flex; justify-content: space-between; gap: 8px; font-size: 10px; margin-bottom: 4px; }
+            .pedido-badges { display: flex; gap: 6px; margin: 4px 0 6px; }
+            .badge { display: inline-block; font-size: 9px; font-weight: 700; padding: 2px 6px; border: 1px solid #000; letter-spacing: 0.2px; }
+            .badge-entrega { background: #111; color: #fff; }
+            .badge-categoria { background: #f0f0f0; color: #111; }
             .itens { margin: 0; padding-left: 14px; }
             .itens li { margin: 2px 0; line-height: 1.3; }
-            .pedido-total { margin-top: 4px; font-size: 11px; }
+            .pedido-total { margin-top: 6px; font-size: 11px; border-top: 1px dashed #888; padding-top: 4px; }
             .footer-total { margin-top: 8px; padding-top: 6px; border-top: 2px solid #000; text-align: right; font-size: 14px; font-weight: 700; }
             .resumo { margin-top: 6px; font-size: 11px; }
         </style>
