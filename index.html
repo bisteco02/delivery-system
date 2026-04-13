@@ -276,11 +276,6 @@
                 </div>
             </div>
 
-            <div class="mb-4">
-                <label for="custom-observacoes" class="block text-sm font-medium text-gray-700">Observações (opcional)</label>
-                <textarea id="custom-observacoes" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500 resize-none" placeholder="Ex: Sem maionese, bem passado, etc."></textarea>
-            </div>
-
             <div class="flex items-center justify-between mt-5 w-full gap-4 modal-actions">
                 <button id="cancel-custom-btn" type="button" class="btn-secondary flex-1">Cancelar</button>
                 <button id="confirm-custom-btn" type="button" class="btn-primary flex-1">Adicionar ao Carrinho</button>
@@ -918,12 +913,6 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
                             </div>
                         </div>
                         ` : ''}
-                        ${!isBebida && allowAddons ? `
-                        <div class="mb-4">
-                          <label for="simple-observacoes" class="block text-sm font-medium text-gray-700">Observações (opcional)</label>
-                          <textarea id="simple-observacoes" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500 resize-none" placeholder="Ex: Sem cebola, bem passada, etc."></textarea>
-                        </div>
-                        ` : ''}
                         <div class="flex items-center justify-between mt-5 w-full gap-4 modal-actions">
                             <button id="cancel-simple-btn" type="button" class="btn-secondary flex-1">Cancelar</button>
                             <button id="confirm-simple-btn" type="button" class="btn-primary flex-1">Adicionar ao Carrinho</button>
@@ -939,7 +928,6 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
                   // Confirmar e adicionar ao carrinho
                   document.getElementById('confirm-simple-btn').onclick = () => {
                     let bebida = '';
-                    let observacoes = '';
                     if (isBebida) {
                       // Para bebidas, não há bebida extra nem observações
                       addToCart(name, price, '', [], '', image);
@@ -948,10 +936,7 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
                       if (bebidaSelecionada) {
                         bebida = bebidaSelecionada.value || '';
                       }
-                      if (!isBebida && allowAddons) {
-                        observacoes = document.getElementById('simple-observacoes').value;
-                      }
-                      addToCart(name, price, bebida, [], observacoes, image);
+                      addToCart(name, price, bebida, [], '', image);
                     }
                     modal.style.display = 'none';
                     modal.remove();
@@ -1079,10 +1064,6 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
                         <p class="text-gray-500 text-sm">Carregando adicionais...</p>
                       </div>
                     </div>
-                    <div class="mb-4">
-                      <label for="pizza8-observacoes" class="block text-sm font-medium text-gray-700">Observações (opcional)</label>
-                      <textarea id="pizza8-observacoes" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500 resize-none" placeholder="Ex: Sem cebola, bem passada, etc."></textarea>
-                  </div>
                   <div class="flex items-center justify-between mt-5 w-full gap-4 modal-actions">
                       <button id="cancel-pizza8-btn" type="button" class="btn-secondary flex-1">Cancelar</button>
                       <button id="confirm-pizza8-btn" type="button" class="btn-primary flex-1">Adicionar ao Carrinho</button>
@@ -1133,8 +1114,7 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
           document.getElementById('confirm-pizza8-btn').onclick = () => {
             const bebida = modal.querySelector('input[name="pizza8-bebida"]:checked')?.value || '';
             const adicionais = Array.from(modal.querySelectorAll('input[name="pizza8-adicionais"]:checked')).map(cb => cb.value);
-            const observacoes = document.getElementById('pizza8-observacoes').value;
-            addToCart(name, price, bebida, adicionais, observacoes, image);
+            addToCart(name, price, bebida, adicionais, '', image);
             modal.style.display = 'none';
             modal.remove();
           };
@@ -1174,10 +1154,6 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
                     <p class="text-gray-500 text-sm">Carregando adicionais...</p>
                   </div>
                 </div>
-                <div class="mb-4">
-                      <label for="burger-observacoes" class="block text-sm font-medium text-gray-700">Observações (opcional)</label>
-                      <textarea id="burger-observacoes" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500 resize-none" placeholder="Ex: Sem cebola, bem passada, etc."></textarea>
-                  </div>
                   <div class="flex items-center justify-between mt-5 w-full gap-4 modal-actions">
                       <button id="cancel-burger-btn" type="button" class="btn-secondary flex-1">Cancelar</button>
                       <button id="confirm-burger-btn" type="button" class="btn-primary flex-1">Adicionar ao Carrinho</button>
@@ -1227,8 +1203,7 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
             document.getElementById('confirm-burger-btn').onclick = () => {
               const bebida = modal.querySelector('input[name="burger-bebida"]:checked').value;
               const adicionais = Array.from(modal.querySelectorAll('input[name="burger-adicionais"]:checked')).map(cb => cb.value);
-              const observacoes = document.getElementById('burger-observacoes').value;
-              addToCart(name, price, bebida, adicionais, observacoes, image);
+              addToCart(name, price, bebida, adicionais, '', image);
               modal.style.display = 'none';
               modal.remove();
             };
@@ -1263,10 +1238,6 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
                       <div class="space-y-2 bg-gray-50 p-3 rounded-md">
                           <div id="monte-sabores-list">Carregando sabores...</div>
                       </div>
-                  </div>
-                  <div class="mb-4">
-                      <label for="monte-observacoes" class="block text-sm font-medium text-gray-700">Observações (opcional)</label>
-                      <textarea id="monte-observacoes" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500 resize-none" placeholder="Ex: Sem cebola, bem passada, etc."></textarea>
                   </div>
                   <div class="flex items-center justify-between mt-5 w-full gap-4 modal-actions">
                       <button id="cancel-monte-btn" type="button" class="btn-secondary flex-1">Cancelar</button>
@@ -1368,7 +1339,6 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
             const bebida = modal.querySelector('input[name="monte-bebida"]:checked').value;
             const saboresSelecionados = Array.from(modal.querySelectorAll('.monte-sabores:checked'));
             const sabores = saboresSelecionados.map(cb => cb.value);
-            const observacoes = document.getElementById('monte-observacoes').value;
             
             // Verificar se 2 metades foram escolhidas
             if (sabores.length !== 2) {
@@ -1384,7 +1354,7 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
             }, 0);
             const precoBase = precoFixo > 0 ? precoFixo : precoMetades;
 
-            addToCart('Monte sua pizza', precoBase, bebida, sabores, observacoes, image);
+            addToCart('Monte sua pizza', precoBase, bebida, sabores, '', image);
             modal.style.display = 'none';
             modal.remove();
           };
@@ -1420,10 +1390,6 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
                   <div class="space-y-2 bg-gray-50 p-3 rounded-md" id="combo-adicionais-list">
                     <p class="text-gray-500 text-sm">Carregando adicionais...</p>
                   </div>
-                </div>
-                <div class="mb-4">
-                  <label for="combo-observacoes" class="block text-sm font-medium text-gray-700">Observações (opcional)</label>
-                  <textarea id="combo-observacoes" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500 resize-none" placeholder="Ex: Sem maionese, bem passada, etc."></textarea>
                 </div>
                 <div class="flex items-center justify-between mt-5 w-full gap-4 modal-actions">
                   <button id="cancel-combo-btn" type="button" class="btn-secondary flex-1">Cancelar</button>
@@ -1461,8 +1427,7 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
             if (confirmBtn) confirmBtn.onclick = () => {
               const bebida = modal.querySelector('input[name="combo-bebida"]:checked')?.value || '';
               const adicionais = Array.from(modal.querySelectorAll('input[name="combo-adicionais"]:checked')).map(cb => cb.value);
-              const observacoes = modal.querySelector('#combo-observacoes')?.value || '';
-              addToCart(name, price, bebida, adicionais, observacoes, image);
+              addToCart(name, price, bebida, adicionais, '', image);
               modal.style.display = 'none';
               modal.remove();
             };
@@ -1480,8 +1445,6 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
           // Reset fields corretamente
           document.querySelectorAll('#customization-modal input[name="bebida"]').forEach(rb => rb.checked = rb.value === '');
           document.querySelectorAll('#customization-modal input[type="checkbox"]').forEach(cb => cb.checked = false);
-          document.getElementById('custom-observacoes').value = '';
-          
           // Mostrar/esconder seções baseado no tipo e configurações
           const bebidaComboSection = document.getElementById('bebida-section-combo');
           const bebidaBurgerSection = document.getElementById('bebida-section-burger');
@@ -2113,8 +2076,7 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
               adicionais = Array.from(document.querySelectorAll('#customization-modal input[type="checkbox"]:checked')).map(cb => cb.value);
             }
             
-            const observacoes = document.getElementById('custom-observacoes').value;
-            addToCart(window.currentItem.name, window.currentItem.price, bebida, adicionais, observacoes, window.currentItem.image);
+            addToCart(window.currentItem.name, window.currentItem.price, bebida, adicionais, '', window.currentItem.image);
             const modal = document.getElementById('customization-modal');
             modal.classList.add('hidden');
             modal.style.display = 'none';
