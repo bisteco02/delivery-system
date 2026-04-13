@@ -914,45 +914,7 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
                         <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Adicionar Bebida (opcional)</label>
                             <div class="grid grid-cols-1 gap-2">
-                                <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
-                                    <input type="radio" name="simple-bebida" value="" class="mr-3 text-blue-600 focus:ring-blue-500" checked>
-                                    <span>Nenhuma</span>
-                                </label>
-                                ${drinkType === 'coca-lata' || drinkType === 'nenhum' || drinkType === 'escolha' ? `
-                                <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
-                                    <input type="radio" name="simple-bebida" value="Coca Cola Lata - R$5,00" class="mr-3 text-blue-600 focus:ring-blue-500">
-                                    <img src="./assets/Coca Lata.jpg" alt="Coca Cola Lata" class="w-8 h-8 mr-3 rounded">
-                                    <span>Coca Cola Lata - R$5,00</span>
-                                </label>
-                                ` : ''}
-                                ${drinkType === 'coca-zero-lata' || drinkType === 'nenhum' || drinkType === 'escolha' ? `
-                                <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
-                                    <input type="radio" name="simple-bebida" value="Coca Cola Zero Lata - R$6,00" class="mr-3 text-blue-600 focus:ring-blue-500">
-                                    <img src="./assets/Coca Zero Lata.png" alt="Coca Cola Zero Lata" class="w-8 h-8 mr-3 rounded">
-                                    <span>Coca Cola Zero Lata - R$6,00</span>
-                                </label>
-                                ` : ''}
-                                ${drinkType === 'coca-2l' || drinkType === 'nenhum' || drinkType === 'escolha' ? `
-                                <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
-                                    <input type="radio" name="simple-bebida" value="Coca Cola 2L - R$14,00" class="mr-3 text-blue-600 focus:ring-blue-500">
-                                    <img src="./assets/Coca 2L.jpg" alt="Coca Cola 2L" class="w-8 h-8 mr-3 rounded">
-                                    <span>Coca Cola 2L - R$14,00</span>
-                                </label>
-                                ` : ''}
-                                ${drinkType === 'coca-zero-2l' || drinkType === 'nenhum' || drinkType === 'escolha' ? `
-                                <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
-                                    <input type="radio" name="simple-bebida" value="Coca Cola Zero 2L - R$15,00" class="mr-3 text-blue-600 focus:ring-blue-500">
-                                    <img src="./assets/Coca Zero 2L.png" alt="Coca Cola Zero 2L" class="w-8 h-8 mr-3 rounded">
-                                    <span>Coca Cola Zero 2L - R$15,00</span>
-                                </label>
-                                ` : ''}
-                                ${drinkType === 'guarana-lata' || drinkType === 'nenhum' || drinkType === 'escolha' ? `
-                                <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
-                                    <input type="radio" name="simple-bebida" value="Guaraná Antártica Lata - R$5,00" class="mr-3 text-blue-600 focus:ring-blue-500">
-                                    <img src="./assets/Guarana Lata.jpg" alt="Guaraná Antártica Lata" class="w-8 h-8 mr-3 rounded">
-                                    <span>Guaraná Antártica Lata - R$5,00</span>
-                                </label>
-                                ` : ''}
+                                ${renderBebidasRadios('simple-bebida', drinkType, 'Nenhuma')}
                             </div>
                         </div>
                         ` : ''}
@@ -1008,6 +970,60 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
           return key;
         }
 
+        function normalizeDrinkName(value = '') {
+          return String(value || '')
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .toLowerCase()
+            .trim();
+        }
+
+        function drinkMatchesType(nomeBebida, drinkType = 'escolha') {
+          const n = normalizeDrinkName(nomeBebida);
+          if (!drinkType || drinkType === 'escolha' || drinkType === 'nenhum') return true;
+          if (drinkType === 'coca-lata') return n.includes('coca cola lata') && !n.includes('zero');
+          if (drinkType === 'coca-zero-lata') return n.includes('coca cola zero lata');
+          if (drinkType === 'coca-2l') return n.includes('coca cola 2l') && !n.includes('zero');
+          if (drinkType === 'coca-zero-2l') return n.includes('coca cola zero 2l');
+          if (drinkType === 'guarana-lata') return n.includes('guarana') && n.includes('lata');
+          return true;
+        }
+
+        function getBebidasAtivas(drinkType = 'escolha') {
+          const lista = Array.isArray(bebidas) ? bebidas : [];
+          return lista.filter(b => {
+            const ativo = b?.ativo !== false && b?.disponivel !== false;
+            const nome = b?.nome || b?.name || '';
+            return ativo && nome && drinkMatchesType(nome, drinkType);
+          });
+        }
+
+        function renderBebidasRadios(inputName, drinkType = 'escolha', noneLabel = 'Nenhuma') {
+          const itens = getBebidasAtivas(drinkType);
+          const base = `
+            <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
+              <input type="radio" name="${inputName}" value="" class="mr-3 text-blue-600 focus:ring-blue-500" checked>
+              <span>${noneLabel}</span>
+            </label>
+          `;
+          if (!itens.length) return base;
+          const html = itens.map(b => {
+            const nome = b.nome || b.name;
+            const precoNumero = Number(b.preco ?? b.price ?? 0);
+            const preco = precoNumero.toFixed(2).replace('.', ',');
+            const imagem = resolveImage(b.imagem || b.image || './assets/default.jpg');
+            const value = `${nome} - R$${preco}`;
+            return `
+              <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
+                <input type="radio" name="${inputName}" value="${value.replace(/\"/g, '&quot;')}" class="mr-3 text-blue-600 focus:ring-blue-500">
+                <img src="${imagem}" alt="${nome}" class="w-8 h-8 mr-3 rounded" onerror="this.src='./assets/default.jpg'">
+                <span>${nome} - R$${preco}</span>
+              </label>
+            `;
+          }).join('');
+          return base + html;
+        }
+
         function isAddonActive(addon) {
           const v = addon?.ativo;
           if (typeof v === 'string') {
@@ -1054,35 +1070,7 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
                 <div class="mb-4">
                   <label class="block text-sm font-medium text-gray-700 mb-2">Adicionar Bebida (opcional)</label>
                   <div class="grid grid-cols-1 gap-2">
-                    <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
-                      <input type="radio" name="pizza8-bebida" value="" class="mr-3 text-blue-600 focus:ring-blue-500" checked>
-                      <span>Nenhuma</span>
-                    </label>
-                    <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
-                      <input type="radio" name="pizza8-bebida" value="Coca Cola Zero Lata - R$6,00" class="mr-3 text-blue-600 focus:ring-blue-500">
-                      <img src="./assets/Coca Zero Lata.png" alt="Coca Cola Zero Lata" class="w-8 h-8 mr-3 rounded">
-                      <span>Coca Cola Zero Lata - R$6,00</span>
-                    </label>
-                    <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
-                      <input type="radio" name="pizza8-bebida" value="Coca Cola 2L - R$14,00" class="mr-3 text-blue-600 focus:ring-blue-500">
-                      <img src="./assets/Coca 2L.jpg" alt="Coca Cola 2L" class="w-8 h-8 mr-3 rounded">
-                      <span>Coca Cola 2L - R$14,00</span>
-                    </label>
-                    <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
-                      <input type="radio" name="pizza8-bebida" value="Coca Cola Lata - R$5,00" class="mr-3 text-blue-600 focus:ring-blue-500">
-                      <img src="./assets/Coca Lata.jpg" alt="Coca Cola Lata" class="w-8 h-8 mr-3 rounded">
-                      <span>Coca Cola Lata - R$5,00</span>
-                    </label>
-                    <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
-                      <input type="radio" name="pizza8-bebida" value="Coca Cola Zero 2L - R$15,00" class="mr-3 text-blue-600 focus:ring-blue-500">
-                      <img src="./assets/Coca Zero 2L.png" alt="Coca Cola Zero 2L" class="w-8 h-8 mr-3 rounded">
-                      <span>Coca Cola Zero 2L - R$15,00</span>
-                    </label>
-                    <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
-                      <input type="radio" name="pizza8-bebida" value="Guaraná Antártica Lata - R$5,00" class="mr-3 text-blue-600 focus:ring-blue-500">
-                      <img src="./assets/Guarana Lata.jpg" alt="Guaraná Antártica Lata" class="w-8 h-8 mr-3 rounded">
-                      <span>Guaraná Antártica Lata - R$5,00</span>
-                    </label>
+                    ${renderBebidasRadios('pizza8-bebida', 'escolha', 'Nenhuma')}
                   </div>
                 </div>
                     <div class="mb-4">
@@ -1177,35 +1165,7 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
                 <div class="mb-4">
                   <label class="block text-sm font-medium text-gray-700 mb-2">Adicionar Bebida (opcional)</label>
                   <div class="grid grid-cols-1 gap-2">
-                    <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
-                      <input type="radio" name="burger-bebida" value="" class="mr-3 text-blue-600 focus:ring-blue-500" checked>
-                      <span>Nenhuma</span>
-                    </label>
-                    <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
-                      <input type="radio" name="burger-bebida" value="Coca Cola Zero Lata - R$6,00" class="mr-3 text-blue-600 focus:ring-blue-500">
-                      <img src="./assets/Coca Zero Lata.png" alt="Coca Cola Zero Lata" class="w-8 h-8 mr-3 rounded">
-                      <span>Coca Cola Zero Lata - R$6,00</span>
-                    </label>
-                    <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
-                      <input type="radio" name="burger-bebida" value="Coca Cola 2L - R$14,00" class="mr-3 text-blue-600 focus:ring-blue-500">
-                      <img src="./assets/Coca 2L.jpg" alt="Coca Cola 2L" class="w-8 h-8 mr-3 rounded">
-                      <span>Coca Cola 2L - R$14,00</span>
-                    </label>
-                    <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
-                      <input type="radio" name="burger-bebida" value="Coca Cola Lata - R$5,00" class="mr-3 text-blue-600 focus:ring-blue-500">
-                      <img src="./assets/Coca Lata.jpg" alt="Coca Cola Lata" class="w-8 h-8 mr-3 rounded">
-                      <span>Coca Cola Lata - R$5,00</span>
-                    </label>
-                    <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
-                      <input type="radio" name="burger-bebida" value="Coca Cola Zero 2L - R$15,00" class="mr-3 text-blue-600 focus:ring-blue-500">
-                      <img src="./assets/Coca Zero 2L.png" alt="Coca Cola Zero 2L" class="w-8 h-8 mr-3 rounded">
-                      <span>Coca Cola Zero 2L - R$15,00</span>
-                    </label>
-                    <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
-                      <input type="radio" name="burger-bebida" value="Guaraná Antártica Lata - R$5,00" class="mr-3 text-blue-600 focus:ring-blue-500">
-                      <img src="./assets/Guarana Lata.jpg" alt="Guaraná Antártica Lata" class="w-8 h-8 mr-3 rounded">
-                      <span>Guaraná Antártica Lata - R$5,00</span>
-                    </label>
+                    ${renderBebidasRadios('burger-bebida', bebidaType, 'Nenhuma')}
                   </div>
                 </div>
                 <div class="mb-4">
@@ -1256,30 +1216,7 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
                   console.warn('erro ao popular adicionais do burger', e);
                 }
                 
-                // substituir bebidas se existirem
-                try {
-                  const bebidas = ativos.filter(a => {
-                    const cat = (a.category || '').toString().toLowerCase();
-                    const nome = (a.name || '').toString().toLowerCase().trim();
-                    return cat.includes('beb') && nome !== 'refrigerante a sua escolha';
-                  });
-                  if (bebidas.length > 0) {
-                    const bebidaList = modal.querySelector('.grid.grid-cols-1');
-                    if (bebidaList) {
-                      bebidaList.innerHTML = `<label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border"><input type="radio" name="burger-bebida" value="" class="mr-3 text-blue-600 focus:ring-blue-500" checked><span>Nenhuma</span></label>` + bebidas.map(b => {
-                        const preco = Number(b.price || 0).toFixed(2).replace('.', ',');
-                        const value = `${b.name} - R$ ${preco}`;
-                        return `
-                          <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
-                            <input type="radio" name="burger-bebida" value="${value.replace(/"/g, '&quot;')}" class="mr-3 text-blue-600 focus:ring-blue-500">
-                            <img src="${(b.image || './assets/default.jpg').replace(/^\/+/, './')}" alt="${b.name}" class="w-8 h-8 mr-3 rounded" onerror="this.src='./assets/default.jpg'">
-                            <span>${b.name} - R$ ${preco}</span>
-                          </label>
-                        `;
-                      }).join('');
-                    }
-                  }
-                } catch (e) {}
+                // Bebidas do modal agora seguem apenas o cardapio ativo (array bebidas)
               } catch (err) {
                 // manter lista estática
               }
@@ -1318,35 +1255,7 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
                 <div class="mb-4">
                   <label class="block text-sm font-medium text-gray-700 mb-2">Adicionar Bebida (opcional)</label>
                   <div class="grid grid-cols-1 gap-2">
-                    <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
-                      <input type="radio" name="monte-bebida" value="" class="mr-3 text-blue-600 focus:ring-blue-500" checked>
-                      <span>Nenhuma</span>
-                    </label>
-                    <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
-                      <input type="radio" name="monte-bebida" value="Coca Cola Zero Lata - R$6,00" class="mr-3 text-blue-600 focus:ring-blue-500">
-                      <img src="./assets/Coca Zero Lata.png" alt="Coca Cola Zero Lata" class="w-8 h-8 mr-3 rounded">
-                      <span>Coca Cola Zero Lata - R$6,00</span>
-                    </label>
-                    <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
-                      <input type="radio" name="monte-bebida" value="Coca Cola 2L - R$14,00" class="mr-3 text-blue-600 focus:ring-blue-500">
-                      <img src="./assets/Coca 2L.jpg" alt="Coca Cola 2L" class="w-8 h-8 mr-3 rounded">
-                      <span>Coca Cola 2L - R$14,00</span>
-                    </label>
-                    <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
-                      <input type="radio" name="monte-bebida" value="Coca Cola Lata - R$5,00" class="mr-3 text-blue-600 focus:ring-blue-500">
-                      <img src="./assets/Coca Lata.jpg" alt="Coca Cola Lata" class="w-8 h-8 mr-3 rounded">
-                      <span>Coca Cola Lata - R$5,00</span>
-                    </label>
-                    <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
-                      <input type="radio" name="monte-bebida" value="Coca Cola Zero 2L - R$15,00" class="mr-3 text-blue-600 focus:ring-blue-500">
-                      <img src="./assets/Coca Zero 2L.png" alt="Coca Cola Zero 2L" class="w-8 h-8 mr-3 rounded">
-                      <span>Coca Cola Zero 2L - R$15,00</span>
-                    </label>
-                    <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
-                      <input type="radio" name="monte-bebida" value="Guaraná Antártica Lata - R$5,00" class="mr-3 text-blue-600 focus:ring-blue-500">
-                      <img src="./assets/Guarana Lata.jpg" alt="Guaraná Antártica Lata" class="w-8 h-8 mr-3 rounded">
-                      <span>Guaraná Antártica Lata - R$5,00</span>
-                    </label>
+                    ${renderBebidasRadios('monte-bebida', 'escolha', 'Nenhuma')}
                   </div>
                 </div>
                     <div class="mb-4">
@@ -1504,12 +1413,7 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
                 </div>
                 <div class="mb-4" id="combo-bebida-section">
                   <label class="block text-sm font-medium text-gray-700 mb-2">Refrigerante (opcional)</label>
-                  <div class="grid grid-cols-1 gap-2" id="combo-bebida-radios">
-                    <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
-                      <input type="radio" name="combo-bebida" value="" class="mr-3 text-blue-600 focus:ring-blue-500" checked>
-                      <span>Nenhum</span>
-                    </label>
-                  </div>
+                  <div class="grid grid-cols-1 gap-2" id="combo-bebida-radios">${renderBebidasRadios('combo-bebida', bebidaType, 'Nenhum')}</div>
                 </div>
                 <div class="mb-4">
                   <label class="block text-sm font-medium text-gray-700 mb-2">Adicionais (opcional)</label>
@@ -1544,21 +1448,7 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
                     adicionaisList.innerHTML = adicionaisForModal.map(a => `<label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded"><input type="checkbox" name="combo-adicionais" value="${(a.name + ' - R$' + Number(a.price||0).toFixed(2)).replace(/\"/g,'&quot;')}" class="mr-3 text-blue-600 focus:ring-blue-500"> <span>${a.name} - R$ ${Number(a.price||0).toFixed(2).replace('.',',')}</span></label>`).join('');
                   }
                 } catch (e) { console.warn('erro ao popular adicionais do combo', e); }
-                // popular bebidas (continuar usando ativos completos para bebidas)
-                try {
-                  const bebidas = ativos.filter(a => {
-                    const cat = (a.category || '').toString().toLowerCase();
-                    const nome = (a.name || '').toString().toLowerCase().trim();
-                    return cat.includes('beb') && nome !== 'refrigerante a sua escolha';
-                  });
-                  if (bebidas.length > 0) {
-                    const radiosContainer = modal.querySelector('#combo-bebida-radios');
-                    if (radiosContainer) {
-                      const html = bebidas.map(b => `<label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border"><input type="radio" name="combo-bebida" value="${(b.name + ' - R$ ' + Number(b.price||0).toFixed(2).replace('.', ',')).replace(/"/g,'&quot;')}" class="mr-3 text-blue-600 focus:ring-blue-500"><img src="${(b.image||'./assets/default.jpg').replace(/^\/+/, './')}" alt="${b.name}" class="w-8 h-8 mr-3 rounded" onerror="this.src='./assets/default.jpg'"> <span>${b.name} - R$ ${Number(b.price||0).toFixed(2).replace('.',',')}</span></label>`).join('');
-                      radiosContainer.innerHTML = `<label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border"><input type="radio" name="combo-bebida" value="" class="mr-3 text-blue-600 focus:ring-blue-500" checked><span>Nenhum</span></label>` + html;
-                    }
-                  }
-                } catch (e) { console.warn('erro ao popular bebidas do combo', e); }
+                // Bebidas do modal de combo seguem o cardapio ativo
               } catch (err) {
                 console.warn('Erro ao carregar adicionais para combo:', err);
               }
@@ -1634,7 +1524,8 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
               };
               const bebidaValue = bebidaMap[bebidaType];
               if (bebidaValue) {
-                document.querySelector(`#customization-modal input[name="bebida"][value="${bebidaValue}"]`).checked = true;
+                const radio = document.querySelector(`#customization-modal input[name="bebida"][value="${bebidaValue}"]`);
+                if (radio) radio.checked = true;
               }
             }
           } else {
@@ -1655,7 +1546,8 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
               };
               const bebidaValue = bebidaMap[bebidaType];
               if (bebidaValue) {
-                document.querySelector(`#customization-modal input[name="bebida"][value="${bebidaValue}"]`).checked = true;
+                const radio = document.querySelector(`#customization-modal input[name="bebida"][value="${bebidaValue}"]`);
+                if (radio) radio.checked = true;
               }
             }
           }
@@ -1909,42 +1801,12 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
           container.innerHTML = html;
         }
 
-        // Renderizar bebidas no modal de hambúrguer a partir dos addons (categoria 'bebidas')
+        // Renderizar bebidas no modal de hambúrguer a partir do cardapio ativo
         function renderBebidasFromAddons(addons) {
           const bebidaBurgerSection = document.getElementById('bebida-section-burger');
           if (!bebidaBurgerSection) return;
           const radiosContainer = bebidaBurgerSection.querySelector('.grid') || bebidaBurgerSection;
-          const bebidas = (addons || []).filter(a => {
-            const cat = (a.category || '').toString().toLowerCase();
-            const nome = (a.name || '').toString().toLowerCase().trim();
-            return cat.includes('beb') && isAddonActive(a) && nome !== 'refrigerante a sua escolha';
-          });
-          if (!bebidas || bebidas.length === 0) {
-            // deixar as opções estáticas originais intactas
-            return;
-          }
-
-          // Substituir por opções dinâmicas
-          const html = bebidas.map(b => {
-            const preco = Number(b.price || 0).toFixed(2).replace('.', ',');
-            const value = `${b.name} - R$ ${preco}`;
-            return `
-              <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
-                <input type="radio" name="bebida" value="${value.replace(/\"/g, '&quot;')}" class="mr-3 text-blue-600 focus:ring-blue-500">
-                <img src="${(b.image || './assets/default.jpg').replace(/^\/+/, './')}" alt="${b.name}" class="w-8 h-8 mr-3 rounded" onerror="this.src='./assets/default.jpg'">
-                <span>${b.name} - R$ ${preco}</span>
-              </label>
-            `;
-          }).join('');
-
-          // tentar manter opção 'Nenhuma' no topo
-          radiosContainer.innerHTML = `
-            <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
-              <input type="radio" name="bebida" value="" class="mr-3 text-blue-600 focus:ring-blue-500" checked>
-              <span>Nenhuma</span>
-            </label>
-            ${html}
-          `;
+          radiosContainer.innerHTML = renderBebidasRadios('bebida', 'escolha', 'Nenhuma');
         }
 
         function startAddonsPolling(intervalMs = 10000) {
