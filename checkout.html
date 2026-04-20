@@ -1042,31 +1042,10 @@
             backToMenu.href = `/${TENANT}/index.html`;
         }
 
-        // Carrinho de teste se estiver vazio
+        // Não usar carrinho de teste em produção: se estiver vazio, voltar ao cardápio.
         if (cart.length === 0) {
-            cart = [
-                {
-                    name: 'Hambúrguer Tradicional',
-                    quantity: 2,
-                    basePrice: 15.00,
-                    totalPrice: 15.00,
-                    bebida: 'Coca Cola 2L',
-                    adicionais: [],
-                    observacoes: '',
-                    image: './assets/default.jpg'
-                },
-                {
-                    name: 'Pizza Calabresa',
-                    quantity: 1,
-                    basePrice: 35.00,
-                    totalPrice: 35.00,
-                    bebida: null,
-                    adicionais: ['Extra Queijo'],
-                    observacoes: 'Sem cebola',
-                    image: './assets/default.jpg'
-                }
-            ];
-            localStorage.setItem('cart', JSON.stringify(cart));
+            alert('Seu carrinho está vazio. Volte ao cardápio para montar o pedido.');
+            window.location.href = `/${TENANT}/index.html`;
         }
 
         // Estado da navegação

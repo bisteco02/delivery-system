@@ -562,6 +562,24 @@ function normalizeAddonText(value = '') {
     .toLowerCase();
 }
 
+function parseCurrencyValue(value) {
+  if (typeof value === 'number') return Number.isFinite(value) ? value : 0;
+  const match = String(value ?? '').match(/[\d.,]+/);
+  if (!match) return 0;
+  const raw = match[0];
+  const normalized = raw.includes(',') ? raw.replace(/\./g, '').replace(',', '.') : raw.replace(/,/g, '');
+  const parsed = Number.parseFloat(normalized);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function roundCurrencyValue(value) {
+  return Math.round((Number(value) || 0) * 100) / 100;
+}
+
+function moneyCloseEnough(a, b) {
+  return Math.abs(roundCurrencyValue(a) - roundCurrencyValue(b)) <= 0.01;
+}
+
 function normalizeAddonCategory(value = '') {
   const key = normalizeAddonText(value || 'geral');
   if (key === 'burger' || key === 'burgers') return 'burguers';
@@ -695,6 +713,239 @@ app.post('/api/pedidos', async (req, res) => {
       });
     }
 
+    const [cardapioRaw, promotionsRaw, itemPromotionsRaw, addonsRaw] = await Promise.all([
+      lerCardapio(),
+      lerPromotions(),
+      lerItemPromotions(),
+      lerAddons()
+    ]);
+
+    const cardapio = Array.isArray(cardapioRaw) ? cardapioRaw.filter(item => item && item.ativo !== false) : [];
+    if (cardapio.length === 0) {
+      return res.status(503).json({
+        success: false,
+        message: 'Cardápio indisponível para validação do pedido.'
+      });
+    }
+
+    const promotions = Array.isArray(promotionsRaw) ? promotionsRaw.filter(p => p && p.ativo !== false) : [];
+    const itemPromotions = Array.isArray(itemPromotionsRaw) ? itemPromotionsRaw.filter(p => p && p.ativo !== false) : [];
+    const addons = Array.isArray(addonsRaw) ? addonsRaw.filter(a => isAddonActive(a)) : [];
+
+    const cardapioMap = new Map();
+    for (const item of cardapio) {
+      const key = normalizeAddonText(item.name || item.nome);
+      if (key) cardapioMap.set(key, item);
+    }
+
+    const promotionsMap = new Map();
+    for (const promo of promotions) {
+      const key = normalizeAddonText(promo.name || promo.nome);
+      if (key) promotionsMap.set(key, promo);
+    }
+
+    const itemPromotionsMap = new Map();
+    for (const promo of itemPromotions) {
+      const key = normalizeAddonText(promo.itemName || promo.nome || promo.name);
+      if (key) itemPromotionsMap.set(key, promo);
+    }
+
+    const addonsMap = new Map();
+    for (const addon of addons) {
+      const key = normalizeAddonText(addon.name || addon.nome);
+      if (key) addonsMap.set(key, addon);
+    }
+
+    const resolveAddonFromValue = (rawValue, label = 'adicional') => {
+      const texto = String(rawValue || '').trim();
+      if (!texto) return { name: '', price: 0 };
+
+      const match = texto.match(/^(.+?)(?:\s*-\s*R\$\s*([\d.,]+))?$/i);
+      const nome = (match?.[1] || texto).trim();
+      const addon = addonsMap.get(normalizeAddonText(nome));
+
+      if (!addon) {
+        throw new Error(`${label} inválido: ${nome}`);
+      }
+
+      return {
+        name: addon.name || addon.nome || nome,
+        price: parseCurrencyValue(addon.price ?? addon.preco)
+      };
+    };
+
+    const validatedItems = [];
+    let subtotalCalculado = 0;
+
+    for (const item of itens) {
+      const quantidade = Number(item.quantidade ?? item.quantity ?? 1);
+      if (!Number.isFinite(quantidade) || quantidade <= 0) {
+        return res.status(400).json({
+          success: false,
+          message: 'Quantidade inválida em um dos itens do pedido.'
+        });
+      }
+
+      const nomeOriginal = String(item.nome ?? item.name ?? '').trim();
+      if (!nomeOriginal) {
+        return res.status(400).json({
+          success: false,
+          message: 'Item do pedido sem nome.'
+        });
+      }
+
+      const baseName = nomeOriginal.split(' + ')[0].trim();
+      const normalizedBase = normalizeAddonText(baseName);
+      const bebidaRaw = String(item.bebida || '').trim();
+      const adicionaisRaw = Array.isArray(item.adicionais)
+        ? item.adicionais.map(v => String(v || '').trim()).filter(Boolean)
+        : [];
+
+      let canonicalName = baseName;
+      let basePrice = 0;
+      let itemTotal = 0;
+      let bebidaSanitized = '';
+      let adicionaisSanitizados = [];
+      let imagemPedido = item.imagem || item.image;
+
+      const isMontePizza = normalizedBase === 'monte sua pizza' || normalizedBase === 'escolha o sabor';
+
+      if (isMontePizza) {
+        if (adicionaisRaw.length !== 2) {
+          return res.status(400).json({
+            success: false,
+            message: 'Monte sua pizza precisa ter exatamente 2 metades.'
+          });
+        }
+
+        let totalMetades = 0;
+        adicionaisSanitizados = [];
+
+        for (const metadeRaw of adicionaisRaw) {
+          const metadeMatch = metadeRaw.match(/^1\/2\s+(.+)$/i);
+          if (!metadeMatch) {
+            return res.status(400).json({
+              success: false,
+              message: `Metade inválida em Monte sua pizza: ${metadeRaw}`
+            });
+          }
+
+          const metadeNome = metadeMatch[1].trim();
+          const metadeItem = cardapioMap.get(normalizeAddonText(metadeNome));
+          const metadeCategoria = String(metadeItem?.category || metadeItem?.categoria || '').toLowerCase();
+
+          if (!metadeItem || !metadeCategoria.includes('pizz')) {
+            return res.status(400).json({
+              success: false,
+              message: `Sabor de pizza inválido em Monte sua pizza: ${metadeNome}`
+            });
+          }
+
+          const metadePreco = parseCurrencyValue(metadeItem.price ?? metadeItem.preco);
+          totalMetades += metadePreco / 2;
+          adicionaisSanitizados.push(`1/2 ${metadeItem.name || metadeItem.nome || metadeNome}`);
+        }
+
+        bebidaSanitized = bebidaRaw ? resolveAddonFromValue(bebidaRaw, 'bebida').name : '';
+        const bebidaInfo = bebidaSanitized ? resolveAddonFromValue(bebidaRaw, 'bebida') : { name: '', price: 0 };
+
+        canonicalName = bebidaInfo.name ? `Monte sua pizza + ${bebidaInfo.name}` : 'Monte sua pizza';
+        basePrice = roundCurrencyValue(totalMetades);
+        itemTotal = roundCurrencyValue(basePrice + bebidaInfo.price);
+
+        const incomingBase = roundCurrencyValue(parseCurrencyValue(item.precoUnitario ?? item.basePrice ?? item.price));
+        const incomingTotal = roundCurrencyValue(parseCurrencyValue(item.precoTotal ?? item.totalPrice));
+
+        if (!moneyCloseEnough(incomingBase, basePrice) || !moneyCloseEnough(incomingTotal, itemTotal)) {
+          return res.status(400).json({
+            success: false,
+            message: 'Pedido alterado: preço da pizza personalizada não confere com o cardápio.'
+          });
+        }
+      } else {
+        const promo = promotionsMap.get(normalizedBase);
+        const menuItem = cardapioMap.get(normalizedBase);
+        const itemPromo = itemPromotionsMap.get(normalizedBase);
+        const sourceItem = promo || menuItem;
+        imagemPedido = sourceItem?.image || sourceItem?.imagem || imagemPedido;
+
+        if (!sourceItem) {
+          return res.status(400).json({
+            success: false,
+            message: `Item inválido: ${baseName}`
+          });
+        }
+
+        canonicalName = sourceItem.name || sourceItem.nome || baseName;
+
+        if (promo) {
+          const promoPrice = parseCurrencyValue(promo.pricePromo ?? promo.precoPromo ?? promo.price ?? promo.preco);
+          const originalPrice = parseCurrencyValue(promo.priceOriginal ?? promo.precoOriginal ?? promo.priceOriginal);
+          basePrice = promoPrice > 0 ? promoPrice : originalPrice;
+        } else {
+          basePrice = parseCurrencyValue(menuItem.price ?? menuItem.preco);
+          if (itemPromo) {
+            const promoPrice = parseCurrencyValue(itemPromo.pricePromo ?? itemPromo.precoPromo ?? itemPromo.price ?? itemPromo.preco);
+            const discount = parseCurrencyValue(itemPromo.discount);
+            if (promoPrice > 0) {
+              basePrice = promoPrice;
+            } else if (discount > 0) {
+              basePrice = roundCurrencyValue(basePrice * (1 - discount / 100));
+            }
+          }
+        }
+
+        const bebidaInfo = resolveAddonFromValue(bebidaRaw, 'bebida');
+        const adicionaisInfo = adicionaisRaw.map(valor => resolveAddonFromValue(valor, 'adicional'));
+
+        bebidaSanitized = bebidaInfo.name;
+        adicionaisSanitizados = adicionaisInfo.map(a => a.name).filter(Boolean);
+
+        itemTotal = roundCurrencyValue(
+          basePrice + bebidaInfo.price + adicionaisInfo.reduce((sum, add) => sum + add.price, 0)
+        );
+
+        canonicalName = bebidaSanitized ? `${canonicalName} + ${bebidaSanitized}` : canonicalName;
+
+        const incomingBase = roundCurrencyValue(parseCurrencyValue(item.precoUnitario ?? item.basePrice ?? item.price));
+        const incomingTotal = roundCurrencyValue(parseCurrencyValue(item.precoTotal ?? item.totalPrice));
+
+        if (!moneyCloseEnough(incomingBase, basePrice) || !moneyCloseEnough(incomingTotal, itemTotal)) {
+          return res.status(400).json({
+            success: false,
+            message: `Pedido alterado: preço do item "${baseName}" não confere com o cardápio.`
+          });
+        }
+      }
+
+      validatedItems.push({
+        nome: canonicalName,
+        name: canonicalName,
+        quantidade,
+        precoUnitario: basePrice,
+        basePrice,
+        precoTotal: itemTotal,
+        totalPrice: itemTotal,
+        bebida: bebidaSanitized || null,
+        adicionais: adicionaisSanitizados,
+        observacoes: item.observacoes,
+        imagem: imagemPedido
+      });
+
+      subtotalCalculado += itemTotal * quantidade;
+    }
+
+    const taxaEntregaNumero = roundCurrencyValue(parseCurrencyValue(taxaEntrega));
+    const totalCalculado = roundCurrencyValue(subtotalCalculado + taxaEntregaNumero);
+    const totalRecebido = roundCurrencyValue(parseCurrencyValue(total));
+
+    if (!moneyCloseEnough(totalRecebido, totalCalculado)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Total do pedido não confere com os itens validados.'
+      });
+    }
+
     const novoPedido = {
       id: Date.now().toString(),
       cliente: {
@@ -702,20 +953,11 @@ app.post('/api/pedidos', async (req, res) => {
         whatsapp: cliente.whatsapp,
         whatsappLimpo: normalizarWhatsapp(cliente.whatsapp)
       },
-      itens: itens.map(item => ({
-        nome: item.nome || item.name,
-        quantidade: item.quantidade || item.quantity,
-        precoUnitario: item.precoUnitario || item.basePrice,
-        precoTotal: item.precoTotal || item.totalPrice,
-        bebida: item.bebida,
-        adicionais: item.adicionais,
-        observacoes: item.observacoes,
-        imagem: item.imagem || item.image
-      })),
-      total: total,
+      itens: validatedItems,
+      total: totalCalculado,
       endereco: endereco,
       bairro: bairro,
-      taxaEntrega: taxaEntrega,
+      taxaEntrega: taxaEntregaNumero,
       tipoEntrega: tipoEntrega,
       observacoes: observacoes,
       pagamento: pagamento || { forma: null },
@@ -792,6 +1034,12 @@ app.post('/api/pedidos', async (req, res) => {
     });
   } catch (error) {
     console.error('Erro ao processar pedido:', error);
+    if (/inválido|não confere|sem nome|quantidade inválida/i.test(error?.message || '')) {
+      return res.status(400).json({
+        success: false,
+        message: error.message
+      });
+    }
     res.status(500).json({ 
       success: false, 
       message: 'Erro ao processar pedido.' 
