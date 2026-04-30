@@ -651,7 +651,10 @@ function obterDataLocal(agora = new Date(), timeZone = BUSINESS_TIMEZONE) {
   };
 }
 
-function expedienteFechado(agora = new Date(), schedule = null) {
+function expedienteFechado(agora = new Date(), schedule = null, statusOverride = null) {
+  if (statusOverride === true) return false;
+  if (statusOverride === false) return true;
+
   const local = obterDataLocal(agora);
   const dia = local.day;
   const horarioDia = obterHorarioDia(dia, schedule);
@@ -698,8 +701,9 @@ app.post('/api/pedidos', async (req, res) => {
     const schedule = Array.isArray(companyData.businessHoursSchedule) && companyData.businessHoursSchedule.length > 0
       ? companyData.businessHoursSchedule
       : null;
+    const statusOverride = companyData.statusOverride ?? null;
 
-    if (expedienteFechado(agora, schedule)) {
+    if (expedienteFechado(agora, schedule, statusOverride)) {
       return res.status(403).json({
         success: false,
         message: 'Fora do horário de funcionamento. Os pedidos abrem a partir das 18:30.'
@@ -1136,8 +1140,9 @@ app.get('/api/pedidos/:whatsapp', async (req, res) => {
     const schedule = Array.isArray(companyData.businessHoursSchedule) && companyData.businessHoursSchedule.length > 0
       ? companyData.businessHoursSchedule
       : null;
+    const statusOverride = companyData.statusOverride ?? null;
 
-    if (expedienteFechado(agora, schedule)) {
+    if (expedienteFechado(agora, schedule, statusOverride)) {
       return res.json({ success: true, pedidos: [], fechado: true });
     }
 

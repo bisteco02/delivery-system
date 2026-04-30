@@ -1354,7 +1354,7 @@ async function salvarDadosEmpresa() {
     const locationLink = document.getElementById('location-link').value.trim();
     const companyName = document.getElementById('company-name').value.trim();
     const businessHoursSchedule = coletarHorarioFuncionamento();
-    const statusOverride = localStorage.getItem('statusOverride') ? JSON.parse(localStorage.getItem('statusOverride')) : null;
+    const statusOverride = window.statusOverride ?? (localStorage.getItem('statusOverride') ? JSON.parse(localStorage.getItem('statusOverride')) : null);
 
     // Validações básicas
     if (!companyWhatsapp || !contactWhatsapp || !companyName) {
@@ -1448,6 +1448,7 @@ async function carregarDadosEmpresa() {
 
     // Carrega statusOverride
     if (data.statusOverride !== undefined && data.statusOverride !== null) {
+        window.statusOverride = data.statusOverride;
         localStorage.setItem('statusOverride', JSON.stringify(data.statusOverride));
     }
 
@@ -3715,6 +3716,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     // Status de override (Aberto/Fechado)
     let statusOverride = null;
+    window.statusOverride = statusOverride;
 
     function atualizarBotoesStatus() {
         const btnAuto = document.getElementById('status-auto');
@@ -3742,16 +3744,19 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     document.getElementById('status-auto').addEventListener('click', () => {
         statusOverride = null;
+        window.statusOverride = statusOverride;
         atualizarBotoesStatus();
     });
 
     document.getElementById('status-forcaAberto').addEventListener('click', () => {
         statusOverride = true;
+        window.statusOverride = statusOverride;
         atualizarBotoesStatus();
     });
 
     document.getElementById('status-forcaFechado').addEventListener('click', () => {
         statusOverride = false;
+        window.statusOverride = statusOverride;
         atualizarBotoesStatus();
     });
 
@@ -3760,6 +3765,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         const saved = localStorage.getItem('statusOverride');
         if (saved !== null) {
             statusOverride = JSON.parse(saved);
+            window.statusOverride = statusOverride;
             atualizarBotoesStatus();
         }
     }
@@ -3774,6 +3780,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         
         // Salva o status override
         localStorage.setItem('statusOverride', JSON.stringify(statusOverride));
+        window.statusOverride = statusOverride;
         console.log('💾 Status override salvo:', statusOverride);
     };
 

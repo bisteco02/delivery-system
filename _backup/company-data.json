@@ -8,19 +8,19 @@
       "dayIndex": 0,
       "open": "18:30",
       "close": "23:00",
-      "closed": true
+      "closed": false
     },
     {
       "dayIndex": 1,
       "open": "18:30",
       "close": "23:00",
-      "closed": true
+      "closed": false
     },
     {
       "dayIndex": 2,
       "open": "18:30",
       "close": "23:00",
-      "closed": true
+      "closed": false
     },
     {
       "dayIndex": 3,
@@ -32,21 +32,21 @@
       "dayIndex": 4,
       "open": "18:30",
       "close": "23:00",
-      "closed": true
+      "closed": false
     },
     {
       "dayIndex": 5,
       "open": "18:30",
       "close": "23:00",
-      "closed": true
+      "closed": false
     },
     {
       "dayIndex": 6,
       "open": "18:30",
       "close": "23:00",
-      "closed": true
+      "closed": false
     }
   ],
-  "statusOverride": false,
+  "statusOverride": null,
   "savedAt": "2026-01-29T23:12:55.711Z"
 }
