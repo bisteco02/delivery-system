@@ -55,7 +55,13 @@
 	},
 	{
 		"name": "Mussarela",
-		"price": 3,
+		"price": 4,
+		"category": "burguers",
+		"ativo": true
+	},
+	{
+		"name": "Cebola Crispy",
+		"price": 4,
 		"category": "burguers",
 		"ativo": true
 	},
@@ -67,19 +73,19 @@
 	},
 	{
 		"name": "Tomate",
-		"price": 2,
+		"price": 1.25,
 		"category": "burguers",
 		"ativo": true
 	},
 	{
 		"name": "Alface",
-		"price": 2,
+		"price": 1.25,
 		"category": "burguers",
 		"ativo": true
 	},
 	{
 		"name": "Cebola roxa",
-		"price": 2,
+		"price": 1.25,
 		"category": "burguers",
 		"ativo": true
 	},
@@ -99,6 +105,12 @@
 		"name": "Frango",
 		"price": 6,
 		"category": "pizzas",
+		"ativo": true
+	},
+	{
+		"name": "6 bolinhos de Carne de Sol com requeijao",
+		"price": 22,
+		"category": "porcoes",
 		"ativo": true
 	}
 ]
