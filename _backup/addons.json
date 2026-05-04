@@ -1,1 +1,32 @@
-[]
+[
+	{
+		"name": "Coca Cola Zero Lata",
+		"price": 6,
+		"category": "bebidas",
+		"ativo": true
+	},
+	{
+		"name": "Coca Cola 2L",
+		"price": 15,
+		"category": "bebidas",
+		"ativo": true
+	},
+	{
+		"name": "Coca Cola Lata",
+		"price": 5,
+		"category": "bebidas",
+		"ativo": true
+	},
+	{
+		"name": "Coca Cola Zero 2L",
+		"price": 16,
+		"category": "bebidas",
+		"ativo": true
+	},
+	{
+		"name": "Guaraná Antártica Lata",
+		"price": 5,
+		"category": "bebidas",
+		"ativo": true
+	}
+]
