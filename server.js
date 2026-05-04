@@ -861,9 +861,12 @@ app.post('/api/pedidos', async (req, res) => {
         const incomingTotal = roundCurrencyValue(parseCurrencyValue(item.precoTotal ?? item.totalPrice));
 
         if (!moneyCloseEnough(incomingBase, basePrice) || !moneyCloseEnough(incomingTotal, itemTotal)) {
-          return res.status(400).json({
-            success: false,
-            message: 'Pedido alterado: preço da pizza personalizada não confere com o cardápio.'
+          console.warn('[Pedido] Divergência de preço em Monte sua pizza. Mantendo valores oficiais do servidor.', {
+            incomingBase,
+            incomingTotal,
+            basePrice,
+            itemTotal,
+            item: baseName
           });
         }
       } else {
@@ -915,9 +918,12 @@ app.post('/api/pedidos', async (req, res) => {
         const incomingTotal = roundCurrencyValue(parseCurrencyValue(item.precoTotal ?? item.totalPrice));
 
         if (!moneyCloseEnough(incomingBase, basePrice) || !moneyCloseEnough(incomingTotal, itemTotal)) {
-          return res.status(400).json({
-            success: false,
-            message: `Pedido alterado: preço do item "${baseName}" não confere com o cardápio.`
+          console.warn('[Pedido] Divergência de preço no item. Mantendo valores oficiais do servidor.', {
+            incomingBase,
+            incomingTotal,
+            basePrice,
+            itemTotal,
+            item: baseName
           });
         }
       }
@@ -944,9 +950,9 @@ app.post('/api/pedidos', async (req, res) => {
     const totalRecebido = roundCurrencyValue(parseCurrencyValue(total));
 
     if (!moneyCloseEnough(totalRecebido, totalCalculado)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Total do pedido não confere com os itens validados.'
+      console.warn('[Pedido] Total divergente entre cliente e servidor. Prosseguindo com total calculado no servidor.', {
+        totalRecebido,
+        totalCalculado
       });
     }
 
