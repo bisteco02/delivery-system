@@ -28,5 +28,77 @@
 		"price": 5,
 		"category": "bebidas",
 		"ativo": true
+	},
+	{
+		"name": "Burger de gado",
+		"price": 8,
+		"category": "burguers",
+		"ativo": true
+	},
+	{
+		"name": "Burger de porco",
+		"price": 8,
+		"category": "burguers",
+		"ativo": true
+	},
+	{
+		"name": "Bacon",
+		"price": 5,
+		"category": "burguers",
+		"ativo": true
+	},
+	{
+		"name": "Cheddar",
+		"price": 4,
+		"category": "burguers",
+		"ativo": true
+	},
+	{
+		"name": "Mussarela",
+		"price": 3,
+		"category": "burguers",
+		"ativo": true
+	},
+	{
+		"name": "Cebola caramelizada",
+		"price": 3,
+		"category": "burguers",
+		"ativo": true
+	},
+	{
+		"name": "Tomate",
+		"price": 2,
+		"category": "burguers",
+		"ativo": true
+	},
+	{
+		"name": "Alface",
+		"price": 2,
+		"category": "burguers",
+		"ativo": true
+	},
+	{
+		"name": "Cebola roxa",
+		"price": 2,
+		"category": "burguers",
+		"ativo": true
+	},
+	{
+		"name": "Requeijão",
+		"price": 6,
+		"category": "pizzas",
+		"ativo": true
+	},
+	{
+		"name": "Calabresa",
+		"price": 7,
+		"category": "pizzas",
+		"ativo": true
+	},
+	{
+		"name": "Frango",
+		"price": 6,
+		"category": "pizzas",
+		"ativo": true
 	}
 ]
