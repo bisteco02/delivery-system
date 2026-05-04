@@ -1664,6 +1664,63 @@
             confirmModal.classList.add('show');
         }
 
+        function exibirFallbackWhatsApp(whatsappUrl, mensagem) {
+            const existente = document.getElementById('whatsapp-fallback');
+            if (existente) existente.remove();
+
+            const box = document.createElement('div');
+            box.id = 'whatsapp-fallback';
+            box.style.cssText = [
+                'position:fixed',
+                'left:16px',
+                'right:16px',
+                'bottom:16px',
+                'z-index:9999',
+                'background:#111827',
+                'color:#fff',
+                'padding:14px',
+                'border-radius:12px',
+                'box-shadow:0 10px 30px rgba(0,0,0,.35)'
+            ].join(';');
+
+            box.innerHTML = `
+                <div style="font-weight:700;margin-bottom:6px;">Pedido finalizado com sucesso</div>
+                <div style="font-size:13px;opacity:.9;margin-bottom:10px;">Se o WhatsApp não abrir automaticamente, toque no botão abaixo.</div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                    <button id="wa-fallback-open" type="button" style="background:#22c55e;color:#052e16;border:none;border-radius:8px;padding:10px 12px;font-weight:700;cursor:pointer;">Abrir WhatsApp</button>
+                    <button id="wa-fallback-copy" type="button" style="background:#e5e7eb;color:#111827;border:none;border-radius:8px;padding:10px 12px;font-weight:700;cursor:pointer;">Copiar mensagem</button>
+                    <button id="wa-fallback-close" type="button" style="background:#374151;color:#fff;border:none;border-radius:8px;padding:10px 12px;font-weight:700;cursor:pointer;">Fechar</button>
+                </div>
+            `;
+
+            document.body.appendChild(box);
+
+            const btnOpen = document.getElementById('wa-fallback-open');
+            const btnCopy = document.getElementById('wa-fallback-copy');
+            const btnClose = document.getElementById('wa-fallback-close');
+
+            if (btnOpen) {
+                btnOpen.addEventListener('click', () => {
+                    window.location.href = whatsappUrl;
+                });
+            }
+
+            if (btnCopy) {
+                btnCopy.addEventListener('click', async () => {
+                    try {
+                        await navigator.clipboard.writeText(mensagem);
+                        sucesso('Mensagem copiada! Cole no WhatsApp.');
+                    } catch (_) {
+                        aviso('Não foi possível copiar automaticamente neste navegador.');
+                    }
+                });
+            }
+
+            if (btnClose) {
+                btnClose.addEventListener('click', () => box.remove());
+            }
+        }
+
         document.getElementById('cancelConfirm').addEventListener('click', () => {
             confirmModal.classList.remove('show');
         });
@@ -1888,18 +1945,22 @@
                         : '6381443459';
                     const encodedMessage = encodeURIComponent(mensagem);
                     const whatsappUrl = `https://wa.me/55${whatsappNumber}?text=${encodedMessage}`;
+                    const iosWhatsAppUrl = `whatsapp://send?phone=55${whatsappNumber}&text=${encodedMessage}`;
+
+                    // Sempre exibe fallback para evitar percepção de falha, principalmente no iOS.
+                    exibirFallbackWhatsApp(whatsappUrl, mensagem);
+
                     if (isIOSDevice) {
-                        window.location.href = whatsappUrl;
+                        // Em iOS, tentar deep link primeiro e cair para wa.me.
+                        window.location.href = iosWhatsAppUrl;
+                        setTimeout(() => {
+                            window.location.href = whatsappUrl;
+                        }, 500);
                     } else if (whatsappPopup && !whatsappPopup.closed) {
                         whatsappPopup.location.href = whatsappUrl;
                     } else {
                         window.location.href = whatsappUrl;
                     }
-
-                    // Redirecionar
-                    setTimeout(() => {
-                        window.location.href = 'index.html';
-                    }, 1000);
 
                 } else {
                     throw new Error(result.message || 'Erro desconhecido');
