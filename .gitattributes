@@ -1,0 +1,2 @@
+# Preserve local production _backup JSON data during merges and pulls
+_backup/*.json merge=ours

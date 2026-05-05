@@ -27,8 +27,12 @@ whatsapp-auth/
 Thumbs.db
 *.log
 
-# Uploads (se usar cloud, descomentar)
-# uploads/
+# Uploads
+uploads/
+
+# Arquivos temporários de configuração
+subscriptions.json
+.env.bak-
 
 # Build
 dist/
