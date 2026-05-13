@@ -450,7 +450,7 @@
           adicionais: Array.isArray(item?.adicionais) ? item.adicionais : []
         }));
         const persistCart = () => localStorage.setItem('cart', JSON.stringify(cart));
-        const BASE_CATEGORIES = new Set(['burguers', 'pizzas-8', 'pizzas-4', 'monte-pizza', 'porcoes', 'sobremesas', 'bebidas']);
+        const BASE_CATEGORIES = new Set(['burguers', 'pizzas', 'pizzas-8', 'pizzas-4', 'monte-pizza', 'porcoes', 'sobremesas', 'bebidas']);
         let categoriasPublicasMeta = {};
         let catalogoItens = {};
         // Ensure modals are hidden on load
@@ -713,8 +713,25 @@
               
               // Atualizar arrays globais (mantém valores anteriores se a categoria não vier do backend)
               burguers = cardapioPorCategoria['burguers'] || burguers;
-              const pizzas8 = cardapioPorCategoria['pizzas-8'] || [];
-              const pizzas4 = cardapioPorCategoria['pizzas-4'] || [];
+              let pizzas8 = cardapioPorCategoria['pizzas-8'] || [];
+              let pizzas4 = cardapioPorCategoria['pizzas-4'] || [];
+              const pizzasFallback = cardapioPorCategoria['pizzas'] || [];
+              const normalizeText = text => String(text || '').toLowerCase();
+              const isFour = item => /\b4\s*peda[cç]os\b/.test(normalizeText(item.nome || item.name || item.descricao || item.description));
+              const isEight = item => /\b8\s*peda[cç]os\b/.test(normalizeText(item.nome || item.name || item.descricao || item.description));
+
+              if (pizzasFallback.length) {
+                const fallback8 = pizzasFallback.filter(item => isEight(item));
+                const fallback4 = pizzasFallback.filter(item => isFour(item));
+                if (!pizzas8.length && !pizzas4.length) {
+                  pizzas8 = fallback8.length ? fallback8 : pizzasFallback;
+                  pizzas4 = fallback4.length ? fallback4 : [];
+                } else {
+                  pizzas8 = [...pizzas8, ...fallback8];
+                  pizzas4 = [...pizzas4, ...fallback4];
+                }
+              }
+
               pizzas = [...pizzas8, ...pizzas4];
               porcoes = cardapioPorCategoria['porcoes'] || porcoes;
               sobremesas = cardapioPorCategoria['sobremesas'] || sobremesas;
@@ -2096,6 +2113,8 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
               { key: 'burguers', nome: 'Burguers', emoji: '🍔' },
               { key: 'pizzas-8', nome: 'Pizzas 8 pedaços', emoji: '🍕' },
               { key: 'pizzas-4', nome: 'Pizzas 4 pedaços', emoji: '🍕' },
+              { key: 'monte-pizza', nome: 'Monte sua pizza', emoji: '🪄' },
+              { key: 'porcoes', nome: 'Porções', emoji: '🍟' },
               { key: 'sobremesas', nome: 'Sobremesas', emoji: '🍰' },
               { key: 'bebidas', nome: 'Bebidas', emoji: '🥤' }
             ];
@@ -2103,7 +2122,7 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
             const catMap = new Map();
             baseCats.forEach(cat => catMap.set(cat.key, cat));
 
-            const order = [];
+            const order = baseCats.map(cat => cat.key);
             if (Array.isArray(categorias)) {
               categorias.forEach(cat => {
                 const slug = slugify(cat.key || cat.slug || cat.nome || cat);
@@ -2112,13 +2131,9 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
                 const emoji = cat?.emoji || cat?.icon || '📦';
                 catMap.set(slug, { key: slug, nome, emoji });
                 categoriasPublicasMeta[slug] = { nome, emoji };
-                if (!order.includes(slug)) order.push(slug);
+                if (!order.includes(slug) && !BASE_CATEGORIES.has(slug)) order.push(slug);
               });
             }
-
-            baseCats.forEach(cat => {
-              if (!order.includes(cat.key)) order.push(cat.key);
-            });
 
             const container = document.querySelector('.flex.flex-wrap.gap-2.justify-center');
             if (!container) return;
