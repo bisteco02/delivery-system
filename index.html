@@ -249,29 +249,29 @@
                     <span>Nenhuma</span>
                   </label>
                   <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
-                    <input type="radio" name="bebida" value="Coca Cola Zero Lata - R$6,00" class="mr-3 text-blue-600 focus:ring-blue-500">
+                    <input type="radio" name="bebida" value="Coca Cola Zero Lata - R$7,50" class="mr-3 text-blue-600 focus:ring-blue-500">
                     <img src="./assets/Coca Zero Lata.png" alt="Coca Cola Zero Lata" class="w-8 h-8 mr-3 rounded">
-                    <span>Coca Cola Zero Lata - R$6,00</span>
+                    <span>Coca Cola Zero Lata - R$7,50</span>
                   </label>
                   <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
-                    <input type="radio" name="bebida" value="Coca Cola 2L - R$14,00" class="mr-3 text-blue-600 focus:ring-blue-500">
+                    <input type="radio" name="bebida" value="Coca Cola 2L - R$16,00" class="mr-3 text-blue-600 focus:ring-blue-500">
                     <img src="./assets/Coca 2L.jpg" alt="Coca Cola 2L" class="w-8 h-8 mr-3 rounded">
-                    <span>Coca Cola 2L - R$14,00</span>
+                    <span>Coca Cola 2L - R$16,00</span>
                   </label>
                   <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
-                    <input type="radio" name="bebida" value="Coca Cola Lata - R$5,00" class="mr-3 text-blue-600 focus:ring-blue-500">
+                    <input type="radio" name="bebida" value="Coca Cola Lata - R$7,00" class="mr-3 text-blue-600 focus:ring-blue-500">
                     <img src="./assets/Coca Lata.jpg" alt="Coca Cola Lata" class="w-8 h-8 mr-3 rounded">
-                    <span>Coca Cola Lata - R$5,00</span>
+                    <span>Coca Cola Lata - R$7,00</span>
                   </label>
                   <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
-                    <input type="radio" name="bebida" value="Coca Cola Zero 2L - R$15,00" class="mr-3 text-blue-600 focus:ring-blue-500">
+                    <input type="radio" name="bebida" value="Coca Cola Zero 2L - R$17,00" class="mr-3 text-blue-600 focus:ring-blue-500">
                     <img src="./assets/Coca Zero 2L.png" alt="Coca Cola Zero 2L" class="w-8 h-8 mr-3 rounded">
-                    <span>Coca Cola Zero 2L - R$15,00</span>
+                    <span>Coca Cola Zero 2L - R$17,00</span>
                   </label>
                   <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
-                    <input type="radio" name="bebida" value="Guaraná Antártica Lata - R$5,00" class="mr-3 text-blue-600 focus:ring-blue-500">
+                    <input type="radio" name="bebida" value="Guaraná Antártica Lata - R$7,00" class="mr-3 text-blue-600 focus:ring-blue-500">
                     <img src="./assets/Guarana Lata.jpg" alt="Guaraná Antártica Lata" class="w-8 h-8 mr-3 rounded">
-                    <span>Guaraná Antártica Lata - R$5,00</span>
+                    <span>Guaraná Antártica Lata - R$7,00</span>
                   </label>
                 </div>
             </div>
@@ -1622,11 +1622,11 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
             if (bebidaType !== 'nenhum' && bebidaType !== 'escolha') {
               // Mapear os tipos para os valores dos radios
               const bebidaMap = {
-                'coca-lata': 'Coca Cola Lata - R$5,00',
-                'coca-zero-lata': 'Coca Cola Zero Lata - R$6,00',
-                'coca-2l': 'Coca Cola 2L - R$14,00',
-                'coca-zero-2l': 'Coca Cola Zero 2L - R$15,00',
-                'guarana-lata': 'Guaraná Antártica Lata - R$5,00'
+                'coca-lata': 'Coca Cola Lata - R$7,00',
+                'coca-zero-lata': 'Coca Cola Zero Lata - R$7,50',
+                'coca-2l': 'Coca Cola 2L - R$16,00',
+                'coca-zero-2l': 'Coca Cola Zero 2L - R$17,00',
+                'guarana-lata': 'Guaraná Antártica Lata - R$7,00'
               };
               const bebidaValue = bebidaMap[bebidaType];
               if (bebidaValue) {
@@ -1645,11 +1645,11 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
             if (bebidaType !== 'nenhum' && bebidaType !== 'escolha') {
               // Mapear os tipos para os valores dos radios
               const bebidaMap = {
-                'coca-lata': 'Coca Cola Lata - R$5,00',
-                'coca-zero-lata': 'Coca Cola Zero Lata - R$6,00',
-                'coca-2l': 'Coca Cola 2L - R$14,00',
-                'coca-zero-2l': 'Coca Cola Zero 2L - R$15,00',
-                'guarana-lata': 'Guaraná Antártica Lata - R$5,00'
+                'coca-lata': 'Coca Cola Lata - R$7,00',
+                'coca-zero-lata': 'Coca Cola Zero Lata - R$7,50',
+                'coca-2l': 'Coca Cola 2L - R$16,00',
+                'coca-zero-2l': 'Coca Cola Zero 2L - R$17,00',
+                'guarana-lata': 'Guaraná Antártica Lata - R$7,00'
               };
               const bebidaValue = bebidaMap[bebidaType];
               if (bebidaValue) {
@@ -1677,30 +1677,40 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
           { nome: 'LEX LUTHOR', preco: 24.00, descricao: 'Pão americano, barbecue, burger 150g, cheddar, bacon, cebola caramelizada, maionese.', imagem: './assets/Lex Luthor.jpg', ativo: true, drinkType: 'nenhum', allowAddons: true },
           { nome: 'MUN-RÁ', preco: 26.00, descricao: 'Pão americano, molho especial, maionese, burger 150g, queijo mussarela, bacon, cebola caramelizada, tomate, alface, cebola roxa.', imagem: './assets/mun-ra.png', ativo: true, drinkType: 'nenhum', allowAddons: true },
           { nome: 'RAINHA DE COPAS', preco: 22.00, descricao: 'Pão americano, molho especial, maionese, burger 150g, queijo mussarela, tomate, alface americana, cebola roxa e maionese.', imagem: './assets/rainha-de-copas.png', ativo: true, drinkType: 'nenhum', allowAddons: true },
-          { nome: 'DE LA CRUZ', preco: 35.00, descricao: 'Pão australiano, 2x carne 150g, 2x queijo mussarela, 2x bacon, 2x cebola caramelizada, molho especial, maionese, tomate, alface e cebola roxa.', imagem: './assets/delacruz.png', ativo: true, drinkType: 'nenhum', allowAddons: true },
-          { nome: 'THANOS', preco: 35.00, descricao: 'Pão australiano, 2x burger de porco, 2x bacon, 2x mussarela na chapa, 2x cheddar, cebola crispy e molho barbecue.', imagem: './assets/thanos.png', ativo: true, drinkType: 'nenhum', allowAddons: true },
-          { nome: 'JUGGERNAULT', preco: 31.00, descricao: 'Pão americano, 2x burger 150g, 2x cheddar, cebola crispy, tomate, alface, ketchup e maionese.', imagem: './assets/juggernault.png', ativo: true, drinkType: 'nenhum', allowAddons: true },
-          { nome: 'MADARA', preco: 26.00, descricao: 'Pão australiano, carne de porco 150g, bacon, queijo mussarela na chapa, cheddar, cebola crispy e molho barbecue.', imagem: './assets/madara.png', ativo: true, drinkType: 'nenhum', allowAddons: true },
-          { nome: 'ROBOTNIK', preco: 33.00, descricao: 'Pão americano, burger 150g, requeijão, frango com ervas, cebola roxa, tomate e ketchup.', imagem: './assets/robotnik.png', ativo: true, drinkType: 'nenhum', allowAddons: true },
-          { nome: 'Roger Klotz', preco: 22.00, descricao: 'Pão americano, ketchup, maionese, cheddar, alface, tomate e carne bovina 150g.', imagem: './assets/roger clotz.png', ativo: true, drinkType: 'nenhum', allowAddons: true },
-          { nome: 'EXTERMINADOR - T800', preco: 36.00, descricao: 'Pão australiano, 3x burger 150g, 3x cheddar e cebola roxa.', imagem: './assets/exterminador.png', ativo: true, drinkType: 'nenhum', allowAddons: true },
-          { nome: 'Caruso', preco: 25.00, descricao: 'Pão de sementes, burger, chimichurri, 2x mussarela na chapa, tomate, cebola roxa, maionese e ketchup.', imagem: './assets/caruso.png', ativo: true, drinkType: 'nenhum', allowAddons: true },
+          { nome: 'JUGGERNAULT', preco: 40.00, descricao: 'Pão americano, 2x burger 150g, 2x cheddar, cebola crispy, tomate, alface, ketchup e maionese.', imagem: './assets/juggernault.png', ativo: true, drinkType: 'nenhum', allowAddons: true },
+          { nome: 'LEX LUTHOR', preco: 30.00, descricao: 'Pão americano, barbecue, burger 150g, cheddar, bacon, cebola caramelizada, maionese.', imagem: './assets/lex-luthor.png', ativo: true, drinkType: 'nenhum', allowAddons: true },
+          { nome: 'GARGARIEL', preco: 30.00, descricao: 'Pão americano, maionese, burger 150g, mussarela, bacon, cebola caramelizada, maionese, molho especial.', imagem: './assets/gargariel.png', ativo: true, drinkType: 'nenhum', allowAddons: true },
+          { nome: 'MANJIM BOO', preco: 32.00, descricao: 'Pão de abóbora, molho especial, setchup, burger 150g, frango com ervas 100g, mussarela, tomate roxa, maionese.', imagem: './assets/manjim-boo.png', ativo: true, drinkType: 'nenhum', allowAddons: true },
+          { nome: 'THANOS', preco: 42.00, descricao: 'Pão australiano, 2x burger de porco, 2x bacon, 2x mussarela na chapa, 2x cheddar, cebola crispy e molho barbecue.', imagem: './assets/thanos.png', ativo: true, drinkType: 'nenhum', allowAddons: true },
+          { nome: 'ROBOTNIK', preco: 40.00, descricao: 'Pão americano, burger 150g, requeijão, frango com ervas, cebola roxa, tomate e ketchup.', imagem: './assets/robotnik.png', ativo: true, drinkType: 'nenhum', allowAddons: true },
+          { nome: 'DARTH VADER', preco: 40.00, descricao: 'Pão de abóbora, 2x burger 150g, 2x cheddar, 2x bacon, 2x cebola caramelizada, molho barbecue, maionese.', imagem: './assets/darth-vader.png', ativo: true, drinkType: 'nenhum', allowAddons: true },
+          { nome: 'RAINHA DE COPAS', preco: 26.00, descricao: 'Pão americano, molho especial, maionese, burger 150g, mussarela, tomate, alface americana, cebola roxa e maionese.', imagem: './assets/rainha-copas.png', ativo: true, drinkType: 'nenhum', allowAddons: true },
+          { nome: 'CORINGA', preco: 40.00, descricao: 'Pão de abóbora, 2x burger 150g, 2x mussarela, 2x bacon, 2x cebola caramelizada, molho especial, maionese.', imagem: './assets/coringa.png', ativo: true, drinkType: 'nenhum', allowAddons: true },
+          { nome: 'MADURA', preco: 32.00, descricao: 'Pão australiano, carne de porco 150g, bacon, mussarela na chapa, cheddar, cebola crispy e molho barbecue.', imagem: './assets/madura.png', ativo: true, drinkType: 'nenhum', allowAddons: true },
+          { nome: 'DE LA CRUZ', preco: 40.00, descricao: 'Pão australiano, 2x carne 150g, 2x mussarela, 2x bacon, 2x cebola caramelizada, molho especial, maionese, tomate, alface americana.', imagem: './assets/delacruz.png', ativo: true, drinkType: 'nenhum', allowAddons: true },
+          { nome: 'EXTERMINATOR - T800', preco: 42.00, descricao: 'Pão australiano, 2x burger 150g, 2x cheddar e cebola roxa.', imagem: './assets/exterminator.png', ativo: true, drinkType: 'nenhum', allowAddons: true },
+          { nome: 'ROGER KLOTZ', preco: 26.00, descricao: 'Pão americano, burger, cheddar, alface, tomate, ketchup e maionese.', imagem: './assets/roger-klotz.png', ativo: true, drinkType: 'nenhum', allowAddons: true },
+          { nome: 'MUN RA', preco: 32.00, descricao: 'Pão americano, burger, mussarela, bacon, cebola caramelizada, cebola roxa, alface, tomate, maionese e molho especial.', imagem: './assets/mun-ra.png', ativo: true, drinkType: 'nenhum', allowAddons: true },
         ];
         let pizzas8 = [
-          { nome: 'MIRANDA PRIESTLY - (Margherita) - 8 pedaços', preco: 45.00, descricao: 'Massa de longa fermentação, molho de tomate, mussarela, parmesão e tomate.', imagem: './assets/Margherita.png', ativo: true, monteEnabled: true },
-          { nome: 'NAZARÉ TEDESCO - (Calabresa) - 8 pedaços', preco: 48.00, descricao: 'Massa de longa fermentação, molho de tomate, calabresa, mussarela e parmesão.', imagem: './assets/Calabresa.png', ativo: true, monteEnabled: true },
-          { nome: 'DANAERYS TARGERIAN - (Frango com requeijão) - 8 pedaços', preco: 50.00, descricao: 'Massa de longa fermentação, molho de tomate, mussarela, frango e requeijão.', imagem: './assets/Frango e Catupiry.jpg', ativo: true, monteEnabled: true },
-          { nome: 'CRUELLA - (3 queijos) - 8 pedaços', preco: 50.00, descricao: 'Massa de longa fermentação, molho de tomate, mussarela, requeijão e parmesão.', imagem: './assets/3 queijos.png', ativo: true, monteEnabled: true },
-          { nome: 'AGATHA TRUNCHBULL - (Autoral) - 8 pedaços', preco: 60.00, descricao: 'Massa de longa fermentação, molho de tomate, mussarela, parmesão, calabresa, carne de sol e requeijão cremoso.', imagem: './assets/agatha.png', ativo: true, monteEnabled: true },
-          { nome: 'PAOLLA BRACHO - (Portuguesa) - 8 pedaços', preco: 55.00, descricao: 'Massa de longa fermentação, molho de tomate, mussarela, parmesão, bacon, requeijão, cebola roxa, tomate e orégano.', imagem: './assets/portuguesa.png', ativo: true, monteEnabled: true },
+          { nome: 'MIRANDA PRIESTLY - (Margherita) - 8 pedaços', preco: 60.00, descricao: 'Massa de longa fermentação, molho de tomate, mussarela, parmesão e tomate.', imagem: './assets/Margherita.png', ativo: true, monteEnabled: true },
+          { nome: 'NAZARÉ TEDESCO - (Calabresa) - 8 pedaços', preco: 65.00, descricao: 'Massa de longa fermentação, molho de tomate, calabresa, mussarela e parmesão.', imagem: './assets/Calabresa.png', ativo: true, monteEnabled: true },
+          { nome: 'DANAERYS TARGERIAN - (Frango com requeijão) - 8 pedaços', preco: 65.00, descricao: 'Massa de longa fermentação, molho de tomate, mussarela, frango e requeijão.', imagem: './assets/Frango e Catupiry.jpg', ativo: true, monteEnabled: true },
+          { nome: 'CRUELLA - (3 queijos) - 8 pedaços', preco: 65.00, descricao: 'Massa de longa fermentação, molho de tomate, mussarela, requeijão e parmesão.', imagem: './assets/3 queijos.png', ativo: true, monteEnabled: true },
+          { nome: 'PAOLLA BRACHO - (Portuguesa) - 8 pedaços', preco: 75.00, descricao: 'Massa de longa fermentação, molho de tomate, mussarela, parmesão, bacon, requeijão, cebola roxa, tomate e orégano.', imagem: './assets/portuguesa.png', ativo: true, monteEnabled: true },
+          { nome: 'AGATHA TRUNCHBULL - (Autoral) - 8 pedaços', preco: 85.00, descricao: 'Massa de longa fermentação, molho de tomate, mussarela, parmesão, calabresa, carne de sol e requeijão cremoso.', imagem: './assets/agatha.png', ativo: true, monteEnabled: true },
+          { nome: 'ANABELE - (Autoral) - 8 pedaços', preco: 75.00, descricao: 'Massa de longa fermentação, molho de tomate, frango, requeijão, bacon, alho frito e mussarela.', imagem: './assets/anabele.png', ativo: true, monteEnabled: true },
+          { nome: 'ANA KARENINA - (Autoral) - 8 pedaços', preco: 90.00, descricao: 'Massa de longa fermentação, molho de tomate, mussarela, bacon, alho frito e mussarela.', imagem: './assets/ana-karenina.png', ativo: true, monteEnabled: true },
         ];
         let pizzas4 = [
-          { nome: 'MIRANDA PRIESTLY - (Margherita) - 4 pedaços', preco: 25.00, descricao: 'Massa de longa fermentação, molho de tomate, mussarela, parmesão e tomate.', imagem: './assets/Margherita.png', ativo: true, monteEnabled: true },
-          { nome: 'NAZARÉ TEDESCO - (Calabresa) - 4 pedaços', preco: 28.00, descricao: 'Massa de longa fermentação, molho de tomate, calabresa, mussarela e parmesão.', imagem: './assets/Calabresa.png', ativo: true, monteEnabled: true },
-          { nome: 'DANAERYS TARGERIAN - (Frango com requeijão) - 4 pedaços', preco: 28.00, descricao: 'Massa de longa fermentação, molho de tomate, mussarela, frango e requeijão.', imagem: './assets/Frango e Catupiry.jpg', ativo: true, monteEnabled: true },
-          { nome: 'CRUELLA - (3 queijos) - 4 pedaços', preco: 30.00, descricao: 'Massa de longa fermentação, molho de tomate, mussarela, requeijão e parmesão.', imagem: './assets/3 queijos.png', ativo: true, monteEnabled: true },
-          { nome: 'AGATHA TRUNCHBULL - (Autoral) - 4 pedaços', preco: 32.00, descricao: 'Massa de longa fermentação, molho de tomate, mussarela, parmesão, calabresa, carne de sol e requeijão cremoso.', imagem: './assets/agatha.png', ativo: true, monteEnabled: true },
-          { nome: 'PAOLLA BRACHO - (Portuguesa) - 4 pedaços', preco: 30.00, descricao: 'Massa de longa fermentação, molho de tomate, mussarela, parmesão, bacon, requeijão, cebola roxa, tomate e orégano.', imagem: './assets/portuguesa.png', ativo: true, monteEnabled: true },
+          { nome: 'MIRANDA PRIESTLY - (Margherita) - 4 pedaços', preco: 30.00, descricao: 'Massa de longa fermentação, molho de tomate, mussarela, parmesão e tomate.', imagem: './assets/Margherita.png', ativo: true, monteEnabled: true },
+          { nome: 'NAZARÉ TEDESCO - (Calabresa) - 4 pedaços', preco: 32.50, descricao: 'Massa de longa fermentação, molho de tomate, calabresa, mussarela e parmesão.', imagem: './assets/Calabresa.png', ativo: true, monteEnabled: true },
+          { nome: 'DANAERYS TARGERIAN - (Frango com requeijão) - 4 pedaços', preco: 32.50, descricao: 'Massa de longa fermentação, molho de tomate, mussarela, frango e requeijão.', imagem: './assets/Frango e Catupiry.jpg', ativo: true, monteEnabled: true },
+          { nome: 'CRUELLA - (3 queijos) - 4 pedaços', preco: 32.50, descricao: 'Massa de longa fermentação, molho de tomate, mussarela, requeijão e parmesão.', imagem: './assets/3 queijos.png', ativo: true, monteEnabled: true },
+          { nome: 'PAOLLA BRACHO - (Portuguesa) - 4 pedaços', preco: 37.50, descricao: 'Massa de longa fermentação, molho de tomate, mussarela, parmesão, bacon, requeijão, cebola roxa, tomate e orégano.', imagem: './assets/portuguesa.png', ativo: true, monteEnabled: true },
+          { nome: 'AGATHA TRUNCHBULL - (Autoral) - 4 pedaços', preco: 42.50, descricao: 'Massa de longa fermentação, molho de tomate, mussarela, parmesão, calabresa, carne de sol e requeijão cremoso.', imagem: './assets/agatha.png', ativo: true, monteEnabled: true },
+          { nome: 'ANABELE - (Autoral) - 4 pedaços', preco: 37.50, descricao: 'Massa de longa fermentação, molho de tomate, frango, requeijão, bacon, alho frito e mussarela.', imagem: './assets/anabele.png', ativo: true, monteEnabled: true },
+          { nome: 'ANA KARENINA - (Autoral) - 4 pedaços', preco: 45.00, descricao: 'Massa de longa fermentação, molho de tomate, mussarela, bacon, alho frito e mussarela.', imagem: './assets/ana-karenina.png', ativo: true, monteEnabled: true },
         ];
         let montePizza = [
           { nome: 'ESCOLHA O SABOR', preco: 0.00, descricao: 'Você pode escolher 2 sabores', imagem: './assets/monte sua pizza.png', ativo: true },
@@ -1720,11 +1730,11 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
           { nome: 'Bolo de pote - Abacaxi aos 4 leites', preco: 16.00, descricao: 'Pão de ló, abacaxi, leite condensado, creme de leite, leite em pó e leite de coco.', imagem: './assets/bolo de pote abacaxi.png', ativo: true, drinkType: 'nenhum', allowAddons: true },
         ];
         let bebidas = [
-          { nome: 'Coca Cola Zero Lata', preco: 6.00, descricao: 'Bebida gelada', imagem: './assets/Coca Zero Lata.png', ativo: true, drinkType: 'nenhum', allowAddons: false },
-          { nome: 'Coca Cola 2L', preco: 14.00, descricao: 'Bebida gelada', imagem: './assets/Coca 2L.jpg', ativo: true, drinkType: 'nenhum', allowAddons: false },
-          { nome: 'Coca Cola Lata', preco: 5.00, descricao: 'Bebida gelada', imagem: './assets/Coca Lata.jpg', ativo: true, drinkType: 'nenhum', allowAddons: false },
-          { nome: 'Coca Cola Zero 2L', preco: 15.00, descricao: 'Bebida gelada', imagem: './assets/Coca Zero 2L.png', ativo: true, drinkType: 'nenhum', allowAddons: false },
-          { nome: 'Guaraná Antártica Lata', preco: 5.00, descricao: 'Bebida gelada', imagem: './assets/Guarana Lata.jpg', ativo: true, drinkType: 'nenhum', allowAddons: false },
+          { nome: 'Coca Cola Zero Lata', preco: 7.50, descricao: 'Bebida gelada', imagem: './assets/Coca Zero Lata.png', ativo: true, drinkType: 'nenhum', allowAddons: false },
+          { nome: 'Coca Cola 2L', preco: 16.00, descricao: 'Bebida gelada', imagem: './assets/Coca 2L.jpg', ativo: true, drinkType: 'nenhum', allowAddons: false },
+          { nome: 'Coca Cola Lata', preco: 7.00, descricao: 'Bebida gelada', imagem: './assets/Coca Lata.jpg', ativo: true, drinkType: 'nenhum', allowAddons: false },
+          { nome: 'Coca Cola Zero 2L', preco: 17.00, descricao: 'Bebida gelada', imagem: './assets/Coca Zero 2L.png', ativo: true, drinkType: 'nenhum', allowAddons: false },
+          { nome: 'Guaraná Antártica Lata', preco: 7.00, descricao: 'Bebida gelada', imagem: './assets/Guarana Lata.jpg', ativo: true, drinkType: 'nenhum', allowAddons: false },
         ];
 
         function renderPromosModal() {
