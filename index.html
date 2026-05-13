@@ -277,8 +277,8 @@
             </div>
 
             <div class="mb-4" id="molhos-section" style="display: none;">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Molhos e extras (opcional)</label>
-                <div class="space-y-2 bg-gray-50 p-3 rounded-md" id="molhos-list">
+                <label class="block text-sm font-medium text-gray-700 mb-2">🍯 Molhos e extras (opcional)</label>
+                <div class="space-y-2 bg-orange-50 p-3 rounded-md border border-orange-200" id="molhos-list">
                   <p class="text-gray-500 text-sm">Carregando molhos...</p>
                 </div>
             </div>
@@ -1062,16 +1062,22 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
 
           const html = Object.values(groups).map(group => {
             const title = String(group.display || 'geral');
+            const isMolhos = /molho|extra/i.test(title);
+            const bgColor = isMolhos ? 'hover:bg-orange-100 border-orange-200' : 'hover:bg-blue-100 border-blue-200';
+            const checkColor = isMolhos ? 'text-orange-600 focus:ring-orange-500' : 'text-blue-600 focus:ring-blue-500';
+            const icon = isMolhos ? '🍯' : '✨';
+            
             return `
               <div class="addon-category mb-3">
-                <div class="font-semibold mb-1 capitalize">${title}</div>
+                <div class="font-semibold mb-1 capitalize text-sm">${icon} ${title}</div>
                 ${group.items.map(a => {
                   const preco = Number(a.price || 0).toFixed(2).replace('.', ',');
                   const valor = `${a.name} - R$ ${preco}`;
                   return `
-                    <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded border">
-                      <input type="checkbox" name="${inputName}" value="${valor.replace(/\"/g, '&quot;')}" class="mr-3 text-blue-600 focus:ring-blue-500">
-                      <span>${a.name} - R$ ${preco}</span>
+                    <label class="flex items-center cursor-pointer ${bgColor} p-2 rounded border transition">
+                      <input type="checkbox" name="${inputName}" value="${valor.replace(/\"/g, '&quot;')}" class="w-5 h-5 ${checkColor} rounded">
+                      <span class="ml-2 text-sm flex-1 text-gray-700 font-medium">${a.name}</span>
+                      <span class="text-sm font-bold ${isMolhos ? 'text-orange-600' : 'text-blue-600'}">R$ ${preco}</span>
                     </label>
                   `;
                 }).join('')}
@@ -1113,8 +1119,8 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
                     </div>
 
                     <div class="mb-4" id="molhos-section" style="display: none;">
-                      <label class="block text-sm font-medium text-gray-700 mb-2">Molhos e extras (opcional)</label>
-                      <div class="space-y-2 bg-gray-50 p-3 rounded-md" id="molhos-list">
+                      <label class="block text-sm font-medium text-gray-700 mb-2">🍯 Molhos e extras (opcional)</label>
+                      <div class="space-y-2 bg-orange-50 p-3 rounded-md border border-orange-200" id="molhos-list">
                         <p class="text-gray-500 text-sm">Carregando molhos...</p>
                       </div>
                     </div>
@@ -1451,12 +1457,18 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
                   <p class="text-center font-bold mb-2">${name}</p>
                 </div>
                 <div class="mb-4" id="combo-bebida-section">
-                  <label class="block text-sm font-medium text-gray-700 mb-2">Refrigerante (opcional)</label>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">🥤 Refrigerante (opcional)</label>
                   <div class="grid grid-cols-1 gap-2" id="combo-bebida-radios">${renderBebidasRadios('combo-bebida', bebidaType, 'Nenhum')}</div>
                 </div>
-                <div class="mb-4">
-                  <label class="block text-sm font-medium text-gray-700 mb-2">Adicionais (opcional)</label>
-                  <div class="space-y-2 bg-gray-50 p-3 rounded-md" id="combo-adicionais-list">
+                <div class="mb-4" id="combo-molhos-section" style="display: none;">
+                  <label class="block text-sm font-medium text-gray-700 mb-2">🍯 Molhos e Extras (opcional)</label>
+                  <div class="space-y-2 bg-orange-50 p-3 rounded-md border border-orange-200" id="combo-molhos-list">
+                    <p class="text-gray-500 text-sm">Carregando molhos...</p>
+                  </div>
+                </div>
+                <div class="mb-4" id="combo-adicionais-section" style="display: none;">
+                  <label class="block text-sm font-medium text-gray-700 mb-2">✨ Adicionais (opcional)</label>
+                  <div class="space-y-2 bg-blue-50 p-3 rounded-md border border-blue-200" id="combo-adicionais-list">
                     <p class="text-gray-500 text-sm">Carregando adicionais...</p>
                   </div>
                 </div>
@@ -1474,16 +1486,51 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
                 const json = await resp.json();
                 const lista = (json && Array.isArray(json.addons)) ? json.addons : (Array.isArray(json) ? json : []);
                 const ativos = lista.filter(isAddonActive);
-                const comboTargetCategory = /pizza/i.test(String(name || '')) ? 'pizzas' : 'burguers';
+                const isHamburguer = /burger|hamburguer/i.test(String(name || ''));
+                const isPizza = /pizza/i.test(String(name || ''));
+                
+                // Molhos - mostrar para hambúrgueres e pizzas
+                const molhos = filterAddonsByTargetCategory(ativos, 'molhos', false);
+                const extras = filterAddonsByTargetCategory(ativos, 'extras', false);
+                const todosMolhos = [...molhos, ...extras];
+                const molhosSection = modal.querySelector('#combo-molhos-section');
+                const molhosList = modal.querySelector('#combo-molhos-list');
+                if (molhosSection && molhosList && todosMolhos.length > 0) {
+                  molhosSection.style.display = 'block';
+                  const molhosHTML = todosMolhos.map(m => {
+                    const preco = Number(m.price || 0).toFixed(2).replace('.', ',');
+                    return `
+                      <label class="flex items-center cursor-pointer hover:bg-orange-100 p-2 rounded border border-orange-100 transition">
+                        <input type="checkbox" name="combo-molhos" value="${(m.name + ' - R$' + Number(m.price||0).toFixed(2)).replace(/\"/g,'&quot;')}" class="w-5 h-5 text-orange-600 focus:ring-orange-500 rounded">
+                        <span class="ml-3 text-sm font-medium text-gray-700">${m.name}</span>
+                        <span class="ml-auto text-sm font-bold text-orange-600">R$ ${preco}</span>
+                      </label>
+                    `;
+                  }).join('');
+                  molhosList.innerHTML = molhosHTML;
+                }
+
+                // Adicionais específicos da categoria
+                const comboTargetCategory = isPizza ? 'pizzas' : 'burguers';
                 let adicionaisForModal = filterAddonsByTargetCategory(ativos, comboTargetCategory, false);
-                // popular adicionais
-                try {
-                  const adicionaisList = modal.querySelector('#combo-adicionais-list');
-                  if (adicionaisList) {
-                    adicionaisList.innerHTML = adicionaisForModal.map(a => `<label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded"><input type="checkbox" name="combo-adicionais" value="${(a.name + ' - R$' + Number(a.price||0).toFixed(2)).replace(/\"/g,'&quot;')}" class="mr-3 text-blue-600 focus:ring-blue-500"> <span>${a.name} - R$ ${Number(a.price||0).toFixed(2).replace('.',',')}</span></label>`).join('');
+                const adicionaisSection = modal.querySelector('#combo-adicionais-section');
+                const adicionaisList = modal.querySelector('#combo-adicionais-list');
+                if (adicionaisSection && adicionaisList) {
+                  if (adicionaisForModal.length > 0) {
+                    adicionaisSection.style.display = 'block';
+                    const adicionaisHTML = adicionaisForModal.map(a => {
+                      const preco = Number(a.price || 0).toFixed(2).replace('.', ',');
+                      return `
+                        <label class="flex items-center cursor-pointer hover:bg-blue-100 p-2 rounded border border-blue-100 transition">
+                          <input type="checkbox" name="combo-adicionais" value="${(a.name + ' - R$' + Number(a.price||0).toFixed(2)).replace(/\"/g,'&quot;')}" class="w-5 h-5 text-blue-600 focus:ring-blue-500 rounded">
+                          <span class="ml-3 text-sm font-medium text-gray-700">${a.name}</span>
+                          <span class="ml-auto text-sm font-bold text-blue-600">R$ ${preco}</span>
+                        </label>
+                      `;
+                    }).join('');
+                    adicionaisList.innerHTML = adicionaisHTML;
                   }
-                } catch (e) { console.warn('erro ao popular adicionais do combo', e); }
-                // Bebidas do modal de combo seguem o cardapio ativo
+                }
               } catch (err) {
                 console.warn('Erro ao carregar adicionais para combo:', err);
               }
@@ -1495,8 +1542,10 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
             if (cancelBtn) cancelBtn.onclick = () => { modal.style.display = 'none'; modal.remove(); };
             if (confirmBtn) confirmBtn.onclick = () => {
               const bebida = modal.querySelector('input[name="combo-bebida"]:checked')?.value || '';
+              const molhos = Array.from(modal.querySelectorAll('input[name="combo-molhos"]:checked')).map(cb => cb.value);
               const adicionais = Array.from(modal.querySelectorAll('input[name="combo-adicionais"]:checked')).map(cb => cb.value);
-              addToCart(name, price, bebida, adicionais, '', image);
+              const todosAdicionais = [...molhos, ...adicionais];
+              addToCart(name, price, bebida, todosAdicionais, '', image);
               modal.style.display = 'none';
               modal.remove();
             };

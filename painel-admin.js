@@ -4177,43 +4177,58 @@ function renderizarAddonsList() {
         grouped[key].items.push({ addon, idx });
     });
 
-    const categories = Object.values(grouped);
+    const categories = Object.values(grouped).sort((a, b) => {
+        // Molhos sempre no topo
+        const isMolhosA = /molho|extra/i.test(a.key);
+        const isMolhosB = /molho|extra/i.test(b.key);
+        if (isMolhosA && !isMolhosB) return -1;
+        if (!isMolhosA && isMolhosB) return 1;
+        return 0;
+    });
 
     let html = '';
     // filtro de categorias
     html += '<div class="mb-3 flex items-center gap-3"><label class="text-sm font-medium">Filtrar por categoria:</label><select id="addon-filter-select" class="border rounded px-2 py-1"><option value="all">Todos</option>';
     categories.forEach(c => {
-        html += `<option value="${c.key}">${c.display}</option>`;
+        const icon = /molho|extra/i.test(c.key) ? '🍯' : '';
+        html += `<option value="${c.key}">${icon} ${c.display}`.trim() + '</option>';
     });
     html += '</select></div>';
 
     // listar por categoria
     categories.forEach(c => {
-        html += `<div class="group-wrapper mb-4" data-cat="${c.key}">`;
-        html += `<h3 class="font-bold text-lg mb-2">${c.display}</h3>`;
+        const isMolhos = /molho|extra/i.test(c.key);
+        const borderColor = isMolhos ? 'border-l-4 border-l-orange-500' : 'border-l-4 border-l-blue-500';
+        const bgGradient = isMolhos ? 'bg-gradient-to-r from-orange-50 to-white' : 'bg-white';
+        
+        html += `<div class="group-wrapper mb-4 p-3 rounded-lg ${bgGradient} ${borderColor}" data-cat="${c.key}">`;
+        html += `<h3 class="font-bold text-lg mb-3 flex items-center gap-2">${isMolhos ? '🍯' : '✨'} ${c.display}</h3>`;
         html += '<div class="space-y-3">';
         c.items.forEach(({ addon, idx }) => {
             const ativo = addon.ativo !== false;
+            const cardBg = isMolhos ? 'bg-gradient-to-r from-orange-50 to-yellow-50' : 'bg-white';
+            const badgeBg = isMolhos ? 'bg-orange-100 text-orange-700' : 'bg-blue-100 text-blue-700';
+            
             html += `
-            <div class="bg-white rounded-lg shadow-lg overflow-hidden transition hover:shadow-xl ${!ativo ? 'opacity-60' : ''}">
+            <div class="${cardBg} rounded-lg shadow-lg overflow-hidden transition hover:shadow-xl ${!ativo ? 'opacity-60' : ''}">
                 <div class="p-4">
                     <div class="flex items-center justify-between mb-2">
-                        <h4 class="font-bold text-lg">${addon.name || 'Sem nome'}</h4>
-                        <span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">${addon.category || 'geral'}</span>
+                        <h4 class="font-bold text-lg">${isMolhos ? '🍯' : ''} ${addon.name || 'Sem nome'}</h4>
+                        <span class="text-xs ${badgeBg} px-3 py-1 rounded-full">${addon.category || 'geral'}</span>
                     </div>
                     <div class="flex items-center justify-between">
-                        <span class="font-bold text-green-600">R$ ${Number(addon.price || 0).toFixed(2).replace('.', ',')}</span>
+                        <span class="font-bold text-green-600 text-lg">R$ ${Number(addon.price || 0).toFixed(2).replace('.', ',')}</span>
                         ${ativo ? '<span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">ATIVO</span>' : '<span class="text-xs bg-red-100 text-red-700 px-2 py-1 rounded">INATIVO</span>'}
                     </div>
                 </div>
                 <div class="border-t px-3 py-2 bg-gray-50 grid grid-cols-3 gap-2">
-                    <button onclick="abrirModalAddon(${idx}); event.stopPropagation();" class="bg-blue-600 text-white font-semibold py-2 rounded text-sm flex items-center justify-center gap-2 hover:opacity-90 transition">
+                    <button onclick="abrirModalAddon(${idx}); event.stopPropagation();" class="bg-blue-600 text-white font-semibold py-2 rounded text-sm flex items-center justify-center gap-2 hover:bg-blue-700 transition">
                         <i class="fa fa-edit"></i> Editar
                     </button>
-                    <button onclick="toggleAddonAtivo(${idx}); event.stopPropagation();" class="${ativo ? 'bg-orange-500' : 'bg-green-600'} text-white font-semibold py-2 rounded text-sm flex items-center justify-center gap-2 hover:opacity-90 transition" title="${ativo ? 'Desabilitar' : 'Habilitar'}">
+                    <button onclick="toggleAddonAtivo(${idx}); event.stopPropagation();" class="${ativo ? 'bg-orange-500 hover:bg-orange-600' : 'bg-green-600 hover:bg-green-700'} text-white font-semibold py-2 rounded text-sm flex items-center justify-center gap-2 transition" title="${ativo ? 'Desabilitar' : 'Habilitar'}">
                         <i class="fa fa-${ativo ? 'eye-slash' : 'eye'}"></i> ${ativo ? 'Desab.' : 'Hab.'}
                     </button>
-                    <button onclick="deletarAddon(${idx}); event.stopPropagation();" class="bg-red-600 text-white font-semibold py-2 rounded text-sm flex items-center justify-center gap-2 hover:opacity-90 transition" title="Deletar">
+                    <button onclick="deletarAddon(${idx}); event.stopPropagation();" class="bg-red-600 text-white font-semibold py-2 rounded text-sm flex items-center justify-center gap-2 hover:bg-red-700 transition" title="Deletar">
                         <i class="fa fa-trash"></i> Del.
                     </button>
                 </div>
