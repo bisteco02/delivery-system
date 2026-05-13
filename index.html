@@ -713,7 +713,9 @@
               await carregarPromocoesItems();
               
               renderCategoria(burguers, 'burguers-grid');
-              renderCategoria([...pizzas8, ...pizzas4], 'pizzas-grid');
+              // Filtrar pizzas por tamanho para exibição separada
+              const pizzasPorTamanho = cardapioPorCategoria['pizzas'] || [...pizzas8, ...pizzas4];
+              renderCategoria(pizzasPorTamanho, 'pizzas-grid');
               renderCategoria(montePizza, 'monte-pizza-grid');
               renderCategoria(porcoes, 'porcoes-grid');
               renderCategoria(sobremesas, 'sobremesas-grid');
@@ -2109,7 +2111,8 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
           // Se não carregou do servidor, renderizar os dados locais
           if (!carregouDoServidor) {
             renderCategoria(burguers, 'burguers-grid');
-            renderCategoria([...pizzas8, ...pizzas4], 'pizzas-grid');
+            const pizzasPorTamanho = [...pizzas8, ...pizzas4];
+            renderCategoria(pizzasPorTamanho, 'pizzas-grid');
             renderCategoria(montePizza, 'monte-pizza-grid');
             renderCategoria(porcoes, 'porcoes-grid');
             renderCategoria(sobremesas, 'sobremesas-grid');
