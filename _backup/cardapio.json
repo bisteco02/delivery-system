@@ -113,7 +113,7 @@
   },
   {
     "name": "MIRANDA PRIESTLY (Margherita) - 8 pedaços",
-    "category": "pizzas",
+    "category": "pizzas-8",
     "price": 45,
     "image": "./assets/Margherita.png",
     "description": "Massa de longa fermentação, molho de tomate, mussarela, parmesão e tomate.",
@@ -124,7 +124,7 @@
   },
   {
     "name": "NAZARÉ TEDESCO (Calabresa) - 8 pedaços",
-    "category": "pizzas",
+    "category": "pizzas-8",
     "price": 48,
     "image": "./assets/Calabresa.png",
     "description": "Massa de longa fermentação, molho de tomate, calabresa, mussarela e parmesão.",
@@ -133,7 +133,7 @@
   },
   {
     "name": "DANAERYS TARGERIAN (Frango com requeijão) - 8 pedaços",
-    "category": "pizzas",
+    "category": "pizzas-8",
     "price": 50,
     "image": "./assets/Frango e Catupiry.jpg",
     "description": "Massa de longa fermentação, molho de tomate, mussarela, frango e requeijão.",
@@ -142,7 +142,7 @@
   },
   {
     "name": "CRUELLA (3 queijos) - 8 pedaços",
-    "category": "pizzas",
+    "category": "pizzas-8",
     "price": 50,
     "image": "./assets/3 queijos.png",
     "description": "Massa de longa fermentação, molho de tomate, mussarela, requeijão e parmesão.",
@@ -151,7 +151,7 @@
   },
   {
     "name": "AGATHA TRUNCHBULL (Autoral) - 8 pedaços",
-    "category": "pizzas",
+    "category": "pizzas-8",
     "price": 60,
     "image": "./assets/agatha.png",
     "description": "Massa de longa fermentação, molho de tomate, mussarela, parmesão, calabresa, carne de sol e requeijão cremoso.",
@@ -160,7 +160,7 @@
   },
   {
     "name": "PAOLLA BRACHO (Portuguesa) - 8 pedaços",
-    "category": "pizzas",
+    "category": "pizzas-8",
     "price": 55,
     "image": "./assets/portuguesa.png",
     "description": "Massa de longa fermentação, molho de tomate, mussarela, parmesão, bacon, requeijão, cebola roxa, tomate e orégano.",
@@ -169,7 +169,7 @@
   },
   {
     "name": "MIRANDA PRIESTLY (Margherita) - 4 pedaços",
-    "category": "pizzas",
+    "category": "pizzas-4",
     "price": 25,
     "image": "./assets/Margherita.png",
     "description": "Massa de longa fermentação, molho de tomate, mussarela, parmesão e tomate.",
@@ -178,7 +178,7 @@
   },
   {
     "name": "NAZARÉ TEDESCO (Calabresa) - 4 pedaços",
-    "category": "pizzas",
+    "category": "pizzas-4",
     "price": 28,
     "image": "./assets/Calabresa.png",
     "description": "Massa de longa fermentação, molho de tomate, calabresa, mussarela e parmesão.",
@@ -187,7 +187,7 @@
   },
   {
     "name": "DANAERYS TARGERIAN (Frango com requeijão) - 4 pedaços",
-    "category": "pizzas",
+    "category": "pizzas-4",
     "price": 28,
     "image": "./assets/Frango e Catupiry.jpg",
     "description": "Massa de longa fermentação, molho de tomate, mussarela, frango e requeijão.",
@@ -196,7 +196,7 @@
   },
   {
     "name": "CRUELLA (3 queijos) - 4 pedaços",
-    "category": "pizzas",
+    "category": "pizzas-4",
     "price": 30,
     "image": "./assets/3 queijos.png",
     "description": "Massa de longa fermentação, molho de tomate, mussarela, requeijão e parmesão.",
@@ -205,7 +205,7 @@
   },
   {
     "name": "AGATHA TRUNCHBULL (Autoral) - 4 pedaços",
-    "category": "pizzas",
+    "category": "pizzas-4",
     "price": 32,
     "image": "./assets/agatha.png",
     "description": "Massa de longa fermentação, molho de tomate, mussarela, parmesão, calabresa, carne de sol e requeijão cremoso.",
@@ -214,7 +214,7 @@
   },
   {
     "name": "PAOLLA BRACHO (Portuguesa) - 4 pedaços",
-    "category": "pizzas",
+    "category": "pizzas-4",
     "price": 30,
     "image": "./assets/portuguesa.png",
     "description": "Massa de longa fermentação, molho de tomate, mussarela, parmesão, bacon, requeijão, cebola roxa, tomate e orégano.",
