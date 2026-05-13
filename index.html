@@ -116,8 +116,11 @@
             <button class="category-filter-btn px-4 py-2 rounded-lg font-semibold transition duration-200 bg-gray-300 hover:bg-red-500 hover:text-white flex items-center gap-2" data-category="burguers">
               <i class="fa fa-burger"></i> Burguers
             </button>
-            <button class="category-filter-btn px-4 py-2 rounded-lg font-semibold transition duration-200 bg-gray-300 hover:bg-red-500 hover:text-white flex items-center gap-2" data-category="pizzas">
-              <i class="fa fa-pizza-slice"></i> Pizzas
+            <button class="category-filter-btn px-4 py-2 rounded-lg font-semibold transition duration-200 bg-gray-300 hover:bg-red-500 hover:text-white flex items-center gap-2" data-category="pizzas-8">
+              <i class="fa fa-pizza-slice"></i> Pizzas 8 pedaços
+            </button>
+            <button class="category-filter-btn px-4 py-2 rounded-lg font-semibold transition duration-200 bg-gray-300 hover:bg-red-500 hover:text-white flex items-center gap-2" data-category="pizzas-4">
+              <i class="fa fa-pizza-slice"></i> Pizzas 4 pedaços
             </button>
             <button class="category-filter-btn px-4 py-2 rounded-lg font-semibold transition duration-200 bg-gray-300 hover:bg-red-500 hover:text-white flex items-center gap-2" data-category="monte-pizza">
               <i class="fa fa-wand-magic-sparkles"></i> Monte
@@ -142,12 +145,20 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-7 md:gap-10 mx-auto max-w-7xl px-2 mb-16" id="burguers-grid"></div>
         </div>
 
-        <!-- PIZZAS -->
-        <div class="category-section" data-category="pizzas">
+        <!-- PIZZAS 8 PEDAÇOS -->
+        <div class="category-section" data-category="pizzas-8">
           <div class="mx-auto max-w-7xl px-2 my-2">
-            <h2 class="font-bold text-3xl mt-4" id="pizzas">Pizzas</h2>
+            <h2 class="font-bold text-3xl mt-4" id="pizzas-8">Pizzas 8 pedaços</h2>
           </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-7 md:gap-10 mx-auto max-w-7xl px-2 mb-16" id="pizzas-grid"></div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-7 md:gap-10 mx-auto max-w-7xl px-2 mb-16" id="pizzas-8-grid"></div>
+        </div>
+
+        <!-- PIZZAS 4 PEDAÇOS -->
+        <div class="category-section" data-category="pizzas-4">
+          <div class="mx-auto max-w-7xl px-2 my-2">
+            <h2 class="font-bold text-3xl mt-4" id="pizzas-4">Pizzas 4 pedaços</h2>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-7 md:gap-10 mx-auto max-w-7xl px-2 mb-16" id="pizzas-4-grid"></div>
         </div>
 
         <!-- MONTE SUA PIZZA -->
@@ -439,7 +450,7 @@
           adicionais: Array.isArray(item?.adicionais) ? item.adicionais : []
         }));
         const persistCart = () => localStorage.setItem('cart', JSON.stringify(cart));
-        const BASE_CATEGORIES = new Set(['burguers', 'pizzas', 'monte-pizza', 'porcoes', 'sobremesas', 'bebidas']);
+        const BASE_CATEGORIES = new Set(['burguers', 'pizzas-8', 'pizzas-4', 'monte-pizza', 'porcoes', 'sobremesas', 'bebidas']);
         let categoriasPublicasMeta = {};
         let catalogoItens = {};
         // Ensure modals are hidden on load
@@ -702,7 +713,9 @@
               
               // Atualizar arrays globais (mantém valores anteriores se a categoria não vier do backend)
               burguers = cardapioPorCategoria['burguers'] || burguers;
-              pizzas = cardapioPorCategoria['pizzas'] || pizzas;
+              const pizzas8 = cardapioPorCategoria['pizzas-8'] || [];
+              const pizzas4 = cardapioPorCategoria['pizzas-4'] || [];
+              pizzas = [...pizzas8, ...pizzas4];
               porcoes = cardapioPorCategoria['porcoes'] || porcoes;
               sobremesas = cardapioPorCategoria['sobremesas'] || sobremesas;
               bebidas = cardapioPorCategoria['bebidas'] || bebidas;
@@ -713,9 +726,8 @@
               await carregarPromocoesItems();
               
               renderCategoria(burguers, 'burguers-grid');
-              // Filtrar pizzas por tamanho para exibição separada
-              const pizzasPorTamanho = cardapioPorCategoria['pizzas'] || [...pizzas8, ...pizzas4];
-              renderCategoria(pizzasPorTamanho, 'pizzas-grid');
+              renderCategoria(pizzas8, 'pizzas-8-grid');
+              renderCategoria(pizzas4, 'pizzas-4-grid');
               renderCategoria(montePizza, 'monte-pizza-grid');
               renderCategoria(porcoes, 'porcoes-grid');
               renderCategoria(sobremesas, 'sobremesas-grid');
@@ -959,7 +971,7 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
         function normalizeAddonCategoryKey(category) {
           let key = (category || 'geral').toString().toLowerCase().trim();
           if (key === 'burger' || key === 'burgers') key = 'burguers';
-          if (key === 'pizza') key = 'pizzas';
+          if (key === 'pizza' || key === 'pizzas' || key.startsWith('pizza')) key = 'pizzas';
           if (key === 'drink' || key === 'drinks' || key === 'bebida') key = 'bebidas';
           if (key === 'molho' || key === 'molhos' || key === 'sauce' || key === 'sauces') key = 'molhos';
           if (key === 'extra' || key === 'extras') key = 'extras';
@@ -1425,13 +1437,11 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
               return;
             }
 
-            // Usa preço fixo do item monte-pizza; se estiver zerado, usa soma das metades.
-            const precoFixo = Number(price) || 0;
             const precoMetades = saboresSelecionados.reduce((sum, cb) => {
               const half = Number.parseFloat(cb.dataset.halfPrice || '0');
               return sum + (Number.isFinite(half) ? half : 0);
             }, 0);
-            const precoBase = precoFixo > 0 ? precoFixo : precoMetades;
+            const precoBase = precoMetades;
 
             addToCart('Monte sua pizza', precoBase, bebida, sabores, '', image);
             modal.style.display = 'none';
@@ -1977,6 +1987,7 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
             const precoComDesconto = promo ? precoOriginal * (1 - promo.discount / 100) : precoOriginal;
             const temDesconto = promo && promo.discount > 0;
             const precoFinal = temDesconto ? precoComDesconto : precoOriginal;
+            const isMontePizzaItem = (item.category === 'monte-pizza' || item.categoria === 'monte-pizza');
 
             grid.innerHTML += `
               <div class="flex gap-2 w-full">
@@ -1992,7 +2003,7 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
                         <p class="line-through text-gray-500 text-sm">R$${precoOriginal.toFixed(2).replace('.', ',')}</p>
                       </div>
                     ` : `
-                      <p class="font-bold text-lg">R$${precoFinal.toFixed(2).replace('.', ',')}</p>
+                      ${isMontePizzaItem ? '' : `<p class="font-bold text-lg">R$${precoFinal.toFixed(2).replace('.', ',')}</p>`}
                     `}
                     <button class="bg-gray-900 px-5 py-2 rounded add-to-cart-btn h-fit hover:bg-gray-800 transition" data-name="${item.nome}" data-price="${precoFinal.toFixed(2).replace('.', ',')}" data-image="${resolveImage(item.imagem)}">
                       <i class="fa fa-cart-plus text-lg text-white"></i>
@@ -2083,9 +2094,8 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
             const slugify = (str = '') => str.toString().toLowerCase().normalize('NFD').replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-');
             const baseCats = [
               { key: 'burguers', nome: 'Burguers', emoji: '🍔' },
-              { key: 'pizzas', nome: 'Pizzas', emoji: '🍕' },
-              { key: 'monte-pizza', nome: 'Monte', emoji: '🪄' },
-              { key: 'porcoes', nome: 'Porções', emoji: '🍟' },
+              { key: 'pizzas-8', nome: 'Pizzas 8 pedaços', emoji: '🍕' },
+              { key: 'pizzas-4', nome: 'Pizzas 4 pedaços', emoji: '🍕' },
               { key: 'sobremesas', nome: 'Sobremesas', emoji: '🍰' },
               { key: 'bebidas', nome: 'Bebidas', emoji: '🥤' }
             ];
@@ -2174,8 +2184,8 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
           // Se não carregou do servidor, renderizar os dados locais
           if (!carregouDoServidor) {
             renderCategoria(burguers, 'burguers-grid');
-            const pizzasPorTamanho = [...pizzas8, ...pizzas4];
-            renderCategoria(pizzasPorTamanho, 'pizzas-grid');
+            renderCategoria(pizzas8, 'pizzas-8-grid');
+            renderCategoria(pizzas4, 'pizzas-4-grid');
             renderCategoria(montePizza, 'monte-pizza-grid');
             renderCategoria(porcoes, 'porcoes-grid');
             renderCategoria(sobremesas, 'sobremesas-grid');

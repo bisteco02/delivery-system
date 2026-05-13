@@ -260,64 +260,55 @@ let customCategories = [];
 let promotions = [];
 
 let menu = [
-    // Burguers
-    {name: "CORINGA", category: "burguers", price: 33.00, image: "./assets/Coringa.jpg", description: "Pão de abóbora, 2x burger 150g, 2x queijo mussarela, 2x bacon, 2x cebola caramelizada, molho especial, maionese.", ativo: true},
-    {name: "DARTH VADER", category: "burguers", price: 33.00, image: "./assets/darthvader.jpg", description: "Pão de abóbora, 2x burger 150g, 2x cheddar, 2x bacon, 2x cebola caramelizada, molho barbecue, maionese.", ativo: true},
-    {name: "GARGAMEL", category: "burguers", price: 24.00, image: "./assets/Gargamel.jpg", description: "Pão americano, maionese, burger 150g, mussarela, bacon, cebola caramelizada, maionese, molho especial.", ativo: true},
-    {name: "LEX LUTHOR", category: "burguers", price: 24.00, image: "./assets/Lex Luthor.jpg", description: "Pão americano, barbecue, burger 150g, cheddar, bacon, cebola caramelizada, maionese.", ativo: true},
-    {name: "MUN-RÁ", category: "burguers", price: 26.00, image: "./assets/mun-ra.png", description: "Pão americano, molho especial, maionese, burger 150g, queijo mussarela, bacon, cebola caramelizada, tomate, alface, cebola roxa.", ativo: true},
-    {name: "RAINHA DE COPAS", category: "burguers", price: 22.00, image: "./assets/rainha-de-copas.png", description: "Pão americano, molho especial, maionese, burger 150g, queijo mussarela, tomate, alface americana, cebola roxa e maionese.", ativo: true},
-    {name: "JUGGERNAULT", category: "burguers", price: 40.00, image: "./assets/juggernault.png", description: "Pão americano, 2x burger 150g, 2x cheddar, cebola crispy, tomate, alface, ketchup e maionese.", ativo: true},
-    {name: "LEX LUTHOR", category: "burguers", price: 30.00, image: "./assets/lex-luthor.png", description: "Pão americano, barbecue, burger 150g, cheddar, bacon, cebola caramelizada, maionese.", ativo: true},
-    {name: "GARGARIEL", category: "burguers", price: 30.00, image: "./assets/gargariel.png", description: "Pão americano, maionese, burger 150g, mussarela, bacon, cebola caramelizada, maionese, molho especial.", ativo: true},
-    {name: "MANJIM BOO", category: "burguers", price: 32.00, image: "./assets/manjim-boo.png", description: "Pão de abóbora, molho especial, setchup, burger 150g, frango com ervas 100g, mussarela, tomate roxa, maionese.", ativo: true},
-    {name: "THANOS", category: "burguers", price: 42.00, image: "./assets/thanos.png", description: "Pão australiano, 2x burger de porco, 2x bacon, 2x mussarela na chapa, 2x cheddar, cebola crispy e molho barbecue.", ativo: true},
-    {name: "ROBOTNIK", category: "burguers", price: 40.00, image: "./assets/robotnik.png", description: "Pão americano, burger 150g, requeijão, frango com ervas, cebola roxa, tomate e ketchup.", ativo: true},
-    {name: "DARTH VADER", category: "burguers", price: 40.00, image: "./assets/darth-vader.png", description: "Pão de abóbora, 2x burger 150g, 2x cheddar, 2x bacon, 2x cebola caramelizada, molho barbecue, maionese.", ativo: true},
-    {name: "RAINHA DE COPAS", category: "burguers", price: 26.00, image: "./assets/rainha-copas.png", description: "Pão americano, molho especial, maionese, burger 150g, mussarela, tomate, alface americana, cebola roxa e maionese.", ativo: true},
-    {name: "CORINGA", category: "burguers", price: 40.00, image: "./assets/coringa.png", description: "Pão de abóbora, 2x burger 150g, 2x mussarela, 2x bacon, 2x cebola caramelizada, molho especial, maionese.", ativo: true},
-    {name: "MADURA", category: "burguers", price: 32.00, image: "./assets/madura.png", description: "Pão australiano, carne de porco 150g, bacon, mussarela na chapa, cheddar, cebola crispy e molho barbecue.", ativo: true},
-    {name: "DE LA CRUZ", category: "burguers", price: 40.00, image: "./assets/delacruz.png", description: "Pão australiano, 2x carne 150g, 2x mussarela, 2x bacon, 2x cebola caramelizada, molho especial, maionese, tomate, alface americana.", ativo: true},
-    {name: "EXTERMINATOR - T800", category: "burguers", price: 42.00, image: "./assets/exterminator.png", description: "Pão australiano, 2x burger 150g, 2x cheddar e cebola roxa.", ativo: true},
-    {name: "ROGER KLOTZ", category: "burguers", price: 26.00, image: "./assets/roger-klotz.png", description: "Pão americano, burger, cheddar, alface, tomate, ketchup e maionese.", ativo: true},
-    {name: "MUN RA", category: "burguers", price: 32.00, image: "./assets/mun-ra.png", description: "Pão americano, burger, mussarela, bacon, cebola caramelizada, cebola roxa, alface, tomate, maionese e molho especial.", ativo: true},
-    
-    // Pizzas
-    {name: "MIRANDA PRIESTLY (Margherita) - 8 pedaços", category: "pizzas", price: 60.00, image: "./assets/Margherita.png", description: "Massa de longa fermentação, molho de tomate, mussarela, parmesão e tomate.", ativo: true},
-    {name: "NAZARÉ TEDESCO (Calabresa) - 8 pedaços", category: "pizzas", price: 65.00, image: "./assets/Calabresa.png", description: "Massa de longa fermentação, molho de tomate, calabresa, mussarela e parmesão.", ativo: true},
-    {name: "DANAERYS TARGERIAN (Frango com requeijão) - 8 pedaços", category: "pizzas", price: 65.00, image: "./assets/Frango e Catupiry.jpg", description: "Massa de longa fermentação, molho de tomate, mussarela, frango e requeijão.", ativo: true},
-    {name: "CRUELLA (3 queijos) - 8 pedaços", category: "pizzas", price: 65.00, image: "./assets/3 queijos.png", description: "Massa de longa fermentação, molho de tomate, mussarela, requeijão e parmesão.", ativo: true},
-    {name: "AGATHA TRUNCHBULL (Autoral) - 8 pedaços", category: "pizzas", price: 85.00, image: "./assets/agatha.png", description: "Massa de longa fermentação, molho de tomate, mussarela, parmesão, calabresa, carne de sol e requeijão cremoso.", ativo: true},
-    {name: "PAOLLA BRACHO (Portuguesa) - 8 pedaços", category: "pizzas", price: 75.00, image: "./assets/portuguesa.png", description: "Massa de longa fermentação, molho de tomate, mussarela, parmesão, bacon, requeijão, cebola roxa, tomate e orégano.", ativo: true},
-    {name: "ANABELE (Autoral) - 8 pedaços", category: "pizzas", price: 75.00, image: "./assets/anabele.png", description: "Massa de longa fermentação, molho de tomate, frango, requeijão, bacon, alho frito e mussarela.", ativo: true},
-    {name: "ANA KARENINA (Autoral) - 8 pedaços", category: "pizzas", price: 90.00, image: "./assets/ana-karenina.png", description: "Massa de longa fermentação, molho de tomate, mussarela, bacon, alho frito e mussarela.", ativo: true},
-    {name: "MIRANDA PRIESTLY (Margherita) - 4 pedaços", category: "pizzas", price: 30.00, image: "./assets/Margherita.png", description: "Massa de longa fermentação, molho de tomate, mussarela, parmesão e tomate.", ativo: true},
-    {name: "NAZARÉ TEDESCO (Calabresa) - 4 pedaços", category: "pizzas", price: 32.50, image: "./assets/Calabresa.png", description: "Massa de longa fermentação, molho de tomate, calabresa, mussarela e parmesão.", ativo: true},
-    {name: "DANAERYS TARGERIAN (Frango com requeijão) - 4 pedaços", category: "pizzas", price: 32.50, image: "./assets/Frango e Catupiry.jpg", description: "Massa de longa fermentação, molho de tomate, mussarela, frango e requeijão.", ativo: true},
-    {name: "CRUELLA (3 queijos) - 4 pedaços", category: "pizzas", price: 32.50, image: "./assets/3 queijos.png", description: "Massa de longa fermentação, molho de tomate, mussarela, requeijão e parmesão.", ativo: true},
-    {name: "AGATHA TRUNCHBULL (Autoral) - 4 pedaços", category: "pizzas", price: 42.50, image: "./assets/agatha.png", description: "Massa de longa fermentação, molho de tomate, mussarela, parmesão, calabresa, carne de sol e requeijão cremoso.", ativo: true},
-    {name: "PAOLLA BRACHO (Portuguesa) - 4 pedaços", category: "pizzas", price: 37.50, image: "./assets/portuguesa.png", description: "Massa de longa fermentação, molho de tomate, mussarela, parmesão, bacon, requeijão, cebola roxa, tomate e orégano.", ativo: true},
-    {name: "ANABELE (Autoral) - 4 pedaços", category: "pizzas", price: 37.50, image: "./assets/anabele.png", description: "Massa de longa fermentação, molho de tomate, frango, requeijão, bacon, alho frito e mussarela.", ativo: true},
-    {name: "ANA KARENINA (Autoral) - 4 pedaços", category: "pizzas", price: 45.00, image: "./assets/ana-karenina.png", description: "Massa de longa fermentação, molho de tomate, mussarela, bacon, alho frito e mussarela.", ativo: true},
-    
-    // Porções
-    {name: "Batata Tradicional", category: "porcoes", price: 20.00, image: "./assets/batata tradicional.png", description: "450g (Temperada com sal)", ativo: true},
-    {name: "Batata Red Smoked", category: "porcoes", price: 20.00, image: "./assets/batata red smoked.png", description: "450g (com tempero especial)", ativo: true},
-    {name: "Onion Rings", category: "porcoes", price: 22.00, image: "./assets/onion rings.png", description: "300g", ativo: true},
-    {name: "Batata Rústica", category: "porcoes", price: 22.00, image: "./assets/batata rustica.png", description: "350g", ativo: true},
-    {name: "Bolinho de Carne de Sol com Requeijão", category: "porcoes", price: 22.00, image: "./assets/bolinho de carne de sol.png", description: "6 bolinho de 45g", ativo: true},
-    {name: "Batata Garlic & Onion", category: "porcoes", price: 20.00, image: "./assets/batata garlic e onion.png", description: "450g (com tempero especial)", ativo: true},
-    
-    // Sobremesas
-    {name: "Bolo de pote - Ninho trufado", category: "sobremesas", price: 18.00, image: "./assets/bolo de pote ninho trufaod.png", description: "Bolo delicioso de leite ninho com chocolate meio amargo.", ativo: true},
-    {name: "Bolo de pote - Abacaxi aos 4 leites", category: "sobremesas", price: 16.00, image: "./assets/bolo de pote abacaxi.png", description: "Pão de ló, abacaxi, leite condensado, creme de leite, leite em pó e leite de coco.", ativo: true},
-    
-    // Bebidas
-    {name: "Coca Cola Zero Lata", category: "bebidas", price: 7.50, image: "./assets/Coca Zero Lata.png", description: "", ativo: true},
-    {name: "Coca Cola 2L", category: "bebidas", price: 16.00, image: "./assets/Coca 2L.jpg", description: "", ativo: true},
-    {name: "Coca Cola Lata", category: "bebidas", price: 7.00, image: "./assets/Coca Lata.jpg", description: "", ativo: true},
-    {name: "Coca Cola Zero 2L", category: "bebidas", price: 17.00, image: "./assets/Coca Zero 2L.png", description: "", ativo: true},
-    {name: "Guaraná Antártica Lata", category: "bebidas", price: 7.00, image: "./assets/Guarana Lata.jpg", description: "", ativo: true}
+  {name: "CORINGA", category: "burguers", price: 40.00, image: "./assets/coringa.png", description: "Pão de abóbora, 2x burger 150g, 2x mussarela, 2x bacon, 2x cebola caramelizada, molho especial, maionese.", ativo: true},
+  {name: "DARTH VADER", category: "burguers", price: 40.00, image: "./assets/darth-vader.png", description: "Pão de abóbora, 2x burger 150g, 2x cheddar, 2x bacon, 2x cebola caramelizada, molho barbecue, maionese.", ativo: true},
+  {name: "GARGAMEL", category: "burguers", price: 30.00, image: "./assets/Gargamel.jpg", description: "Pão americano, maionese, burger 150g, mussarela, bacon, cebola caramelizada, maionese, molho especial.", ativo: true},
+  {name: "LEX LUTHOR", category: "burguers", price: 30.00, image: "./assets/lex-luthor.png", description: "Pão americano, barbecue, burger 150g, cheddar, bacon, cebola caramelizada, maionese.", ativo: true},
+  {name: "MUN RA", category: "burguers", price: 32.00, image: "./assets/mun-ra.png", description: "Pão americano, burger, mussarela, bacon, cebola caramelizada, cebola roxa, alface, tomate, maionese e molho especial.", ativo: true},
+  {name: "RAINHA DE COPAS", category: "burguers", price: 26.00, image: "./assets/rainha-copas.png", description: "Pão americano, molho especial, maionese, burger 150g, mussarela, tomate, alface americana, cebola roxa e maionese.", ativo: true},
+  {name: "MANJIM BOO", category: "burguers", price: 32.00, image: "./assets/manjim-boo.png", description: "Pão de abóbora, molho especial, ketchup, burger 150g, frango com ervas 100g, mussarela, tomate roxa, maionese.", ativo: true},
+  {name: "MADARA", category: "burguers", price: 32.00, image: "./assets/madara.png", description: "Pão australiano, carne de porco 150g, bacon, mussarela na chapa, cheddar, cebola crispy e molho barbecue.", ativo: true},
+  {name: "THANOS", category: "burguers", price: 42.00, image: "./assets/thanos.png", description: "Pão australiano, 2x burger de porco, 2x bacon, 2x mussarela na chapa, 2x cheddar, cebola crispy e molho barbecue.", ativo: true},
+  {name: "DE LA CRUZ", category: "burguers", price: 40.00, image: "./assets/delacruz.png", description: "Pão australiano, 2x carne 150g, 2x mussarela, 2x bacon, 2x cebola caramelizada, molho especial, maionese, tomate, alface americana.", ativo: true},
+  {name: "ROBOTNIK", category: "burguers", price: 40.00, image: "./assets/robotnik.png", description: "Pão americano, burger 150g, requeijão, frango com ervas, cebola roxa, tomate e ketchup.", ativo: true},
+  {name: "EXTERMINATOR - T800", category: "burguers", price: 42.00, image: "./assets/exterminator.png", description: "Pão australiano, 3x burger 150g, 3x cheddar e cebola roxa.", ativo: true},
+  {name: "ROGER KLOTZ", category: "burguers", price: 26.00, image: "./assets/roger-klotz.png", description: "Pão americano, burger, cheddar, alface, tomate, ketchup e maionese.", ativo: true},
+  {name: "JUGGERNAULT", category: "burguers", price: 40.00, image: "./assets/juggernault.png", description: "Pão americano, 2x burger 150g, 2x cheddar, cebola crispy, tomate, alface, ketchup e maionese.", ativo: true},
+  {name: "MIRANDA PRIESTLY (Margherita) - 8 pedaços", category: "pizzas-8", price: 60.00, image: "./assets/Margherita.png", description: "Massa de longa fermentação, molho de tomate, mussarela, parmesão e tomate.", ativo: true, monteEnabled: true},
+  {name: "NAZARÉ TEDESCO (Calabresa) - 8 pedaços", category: "pizzas-8", price: 65.00, image: "./assets/Calabresa.png", description: "Massa de longa fermentação, molho de tomate, calabresa, mussarela e parmesão.", ativo: true, monteEnabled: true},
+  {name: "DANAERYS TARGERIAN (Frango com requeijão) - 8 pedaços", category: "pizzas-8", price: 65.00, image: "./assets/Frango e Catupiry.jpg", description: "Massa de longa fermentação, molho de tomate, mussarela, frango e requeijão.", ativo: true, monteEnabled: true},
+  {name: "CRUELLA (3 queijos) - 8 pedaços", category: "pizzas-8", price: 65.00, image: "./assets/3 queijos.png", description: "Massa de longa fermentação, molho de tomate, mussarela, requeijão e parmesão.", ativo: true, monteEnabled: true},
+  {name: "AGATHA TRUNCHBULL (Autoral) - 8 pedaços", category: "pizzas-8", price: 85.00, image: "./assets/agatha.png", description: "Massa de longa fermentação, molho de tomate, mussarela, parmesão, calabresa, carne de sol e requeijão cremoso.", ativo: true, monteEnabled: true},
+  {name: "PAOLLA BRACHO (Portuguesa) - 8 pedaços", category: "pizzas-8", price: 75.00, image: "./assets/portuguesa.png", description: "Massa de longa fermentação, molho de tomate, mussarela, parmesão, bacon, requeijão, cebola roxa, tomate e orégano.", ativo: true, monteEnabled: true},
+  {name: "ANABELE (Autoral) - 8 pedaços", category: "pizzas-8", price: 75.00, image: "./assets/anabele.png", description: "Massa de longa fermentação, molho de tomate, frango, requeijão, bacon, alho frito e mussarela.", ativo: true, monteEnabled: true},
+  {name: "ANA KARENINA (Autoral) - 8 pedaços", category: "pizzas-8", price: 90.00, image: "./assets/ana-karenina.png", description: "Massa de longa fermentação, molho de tomate, mussarela, bacon, alho frito e mussarela.", ativo: true, monteEnabled: true},
+  {name: "MIRANDA PRIESTLY (Margherita) - 4 pedaços", category: "pizzas-4", price: 30.00, image: "./assets/Margherita.png", description: "Massa de longa fermentação, molho de tomate, mussarela, parmesão e tomate.", ativo: true},
+  {name: "NAZARÉ TEDESCO (Calabresa) - 4 pedaços", category: "pizzas-4", price: 32.50, image: "./assets/Calabresa.png", description: "Massa de longa fermentação, molho de tomate, calabresa, mussarela e parmesão.", ativo: true},
+  {name: "DANAERYS TARGERIAN (Frango com requeijão) - 4 pedaços", category: "pizzas-4", price: 32.50, image: "./assets/Frango e Catupiry.jpg", description: "Massa de longa fermentação, molho de tomate, mussarela, frango e requeijão.", ativo: true},
+  {name: "CRUELLA (3 queijos) - 4 pedaços", category: "pizzas-4", price: 32.50, image: "./assets/3 queijos.png", description: "Massa de longa fermentação, molho de tomate, mussarela, requeijão e parmesão.", ativo: true},
+  {name: "AGATHA TRUNCHBULL (Autoral) - 4 pedaços", category: "pizzas-4", price: 42.50, image: "./assets/agatha.png", description: "Massa de longa fermentação, molho de tomate, mussarela, parmesão, calabresa, carne de sol e requeijão cremoso.", ativo: true},
+  {name: "PAOLLA BRACHO (Portuguesa) - 4 pedaços", category: "pizzas-4", price: 37.50, image: "./assets/portuguesa.png", description: "Massa de longa fermentação, molho de tomate, mussarela, parmesão, bacon, requeijão, cebola roxa, tomate e orégano.", ativo: true},
+  {name: "ANABELE (Autoral) - 4 pedaços", category: "pizzas-4", price: 37.50, image: "./assets/anabele.png", description: "Massa de longa fermentação, molho de tomate, frango, requeijão, bacon, alho frito e mussarela.", ativo: true},
+  {name: "ANA KARENINA (Autoral) - 4 pedaços", category: "pizzas-4", price: 45.00, image: "./assets/ana-karenina.png", description: "Massa de longa fermentação, molho de tomate, mussarela, bacon, alho frito e mussarela.", ativo: true},
+  
+  // Porções
+  {name: "Batata Tradicional", category: "porcoes", price: 20.00, image: "./assets/batata tradicional.png", description: "450g (Temperada com sal)", ativo: true},
+  {name: "Batata Red Smoked", category: "porcoes", price: 20.00, image: "./assets/batata red smoked.png", description: "450g (com tempero especial)", ativo: true},
+  {name: "Onion Rings", category: "porcoes", price: 22.00, image: "./assets/onion rings.png", description: "300g", ativo: true},
+  {name: "Batata Rústica", category: "porcoes", price: 22.00, image: "./assets/batata rustica.png", description: "350g", ativo: true},
+  {name: "Bolinho de Carne de Sol com Requeijão", category: "porcoes", price: 22.00, image: "./assets/bolinho de carne de sol.png", description: "6 bolinho de 45g", ativo: true},
+  {name: "Batata Garlic & Onion", category: "porcoes", price: 20.00, image: "./assets/batata garlic e onion.png", description: "450g (com tempero especial)", ativo: true},
+  
+  // Sobremesas
+  {name: "Bolo de pote - Ninho trufado", category: "sobremesas", price: 18.00, image: "./assets/bolo de pote ninho trufaod.png", description: "Bolo delicioso de leite ninho com chocolate meio amargo.", ativo: true},
+  {name: "Bolo de pote - Abacaxi aos 4 leites", category: "sobremesas", price: 16.00, image: "./assets/bolo de pote abacaxi.png", description: "Pão de ló, abacaxi, leite condensado, creme de leite, leite em pó e leite de coco.", ativo: true},
+  
+  // Bebidas
+  {name: "Coca-Cola Zero Lata 350ml", category: "bebidas", price: 7.50, image: "./assets/Coca Zero Lata.png", description: "Bebida gelada", ativo: true},
+  {name: "Coca-Cola Original 2L", category: "bebidas", price: 16.00, image: "./assets/Coca 2L.jpg", description: "Bebida gelada", ativo: true},
+  {name: "Coca-Cola Original 350ml", category: "bebidas", price: 7.00, image: "./assets/Coca Lata.jpg", description: "Bebida gelada", ativo: true},
+  {name: "Coca-Cola Zero 2L", category: "bebidas", price: 17.00, image: "./assets/Coca Zero 2L.png", description: "Bebida gelada", ativo: true},
+  {name: "Refrigerante Guaraná Antártica 350ml", category: "bebidas", price: 7.00, image: "./assets/Guarana Lata.jpg", description: "Bebida gelada", ativo: true}
 ];
 
 const audioNovo = new Audio('/assets/u_7xr5ffk4oq-opening-bell-421471.mp3');
@@ -2802,6 +2793,8 @@ function getCategoryName(category) {
     const names = {
         'burguers': 'Burguers',
         'pizzas': 'Pizzas',
+        'pizzas-8': 'Pizzas 8 pedaços',
+        'pizzas-4': 'Pizzas 4 pedaços',
         'porcoes': 'Porções',
         'sobremesas': 'Sobremesas',
         'bebidas': 'Bebidas'
@@ -2813,6 +2806,8 @@ function getCategoryName(category) {
 const categoriasPadrao = {
     burguers: { emoji: '🍔', nome: 'Burguers' },
     pizzas: { emoji: '🍕', nome: 'Pizzas' },
+    'pizzas-8': { emoji: '🍕', nome: 'Pizzas 8 pedaços' },
+    'pizzas-4': { emoji: '🍕', nome: 'Pizzas 4 pedaços' },
     porcoes: { emoji: '🍟', nome: 'Porções' },
     sobremesas: { emoji: '🍰', nome: 'Sobremesas' },
     bebidas: { emoji: '🥤', nome: 'Bebidas' }
@@ -2871,6 +2866,8 @@ function atualizarFiltrosView() {
         const iconMap = {
             burguers: 'fa-burger',
             pizzas: 'fa-pizza-slice',
+            'pizzas-8': 'fa-pizza-slice',
+            'pizzas-4': 'fa-pizza-slice',
             porcoes: 'fa-drumstick-bite',
             sobremesas: 'fa-cake-candles',
             bebidas: 'fa-wine-glass'
