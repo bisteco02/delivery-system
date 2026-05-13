@@ -1260,10 +1260,11 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
               }
               container.innerHTML = arr.map(a => {
                 const nome = a.nome || a.name || a.nome || a;
+                const id = (a.id || a._id || (a.name || a.nome) && (a.name || a.nome).toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim()) || nome;
                 const valor = `1/2 ${nome}`;
                 const precoInteiro = Number(a.preco ?? a.price ?? 0) || 0;
                 const precoMetade = precoInteiro / 2;
-                return `<label class="flex items-center justify-between cursor-pointer hover:bg-gray-100 p-2 rounded gap-3"><span class="flex items-center"><input type="checkbox" class="monte-sabores mr-3 text-blue-600 focus:ring-blue-500" value="${valor.replace(/\"/g,'&quot;')}" data-half-price="${precoMetade.toFixed(2)}"> <span>${valor}</span></span><span class="text-sm font-semibold text-gray-700">R$ ${precoMetade.toFixed(2).replace('.', ',')}</span></label>`;
+                return `<label class="flex items-center justify-between cursor-pointer hover:bg-gray-100 p-2 rounded gap-3"><span class="flex items-center"><input type="checkbox" class="monte-sabores mr-3 text-blue-600 focus:ring-blue-500" value="${valor.replace(/\"/g,'&quot;')}|${id.replace(/\"/g,'&quot;')}" data-half-price="${precoMetade.toFixed(2)}" data-half-id="${id.replace(/\"/g,'&quot;')}"> <span>${valor}</span></span><span class="text-sm font-semibold text-gray-700">R$ ${precoMetade.toFixed(2).replace('.', ',')}</span></label>`;
               }).join('');
               const saboresCheckboxes = modal.querySelectorAll('.monte-sabores');
               saboresCheckboxes.forEach(checkbox => {

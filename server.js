@@ -747,6 +747,34 @@ app.post('/api/pedidos', async (req, res) => {
       if (key) cardapioMap.set(key, item);
     }
 
+    const resolveCardapioItemByName = (rawName) => {
+      const texto = String(rawName || '').trim();
+      if (!texto) return null;
+
+      const normalized = normalizeAddonText(texto);
+      const normalizedSemPedaços = normalized.replace(/\s*-\s*\d+\s*peda[cç]os\b/g, '').trim();
+      const normalizedSemParenteses = normalized.replace(/\s*\(.*?\)\s*/g, ' ').replace(/\s+/g, ' ').trim();
+      const normalizedClean = normalizedSemPedaços.replace(/\s*\(.*?\)\s*/g, ' ').replace(/\s+/g, ' ').trim();
+
+      const candidates = [normalized, normalizedSemPedaços, normalizedSemParenteses, normalizedClean].filter(Boolean);
+
+      for (const cand of candidates) {
+        const found = cardapioMap.get(cand);
+        if (found) return found;
+      }
+
+      return (
+        cardapio.find(item => {
+          const itemNome = normalizeAddonText(item?.name || item?.nome || '');
+          const itemSemPedaços = itemNome.replace(/\s*-\s*\d+\s*peda[cç]os\b/g, '').trim();
+          const itemSemParenteses = itemNome.replace(/\s*\(.*?\)\s*/g, ' ').replace(/\s+/g, ' ').trim();
+          const itemClean = itemSemPedaços.replace(/\s*\(.*?\)\s*/g, ' ').replace(/\s+/g, ' ').trim();
+
+          const itemCandidates = [itemNome, itemSemPedaços, itemSemParenteses, itemClean];
+          return itemCandidates.some(i => candidates.includes(i));
+        }) || null
+      );
+    };
     const promotionsMap = new Map();
     for (const promo of promotions) {
       const key = normalizeAddonText(promo.name || promo.nome);
@@ -839,8 +867,22 @@ app.post('/api/pedidos', async (req, res) => {
             });
           }
 
-          const metadeNome = metadeMatch[1].trim();
-          const metadeItem = cardapioMap.get(normalizeAddonText(metadeNome));
+          let metadeNome = metadeMatch[1].trim();
+          let metadeId = null;
+          const pipeIdx = metadeNome.indexOf('|');
+          if (pipeIdx >= 0) {
+            metadeId = metadeNome.slice(pipeIdx + 1).trim();
+            metadeNome = metadeNome.slice(0, pipeIdx).trim();
+          }
+
+          let metadeItem = null;
+          if (metadeId) {
+            const key = normalizeAddonText(metadeId);
+            metadeItem = cardapioMap.get(key) || cardapio.find(it => normalizeAddonText(it.id || it._id || it.name || it.nome || '') === key);
+          }
+          if (!metadeItem) {
+            metadeItem = resolveCardapioItemByName(metadeNome);
+          }
           const metadeCategoria = String(metadeItem?.category || metadeItem?.categoria || '').toLowerCase();
 
           if (!metadeItem || !metadeCategoria.includes('pizz')) {
