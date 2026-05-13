@@ -1281,6 +1281,22 @@ app.get('/api/cardapio', async (req, res) => {
   }
 });
 
+app.get('/cardapio', async (req, res) => {
+  try {
+    const cardapio = await lerCardapio();
+    res.json({
+      success: true,
+      cardapio
+    });
+  } catch (error) {
+    console.error('Erro ao buscar cardápio:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro ao buscar cardápio.'
+    });
+  }
+});
+
 app.post('/api/cardapio', async (req, res) => {
   try {
     const { cardapio } = req.body;
@@ -1325,6 +1341,22 @@ app.get('/api/promotions', async (req, res) => {
   }
 });
 
+app.get('/promotions', async (req, res) => {
+  try {
+    const promotions = await lerPromotions();
+    res.json({
+      success: true,
+      promotions
+    });
+  } catch (error) {
+    console.error('Erro ao buscar promoções:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro ao buscar promoções.'
+    });
+  }
+});
+
 app.post('/api/promotions', async (req, res) => {
   try {
     const { promotions } = req.body;
@@ -1354,6 +1386,16 @@ app.post('/api/promotions', async (req, res) => {
 // ==================== ROTAS - DADOS DA EMPRESA ====================
 
 app.get('/api/company-data', async (req, res) => {
+  try {
+    const companyData = await lerCompanyData();
+    res.json({ success: true, companyData });
+  } catch (error) {
+    console.error('Erro ao buscar dados da empresa:', error);
+    res.status(500).json({ success: false, message: 'Erro ao buscar dados da empresa.' });
+  }
+});
+
+app.get('/company-data', async (req, res) => {
   try {
     const companyData = await lerCompanyData();
     res.json({ success: true, companyData });
@@ -1431,6 +1473,16 @@ app.post('/api/custom-categories', async (req, res) => {
   }
 });
 
+app.get('/custom-categories', async (req, res) => {
+  try {
+    const data = await fs.readFile(CUSTOM_CATEGORIES_FILE, 'utf8');
+    const categories = JSON.parse(data);
+    res.json({ success: true, categories });
+  } catch (error) {
+    res.json({ success: true, categories: [] });
+  }
+});
+
 app.get('/api/categories-merged', async (req, res) => {
   try {
     const categoriasPadrao = {
@@ -1478,12 +1530,25 @@ app.get('/api/addons', async (req, res) => {
   }
 });
 
+app.get('/addons', async (req, res) => {
+  try {
+    const addons = (await lerAddons()).map(a => ({
+      ...a,
+      ativo: parseAtivo(a?.ativo, false)
+    }));
+    res.json({ success: true, addons });
+  } catch (error) {
+    console.error('Erro ao buscar addons:', error);
+    res.status(500).json({ success: false, message: 'Erro ao buscar adicionais' });
+  }
+});
+
 app.post('/api/addons', async (req, res) => {
   try {
     const { name, price, category, ativo } = req.body;
     if (!name) return res.status(400).json({ success: false, message: 'Nome obrigatório' });
     // Validar categoria contra categorias permitidas (cardápio + custom)
-    const allowed = new Set(['geral', 'burguers', 'pizzas', 'porcoes', 'sobremesas', 'bebidas', 'monte-pizza', 'sabores', 'bolinhos']);
+    const allowed = new Set(['geral', 'burguers', 'pizzas', 'porcoes', 'sobremesas', 'bebidas', 'molhos', 'extras', 'monte-pizza', 'sabores', 'bolinhos']);
     try {
       const cardapio = await lerCardapio();
       if (Array.isArray(cardapio)) cardapio.forEach(i => i.category && allowed.add(i.category));
@@ -1517,7 +1582,7 @@ app.put('/api/addons/:name', async (req, res) => {
     if (idx === -1) return res.status(404).json({ success: false, message: 'Adicional não encontrado' });
     // Se categoria for alterada, validar
     if (body && body.category) {
-      const allowed = new Set(['geral', 'burguers', 'pizzas', 'porcoes', 'sobremesas', 'bebidas', 'monte-pizza', 'sabores', 'bolinhos']);
+      const allowed = new Set(['geral', 'burguers', 'pizzas', 'porcoes', 'sobremesas', 'bebidas', 'molhos', 'extras', 'monte-pizza', 'sabores', 'bolinhos']);
       try {
         const cardapio = await lerCardapio();
         if (Array.isArray(cardapio)) cardapio.forEach(i => i.category && allowed.add(i.category));
@@ -1567,6 +1632,16 @@ app.delete('/api/addons/:name', async (req, res) => {
 // ==================== ROTAS - PROMOÇÕES POR ITEM ====================
 
 app.get('/api/item-promotions', async (req, res) => {
+  try {
+    const promotions = await lerItemPromotions();
+    res.json({ success: true, promotions });
+  } catch (error) {
+    console.error('Erro ao buscar promoções:', error);
+    res.status(500).json({ success: false, message: 'Erro ao buscar promoções' });
+  }
+});
+
+app.get('/item-promotions', async (req, res) => {
   try {
     const promotions = await lerItemPromotions();
     res.json({ success: true, promotions });

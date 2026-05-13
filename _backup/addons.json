@@ -112,5 +112,35 @@
 		"price": 22,
 		"category": "porcoes",
 		"ativo": true
+	},
+	{
+		"name": "Maionese de alho",
+		"price": 1.5,
+		"category": "molhos",
+		"ativo": true
+	},
+	{
+		"name": "Barbecue",
+		"price": 1.5,
+		"category": "molhos",
+		"ativo": true
+	},
+	{
+		"name": "Molho especial",
+		"price": 1.5,
+		"category": "molhos",
+		"ativo": true
+	},
+	{
+		"name": "Ketchup",
+		"price": 1,
+		"category": "molhos",
+		"ativo": true
+	},
+	{
+		"name": "Mostarda e mel",
+		"price": 1.5,
+		"category": "molhos",
+		"ativo": true
 	}
 ]
