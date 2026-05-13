@@ -1188,7 +1188,9 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
           document.getElementById('confirm-pizza8-btn').onclick = () => {
             const bebida = modal.querySelector('input[name="pizza8-bebida"]:checked')?.value || '';
             const adicionais = Array.from(modal.querySelectorAll('input[name="pizza8-adicionais"]:checked')).map(cb => cb.value);
-            addToCart(name, price, bebida, adicionais, '', image);
+            const molhos = Array.from(modal.querySelectorAll('input[name="pizza8-molhos-extras"]:checked')).map(cb => cb.value);
+            const todosAdicionais = [...adicionais, ...molhos];
+            addToCart(name, price, bebida, todosAdicionais, '', image);
             modal.style.display = 'none';
             modal.remove();
           };
@@ -1277,7 +1279,9 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
             document.getElementById('confirm-burger-btn').onclick = () => {
               const bebida = modal.querySelector('input[name="burger-bebida"]:checked').value;
               const adicionais = Array.from(modal.querySelectorAll('input[name="burger-adicionais"]:checked')).map(cb => cb.value);
-              addToCart(name, price, bebida, adicionais, '', image);
+              const molhos = Array.from(modal.querySelectorAll('input[name="molhos-extras"]:checked')).map(cb => cb.value);
+              const todosAdicionais = [...adicionais, ...molhos];
+              addToCart(name, price, bebida, todosAdicionais, '', image);
               modal.style.display = 'none';
               modal.remove();
             };
