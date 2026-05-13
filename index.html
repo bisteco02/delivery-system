@@ -713,7 +713,7 @@
               await carregarPromocoesItems();
               
               renderCategoria(burguers, 'burguers-grid');
-              renderCategoria(pizzas, 'pizzas-grid');
+              renderCategoria([...pizzas8, ...pizzas4], 'pizzas-grid');
               renderCategoria(montePizza, 'monte-pizza-grid');
               renderCategoria(porcoes, 'porcoes-grid');
               renderCategoria(sobremesas, 'sobremesas-grid');
@@ -2109,7 +2109,7 @@ function openSimpleModal(name, price, image, forceDrinkType = null, forceAllowAd
           // Se não carregou do servidor, renderizar os dados locais
           if (!carregouDoServidor) {
             renderCategoria(burguers, 'burguers-grid');
-            renderCategoria(pizzas, 'pizzas-grid');
+            renderCategoria([...pizzas8, ...pizzas4], 'pizzas-grid');
             renderCategoria(montePizza, 'monte-pizza-grid');
             renderCategoria(porcoes, 'porcoes-grid');
             renderCategoria(sobremesas, 'sobremesas-grid');
