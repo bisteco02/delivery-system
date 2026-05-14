@@ -4429,7 +4429,8 @@ function renderizarMolhosList() {
         return;
     }
 
-    container.innerHTML = filtered.map((addon, idx) => {
+    container.innerHTML = filtered.map((addon) => {
+        const realIndex = addons.indexOf(addon);
         const ativo = addon.ativo !== false;
         const badge = addon.category ? `<span class="text-xs bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full">${addon.category}</span>` : '<span class="text-xs bg-gray-100 text-gray-700 px-3 py-1 rounded-full">Sem categoria</span>';
         return `
@@ -4445,13 +4446,13 @@ function renderizarMolhosList() {
                     </div>
                 </div>
                 <div class="border-t px-3 py-2 bg-gray-50 grid grid-cols-3 gap-2">
-                    <button onclick="abrirModalAddon(${idx}, 'molhos'); event.stopPropagation();" class="bg-blue-600 text-white font-semibold py-2 rounded text-sm flex items-center justify-center gap-2 hover:bg-blue-700 transition">
+                    <button onclick="abrirModalAddon(${realIndex}, 'molhos'); event.stopPropagation();" class="bg-blue-600 text-white font-semibold py-2 rounded text-sm flex items-center justify-center gap-2 hover:bg-blue-700 transition">
                         <i class="fa fa-edit"></i> Editar
                     </button>
-                    <button onclick="toggleAddonAtivo(${idx}); event.stopPropagation();" class="${ativo ? 'bg-orange-500 hover:bg-orange-600' : 'bg-green-600 hover:bg-green-700'} text-white font-semibold py-2 rounded text-sm flex items-center justify-center gap-2 transition" title="${ativo ? 'Desabilitar' : 'Habilitar'}">
+                    <button onclick="toggleAddonAtivo(${realIndex}); event.stopPropagation();" class="${ativo ? 'bg-orange-500 hover:bg-orange-600' : 'bg-green-600 hover:bg-green-700'} text-white font-semibold py-2 rounded text-sm flex items-center justify-center gap-2 transition" title="${ativo ? 'Desabilitar' : 'Habilitar'}">
                         <i class="fa fa-${ativo ? 'eye-slash' : 'eye'}"></i> ${ativo ? 'Desab.' : 'Hab.'}
                     </button>
-                    <button onclick="deletarAddon(${idx}); event.stopPropagation();" class="bg-red-600 text-white font-semibold py-2 rounded text-sm flex items-center justify-center gap-2 hover:bg-red-700 transition" title="Deletar">
+                    <button onclick="deletarAddon(${realIndex}); event.stopPropagation();" class="bg-red-600 text-white font-semibold py-2 rounded text-sm flex items-center justify-center gap-2 hover:bg-red-700 transition" title="Deletar">
                         <i class="fa fa-trash"></i> Del.
                     </button>
                 </div>
