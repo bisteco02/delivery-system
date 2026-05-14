@@ -1,4 +1,4 @@
-[
+﻿[
   {
     "id": "1768853899726",
     "cliente": {
@@ -16,7 +16,7 @@
           "Cheddar - R$4,00"
         ],
         "observacoes": "",
-        "imagem": "./assets/Coringa.jpg"
+        "imagem": "./assets/coringa.avif"
       }
     ],
     "total": 53,
@@ -79,11 +79,11 @@
           "Cebola Crispy - R$4,00"
         ],
         "observacoes": "",
-        "imagem": "./assets/Coringa.jpg"
+        "imagem": "./assets/coringa.avif"
       }
     ],
     "total": 43,
-    "endereco": "Retirada no balcão",
+    "endereco": "Retirada no balcÃ£o",
     "bairro": "N/A",
     "taxaEntrega": 0,
     "tipoEntrega": "retirada",
@@ -109,11 +109,11 @@
           "Cebola Crispy - R$4,00"
         ],
         "observacoes": "",
-        "imagem": "./assets/Coringa.jpg"
+        "imagem": "./assets/coringa.avif"
       }
     ],
     "total": 43,
-    "endereco": "Retirada no balcão",
+    "endereco": "Retirada no balcÃ£o",
     "bairro": "N/A",
     "taxaEntrega": 0,
     "tipoEntrega": "retirada",
@@ -148,7 +148,7 @@
       }
     ],
     "total": 37,
-    "endereco": "Retirada no balcão",
+    "endereco": "Retirada no balcÃ£o",
     "bairro": "N/A",
     "taxaEntrega": 0,
     "tipoEntrega": "retirada",
@@ -183,7 +183,7 @@
       }
     ],
     "total": 43,
-    "endereco": "Retirada no balcão",
+    "endereco": "Retirada no balcÃ£o",
     "bairro": "N/A",
     "taxaEntrega": 0,
     "tipoEntrega": "retirada",
@@ -218,7 +218,7 @@
       }
     ],
     "total": 52,
-    "endereco": "Retirada no balcão",
+    "endereco": "Retirada no balcÃ£o",
     "bairro": "N/A",
     "taxaEntrega": 0,
     "tipoEntrega": "retirada",
@@ -295,7 +295,7 @@
       }
     ],
     "total": 44,
-    "endereco": "Retirada no balcão",
+    "endereco": "Retirada no balcÃ£o",
     "bairro": "N/A",
     "taxaEntrega": 0,
     "tipoEntrega": "retirada",
@@ -328,7 +328,7 @@
       }
     ],
     "total": 44,
-    "endereco": "Retirada no balcão",
+    "endereco": "Retirada no balcÃ£o",
     "bairro": "N/A",
     "taxaEntrega": 0,
     "tipoEntrega": "retirada",
@@ -361,7 +361,7 @@
       }
     ],
     "total": 61,
-    "endereco": "Retirada no balcão",
+    "endereco": "Retirada no balcÃ£o",
     "bairro": "Alto da Colina",
     "taxaEntrega": 0,
     "tipoEntrega": "retirada",

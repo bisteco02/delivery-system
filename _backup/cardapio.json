@@ -3,7 +3,7 @@
     "name": "CORINGA",
     "category": "burguers",
     "price": 40,
-    "image": "./assets/coringa.png",
+    "image": "./assets/coringa.avif",
     "description": "Pão de abóbora, 2x burger 150g, 2x mussarela, 2x bacon, 2x cebola caramelizada, molho especial, maionese.",
     "ativo": true
   },
@@ -11,7 +11,7 @@
     "name": "DARTH VADER",
     "category": "burguers",
     "price": 40,
-    "image": "./assets/darth-vader.png",
+    "image": "./assets/darthvader.jpg",
     "description": "Pão de abóbora, 2x burger 150g, 2x cheddar, 2x bacon, 2x cebola caramelizada, molho barbecue, maionese.",
     "ativo": true
   },
@@ -27,7 +27,7 @@
     "name": "LEX LUTHOR",
     "category": "burguers",
     "price": 30,
-    "image": "./assets/lex-luthor.png",
+    "image": "./assets/lexluthor.avif",
     "description": "Pão americano, barbecue, burger 150g, cheddar, bacon, cebola caramelizada, maionese.",
     "ativo": true
   },
@@ -43,7 +43,7 @@
     "name": "RAINHA DE COPAS",
     "category": "burguers",
     "price": 26,
-    "image": "./assets/rainha-copas.png",
+    "image": "./assets/rainha-de-copas.avif",
     "description": "Pão americano, molho especial, maionese, burger 150g, mussarela, tomate, alface americana, cebola roxa e maionese.",
     "ativo": true
   },
@@ -51,7 +51,7 @@
     "name": "MANJIM BOO",
     "category": "burguers",
     "price": 32,
-    "image": "./assets/manjim-boo.png",
+    "image": "./assets/majimboo.avif",
     "description": "Pão de abóbora, molho especial, ketchup, burger 150g, frango com ervas 100g, mussarela, tomate roxa, maionese.",
     "ativo": true
   },
@@ -91,7 +91,7 @@
     "name": "EXTERMINATOR - T800",
     "category": "burguers",
     "price": 42,
-    "image": "./assets/exterminator.png",
+    "image": "./assets/exterminador.jpg",
     "description": "Pão australiano, 3x burger 150g, 3x cheddar e cebola roxa.",
     "ativo": true
   },
@@ -169,7 +169,7 @@
     "name": "ANABELE (Autoral) - 8 pedaços",
     "category": "pizzas-8",
     "price": 75,
-    "image": "./assets/anabele.png",
+    "image": "./assets/anabele.jpg",
     "description": "Massa de longa fermentação, molho de tomate, frango, requeijão, bacon, alho frito e mussarela.",
     "ativo": true,
     "monteEnabled": true
@@ -178,7 +178,7 @@
     "name": "ANA KARENINA (Autoral) - 8 pedaços",
     "category": "pizzas-8",
     "price": 90,
-    "image": "./assets/ana-karenina.png",
+    "image": "./assets/ana karienina.avif",
     "description": "Massa de longa fermentação, molho de tomate, mussarela, bacon, alho frito e mussarela.",
     "ativo": true,
     "monteEnabled": true

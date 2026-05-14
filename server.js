@@ -581,6 +581,32 @@ function roundCurrencyValue(value) {
   return Math.round((Number(value) || 0) * 100) / 100;
 }
 
+function expandCardapioWithPizzas4(cardapio) {
+  if (!Array.isArray(cardapio)) return cardapio;
+  const hasPizzas4 = cardapio.some(item => normalizeAddonText(item.category || item.categoria || '') === 'pizzas-4');
+  if (hasPizzas4) return cardapio;
+
+  const pizzas8 = cardapio.filter(item => normalizeAddonText(item.category || item.categoria || '') === 'pizzas-8');
+  if (pizzas8.length === 0) return cardapio;
+
+  const clones = pizzas8.map(item => {
+    const clone = { ...item };
+    const originalName = String(clone.name || clone.nome || '');
+    const replacedName = originalName.replace(/\s*-\s*8\s*peda[cç]os\b/i, ' - 4 pedaços');
+    const finalName = replacedName.replace(/-\s*8\s*peda[cç]os/gi, ' - 4 pedaços');
+    clone.category = 'pizzas-4';
+    clone.categoria = 'pizzas-4';
+    clone.name = clone.nome = finalName;
+    clone.monteEnabled = false;
+    const price = roundCurrencyValue(parseCurrencyValue(clone.price ?? clone.preco) / 2);
+    clone.price = price;
+    if ('preco' in clone) clone.preco = price;
+    return clone;
+  });
+
+  return [...cardapio, ...clones];
+}
+
 function moneyCloseEnough(a, b) {
   return Math.abs(roundCurrencyValue(a) - roundCurrencyValue(b)) <= 0.01;
 }
@@ -799,7 +825,12 @@ app.post('/api/pedidos', async (req, res) => {
 
       const match = texto.match(/^(.+?)(?:\s*-\s*R\$\s*([\d.,]+))?$/i);
       const nome = (match?.[1] || texto).trim();
-      const addon = addonsMap.get(normalizeAddonText(nome));
+      const normalizedNome = normalizeAddonText(nome);
+      let addon = addonsMap.get(normalizedNome);
+
+      if (!addon) {
+        addon = cardapioMap.get(normalizedNome);
+      }
 
       if (!addon) {
         throw new Error(`${label} inválido: ${nome}`);
@@ -1267,7 +1298,7 @@ app.patch('/api/pedidos/:id', async (req, res) => {
 
 app.get('/api/cardapio', async (req, res) => {
   try {
-    const cardapio = await lerCardapio();
+    const cardapio = expandCardapioWithPizzas4(await lerCardapio());
     res.json({ 
       success: true, 
       cardapio: cardapio 
@@ -1283,7 +1314,7 @@ app.get('/api/cardapio', async (req, res) => {
 
 app.get('/cardapio', async (req, res) => {
   try {
-    const cardapio = await lerCardapio();
+    const cardapio = expandCardapioWithPizzas4(await lerCardapio());
     res.json({
       success: true,
       cardapio
