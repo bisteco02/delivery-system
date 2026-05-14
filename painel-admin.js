@@ -321,6 +321,8 @@ const tabTitles = {
     'tab-pagamentos': '💳 Painel Admin - Formas de pagamento',
     'tab-config': '⚙️ Painel Admin - Configurações',
     'tab-promotions': '🎉 Painel Admin - Promoções',
+    'tab-addons': '🍟 Painel Admin - Adicionais',
+    'tab-molhos': '🍯 Painel Admin - Molhos',
     'tab-monte': '🍕 Painel Admin - Monte sua pizza',
     'tab-impressora': '🖨️ Painel Admin - Impressão de Pedidos',
     'tab-relatorios': '📊 Painel Admin - Relatórios'
@@ -349,6 +351,7 @@ function setTab(tabId, addon = null, index = -1) {
     try {
         if (tabId === 'tab-pedidos') carregarPedidos();
         if (tabId === 'tab-addons') carregarAddons();
+        if (tabId === 'tab-molhos') carregarAddons().then(() => renderizarMolhosList()).catch(err => console.warn('Erro ao carregar molhos:', err));
         if (tabId === 'tab-monte') renderizarMontePizzasList();
         if (tabId === 'tab-itens') renderizarCardapioEdit();
     } catch (e) {
@@ -4134,6 +4137,8 @@ document.getElementById('printer-save-btn')?.addEventListener('click', salvarCon
 // ===== ADICIONAIS MANAGEMENT =====
 let addons = [];
 let editingAddonIndex = -1;
+let addonModalMode = 'addons';
+let molhosFilterCategory = 'all';
 
 async function carregarAddons() {
     try {
@@ -4333,6 +4338,8 @@ function popularCategoriasAdicionais(selectElement, selectedCategory = '') {
 
     const categoriasArray = obterCategoriasGerenciadas();
     const extraAddonsCats = [
+        { key: 'molhos', nome: 'Molhos' },
+        { key: 'extras', nome: 'Extras' },
         { key: 'sabores', nome: 'Sabores (Monte)' },
         { key: 'bolinhos', nome: 'Bolinhos (Monte)' }
     ];
@@ -4369,16 +4376,105 @@ function popularCategoriasAdicionais(selectElement, selectedCategory = '') {
     }
 }
 
-function abrirModalAddon(index = -1) {
+function isMolhoAddon(addon) {
+    const category = (addon.category || '').toString().toLowerCase();
+    const name = (addon.name || '').toString().toLowerCase();
+    return addon.type === 'molho' || /molho|molhos|extra|extras/i.test(category) || /molho|molhos/i.test(name);
+}
+
+function filtrarMolhosCategoria(category) {
+    molhosFilterCategory = category || 'all';
+    renderizarMolhosList();
+}
+
+function renderizarMolhosList() {
+    const container = document.getElementById('molhos-list');
+    const filterSelect = document.getElementById('molhos-filter-select');
+    if (!container) return;
+
+    const molhos = (addons || []).filter(isMolhoAddon);
+    if (!filterSelect) return;
+
+    const categorias = [{ key: 'all', nome: 'Todos' }];
+    const seen = new Set(['all']);
+    const allCategories = obterCategoriasGerenciadas();
+    allCategories.forEach(cat => {
+        if (!seen.has(cat.key)) {
+            categorias.push(cat);
+            seen.add(cat.key);
+        }
+    });
+    categorias.push({ key: 'molhos', nome: 'Molhos' });
+    categorias.push({ key: 'extras', nome: 'Extras' });
+
+    filterSelect.innerHTML = categorias.map(cat =>
+        `<option value="${cat.key}">${cat.nome}</option>`
+    ).join('');
+    filterSelect.value = molhosFilterCategory;
+
+    const filtered = molhos.filter(addon => {
+        if (molhosFilterCategory === 'all') return true;
+        const categoryKey = (addon.category || '').toString().toLowerCase();
+        if (molhosFilterCategory === 'molhos') {
+            return addon.type === 'molho' || /molho|molhos/i.test(categoryKey) || /molho|molhos/i.test((addon.name || '').toString());
+        }
+        if (molhosFilterCategory === 'extras') {
+            return /extra|extras/i.test(categoryKey) || /extra|extras/i.test((addon.name || '').toString());
+        }
+        return categoryKey === molhosFilterCategory;
+    });
+
+    if (filtered.length === 0) {
+        container.innerHTML = '<p class="text-gray-500 text-sm">Nenhum molho cadastrado nessa categoria.</p>';
+        return;
+    }
+
+    container.innerHTML = filtered.map((addon, idx) => {
+        const ativo = addon.ativo !== false;
+        const badge = addon.category ? `<span class="text-xs bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full">${addon.category}</span>` : '<span class="text-xs bg-gray-100 text-gray-700 px-3 py-1 rounded-full">Sem categoria</span>';
+        return `
+            <div class="bg-gradient-to-r from-orange-50 to-white rounded-lg shadow-lg overflow-hidden transition hover:shadow-xl ${!ativo ? 'opacity-60' : ''}">
+                <div class="p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="font-bold text-lg">🍯 ${addon.name || 'Sem nome'}</h4>
+                        ${badge}
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="font-bold text-green-600 text-lg">R$ ${Number(addon.price || 0).toFixed(2).replace('.', ',')}</span>
+                        ${ativo ? '<span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">ATIVO</span>' : '<span class="text-xs bg-red-100 text-red-700 px-2 py-1 rounded">INATIVO</span>'}
+                    </div>
+                </div>
+                <div class="border-t px-3 py-2 bg-gray-50 grid grid-cols-3 gap-2">
+                    <button onclick="abrirModalAddon(${idx}, 'molhos'); event.stopPropagation();" class="bg-blue-600 text-white font-semibold py-2 rounded text-sm flex items-center justify-center gap-2 hover:bg-blue-700 transition">
+                        <i class="fa fa-edit"></i> Editar
+                    </button>
+                    <button onclick="toggleAddonAtivo(${idx}); event.stopPropagation();" class="${ativo ? 'bg-orange-500 hover:bg-orange-600' : 'bg-green-600 hover:bg-green-700'} text-white font-semibold py-2 rounded text-sm flex items-center justify-center gap-2 transition" title="${ativo ? 'Desabilitar' : 'Habilitar'}">
+                        <i class="fa fa-${ativo ? 'eye-slash' : 'eye'}"></i> ${ativo ? 'Desab.' : 'Hab.'}
+                    </button>
+                    <button onclick="deletarAddon(${idx}); event.stopPropagation();" class="bg-red-600 text-white font-semibold py-2 rounded text-sm flex items-center justify-center gap-2 hover:bg-red-700 transition" title="Deletar">
+                        <i class="fa fa-trash"></i> Del.
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function abrirModalAddon(index = -1, mode = 'addons') {
+    addonModalMode = mode;
     editingAddonIndex = index;
     const addon = addons[index] || {};
-    console.log('abrirModalAddon called, index=', index, 'addon=', addon);
+    console.log('abrirModalAddon called, index=', index, 'mode=', mode, 'addon=', addon);
 
     const nameEl = document.getElementById('addon-name');
     const priceEl = document.getElementById('addon-price');
     const categoryEl = document.getElementById('addon-category');
     const activeEl = document.getElementById('addon-active');
     const modalEl = document.getElementById('addon-modal');
+    const modalTitleEl = modalEl?.querySelector('h2');
+    if (modalTitleEl) {
+        modalTitleEl.textContent = mode === 'molhos' ? '🍯 Molho' : '🍟 Adicional';
+    }
 
     // Popular categorias dinamicamente
     popularCategoriasAdicionais(categoryEl, addon.category);
@@ -4507,7 +4603,12 @@ async function salvarAddon() {
     }
     
     const addonData = { name, price, category, ativo };
-    
+    if (addonModalMode === 'molhos') {
+        addonData.type = 'molho';
+    } else if (editingAddonIndex >= 0 && addons[editingAddonIndex]?.type) {
+        addonData.type = addons[editingAddonIndex].type;
+    }
+
     try {
         if (editingAddonIndex >= 0) {
             // Editar existente
@@ -4520,7 +4621,7 @@ async function salvarAddon() {
             });
             const data = await parseJSONResponse(response);
             if (data.success) {
-                addons[editingAddonIndex] = addonData;
+                addons[editingAddonIndex] = { ...addons[editingAddonIndex], ...addonData };
                 mostrarConfirmacao('✅ Sucesso', 'Adicional atualizado!');
                 try { localStorage.setItem('addons-updated', new Date().toISOString()); } catch(e){}
             } else {
@@ -4544,6 +4645,7 @@ async function salvarAddon() {
         }
         
         renderizarAddonsList();
+        renderizarMolhosList();
         fecharModalAddon();
     } catch (error) {
         console.error('Erro ao salvar adicional:', error);
