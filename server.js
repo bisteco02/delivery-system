@@ -708,7 +708,8 @@ function expedienteFechado(agora = new Date(), schedule = null, statusOverride =
 app.post('/api/login', (req, res) => {
   const { usuario, senha } = req.body;
 
-  if (usuario === ADMIN_USUARIO && senha === ADMIN_SENHA) {
+  if (usuario === ADMIN_USUARIO && bcrypt.compareSync(senha, ADMIN_SENHA_HASH)) {
+    req.session.adminLoggedIn = true;
     res.json({
       success: true,
       token: 'token-admin-' + Date.now(),
