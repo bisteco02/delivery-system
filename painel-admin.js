@@ -4670,6 +4670,7 @@ async function toggleAddonAtivo(index) {
         if (data.success) {
             addons[index].ativo = novoStatus;
             renderizarAddonsList();
+            renderizarMolhosList(); // Atualizar também a lista de molhos se estiver na aba
             mostrarConfirmacao('✅ Sucesso', `Adicional ${novoStatus ? 'habilitado' : 'desabilitado'}!`);
             try { localStorage.setItem('addons-updated', new Date().toISOString()); } catch(e){}
         } else {
